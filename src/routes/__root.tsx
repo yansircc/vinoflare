@@ -23,13 +23,6 @@ export const Route = createRootRoute({
             >
               留言列表
             </Link>
-            <Link 
-              to="/quotes/new" 
-              style={{ textDecoration: 'none', color: '#007bff', fontWeight: '500' }}
-              activeProps={{ style: { color: '#0056b3', fontWeight: 'bold' } }}
-            >
-              添加留言
-            </Link>
           </div>
         </nav>
       </div>

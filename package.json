@@ -2,7 +2,7 @@
   "name": "try-hono",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --port 5174",
     "build": "vite build",
     "preview": "$npm_execpath run build && vite preview",
     "deploy": "$npm_execpath run build && wrangler deploy",
@@ -14,6 +14,7 @@
   },
   "dependencies": {
     "@hono/zod-validator": "^0.6.0",
+    "@tailwindcss/vite": "^4.1.7",
     "@tanstack/form-core": "^1.12.0",
     "@tanstack/react-form": "^1.12.0",
     "@tanstack/react-router": "^1.120.11",
@@ -23,6 +24,7 @@
     "hono": "^4.7.10",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
+    "tailwindcss": "^4.1.7",
     "zod": "^3.25.32"
   },
   "devDependencies": {

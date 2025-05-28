@@ -7,3 +7,6 @@ export const quotes = sqliteTable("quotes", {
   message: text("message").notNull(),
   createdAt: integer("created_at", { mode: "timestamp" }).$defaultFn(() => new Date()),
 });
+
+export type Quote = typeof quotes.$inferSelect;
+export type NewQuote = typeof quotes.$inferInsert;
