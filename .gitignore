@@ -32,3 +32,9 @@ lerna-debug.log*
 
 # misc
 .DS_Store
+
+# docs
+/docs/
+
+# cursor
+/.cursor/
