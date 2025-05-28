@@ -1,0 +1,23 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+* 编写简洁、技术性的TypeScript代码，提供准确示例
+* 使用函数式和声明式编程模式；避免class
+* 优先使用迭代和模块化而非代码重复
+* 文件结构：导出组件、子组件、辅助函数、静态内容和类型
+* **任务执行**：使用`bun`代替`npm`管理包和运行任务
+* 目录使用小写字母和连字符（如`components/auth-wizard`）
+* 组件优先使用命名导出
+* 所有代码使用TypeScript；优先使用`interface`而非`type`
+* 避免`enum`；使用映射或对象字面量代替
+* 使用带TypeScript `interface`定义的函数组件
+* 纯函数使用`function`关键字
+* 使用简洁语法
+* 使用声明式JSX，保持标记简洁可读
+* 使用Tailwind CSS实现响应式设计
+* 尽可能减少`use client`、`useEffect`和`setState`；优先使用React服务器组件
+* 如需复杂状态管理，请使用`bun add zustand`
+* 确保代码中的所有注释和说明使用中文
+* 确保使用中文和我交流
