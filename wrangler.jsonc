@@ -2,5 +2,13 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "try-hono",
   "compatibility_date": "2024-04-01",
-  "main": "./src/index.tsx"
+  "main": "./src/index.tsx",
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "try-hono",
+      "database_id": "98d98cb0-4333-4795-b18a-cfeb81da3d3b",
+      "migrations_dir": "drizzle/migrations"
+    }
+  ]
 }
