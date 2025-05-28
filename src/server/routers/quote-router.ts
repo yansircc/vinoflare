@@ -3,19 +3,7 @@ import { eq } from 'drizzle-orm'
 import { Hono } from 'hono'
 import { z } from 'zod'
 import { createDb, quotes } from '../db'
-
-// Zod schemas for validation
-const createQuoteSchema = z.object({
-  name: z.string().min(1, '姓名不能为空'),
-  email: z.string().email('请输入有效的邮箱地址'),
-  message: z.string().min(1, '留言不能为空'),
-})
-
-const updateQuoteSchema = z.object({
-  name: z.string().min(1, '姓名不能为空').optional(),
-  email: z.string().email('请输入有效的邮箱地址').optional(),
-  message: z.string().min(1, '留言不能为空').optional(),
-})
+import { quoteCreateSchema, quoteUpdateSchema } from '../db/types'
 
 const paramsSchema = z.object({
   id: z.string().transform((val) => Number.parseInt(val, 10)),
@@ -36,7 +24,7 @@ export const quotesRouter = new Hono<{ Bindings: CloudflareBindings }>()
   
   // POST /quotes - 创建新留言 (JSON API)
   .post('/', 
-    zValidator('json', createQuoteSchema),
+    zValidator('json', quoteCreateSchema),
     async (c) => {
       const db = createDb(c.env)
       const validatedData = c.req.valid('json')
@@ -97,7 +85,7 @@ export const quotesRouter = new Hono<{ Bindings: CloudflareBindings }>()
   // PUT /quotes/:id - 更新留言
   .put('/:id',
     zValidator('param', paramsSchema),
-    zValidator('json', updateQuoteSchema),
+    zValidator('json', quoteUpdateSchema),
     async (c) => {
       const db = createDb(c.env)
       const { id } = c.req.valid('param')

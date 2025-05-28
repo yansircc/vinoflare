@@ -1,16 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { hc } from 'hono/client'
 import type { AppType } from '../index'
+import type { Quote, QuoteCreate } from '../server/db/types'
 import { clientEnv } from './env'
-
-// 定义 API 响应类型，匹配服务器返回的数据格式
-export interface ApiQuote {
-  id: number
-  name: string
-  email: string
-  message: string
-  createdAt: string | null
-}
 
 // 获取 API 基础 URL
 function getApiBaseUrl(): string {
@@ -43,7 +35,7 @@ export const quotesKeys = {
 
 // API 函数
 const quotesApi = {
-  getAll: async (): Promise<ApiQuote[]> => {
+  getAll: async (): Promise<Quote[]> => {
     const res = await rpcClient.api.quotes.$get()
     if (!res.ok) {
       throw new Error(`Failed to fetch quotes: ${res.status}`)
@@ -52,7 +44,7 @@ const quotesApi = {
     return result.data || []
   },
 
-  getById: async (id: number): Promise<ApiQuote> => {
+  getById: async (id: number): Promise<Quote> => {
     const res = await rpcClient.api.quotes[':id'].$get({
       param: { id: id.toString() }
     })
@@ -63,7 +55,7 @@ const quotesApi = {
     return result.data
   },
 
-  create: async (data: { name: string; email: string; message: string }): Promise<ApiQuote> => {
+  create: async (data: QuoteCreate): Promise<Quote> => {
     const res = await rpcClient.api.quotes.$post({
       json: data
     })
@@ -74,7 +66,7 @@ const quotesApi = {
     return result.data
   },
 
-  update: async ({ id, data }: { id: number; data: Partial<{ name: string; email: string; message: string }> }): Promise<ApiQuote> => {
+  update: async ({ id, data }: { id: number; data: Partial<Quote> }): Promise<Quote> => {
     const res = await rpcClient.api.quotes[':id'].$put({
       param: { id: id.toString() },
       json: data
