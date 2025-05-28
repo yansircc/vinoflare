@@ -1,185 +1,135 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react'
-import { type ApiQuote, quotesApi } from '../lib/rpc-client'
+import { QuoteForm } from '../components/QuoteForm'
+import { type ApiQuote, useDeleteQuote, useQuotes } from '../lib/quotes-api'
 
 export const Route = createFileRoute('/quotes/')({
   component: QuotesList,
-  loader: async (): Promise<ApiQuote[]> => {
-    try {
-      // 使用类型安全的 RPC 客户端
-      const response = await quotesApi.getAll()
-      return response.data || []
-    } catch (error) {
-      console.error('Error fetching quotes via RPC:', error)
-      return []
-    }
-  },
 })
 
 function QuotesList() {
-  const quotes = Route.useLoaderData()
-  const [isCreating, setIsCreating] = useState(false)
   const [showForm, setShowForm] = useState(false)
-  const [newQuote, setNewQuote] = useState({
-    name: '',
-    email: '',
-    message: ''
-  })
 
-  const handleCreateQuote = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsCreating(true)
-
-    try {
-      // 使用类型安全的 RPC 客户端创建留言
-      await quotesApi.create(newQuote)
-      
-      // 重置表单
-      setNewQuote({ name: '', email: '', message: '' })
-      setShowForm(false)
-      
-      // 刷新页面以显示新数据
-      window.location.reload()
-    } catch (error) {
-      console.error('Error creating quote:', error)
-      alert('创建留言失败')
-    } finally {
-      setIsCreating(false)
-    }
-  }
+  // 使用 TanStack Query hooks
+  const { data: quotes = [], isLoading, isError, error } = useQuotes()
+  const deleteQuoteMutation = useDeleteQuote()
 
   const handleDeleteQuote = async (id: number) => {
     if (!confirm('确定要删除这条留言吗？')) return
 
     try {
-      // 使用类型安全的 RPC 客户端删除留言
-      await quotesApi.delete(id.toString())
-      
-      // 刷新页面
-      window.location.reload()
+      await deleteQuoteMutation.mutateAsync(id)
     } catch (error) {
       console.error('Error deleting quote:', error)
-      alert('删除留言失败')
     }
   }
 
+  const handleFormSuccess = () => {
+    setShowForm(false)
+  }
+
+  if (isLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="text-gray-500">加载中...</div>
+      </div>
+    )
+  }
+
+  if (isError) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="text-red-500">
+          加载失败: {error?.message || '未知错误'}
+        </div>
+      </div>
+    )
+  }
+
   return (
-    <div className="mx-auto max-w-4xl p-5">
+    <div className="mx-auto min-h-screen max-w-2xl px-4 py-8">
+      {/* 头部 */}
       <div className="mb-8 flex items-center justify-between">
-        <h1 className="m-0 font-bold text-2xl text-gray-800">留言板</h1>
+        <h1 className="font-light text-2xl text-gray-900">留言板</h1>
         <button
           type="button"
           onClick={() => setShowForm(!showForm)}
-          className={`cursor-pointer rounded-md border-0 px-5 py-2.5 font-medium text-white transition-colors ${
-            showForm ? 'bg-gray-500 hover:bg-gray-600' : 'bg-green-600 hover:bg-green-700'
-          }`}
+          className="rounded-full bg-gray-900 px-4 py-2 text-sm text-white transition-colors hover:bg-gray-700"
         >
-          {showForm ? '取消' : '添加留言'}
+          {showForm ? '取消' : '写留言'}
         </button>
       </div>
 
       {/* 创建留言表单 */}
       {showForm && (
-        <div className="mb-8 rounded-lg bg-gray-50 p-5">
-          <h3 className="mt-0 font-semibold text-gray-800 text-lg">添加新留言</h3>
-          <form onSubmit={handleCreateQuote} className="flex flex-col gap-4">
-            <input
-              type="text"
-              placeholder="姓名"
-              value={newQuote.name}
-              onChange={(e) => setNewQuote(prev => ({ ...prev, name: e.target.value }))}
-              required
-              className="rounded border border-gray-300 p-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-            <input
-              type="email"
-              placeholder="邮箱"
-              value={newQuote.email}
-              onChange={(e) => setNewQuote(prev => ({ ...prev, email: e.target.value }))}
-              required
-              className="rounded border border-gray-300 p-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-            <textarea
-              placeholder="留言内容"
-              value={newQuote.message}
-              onChange={(e) => setNewQuote(prev => ({ ...prev, message: e.target.value }))}
-              required
-              rows={3}
-              className="resize-y rounded border border-gray-300 p-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-            <div className="flex justify-end gap-2.5">
-              <button
-                type="button"
-                onClick={() => setShowForm(false)}
-                className="cursor-pointer rounded-md border-0 bg-gray-500 px-5 py-2.5 text-white transition-colors hover:bg-gray-600"
-              >
-                取消
-              </button>
-              <button
-                type="submit"
-                disabled={isCreating}
-                className={`rounded-md border-0 px-5 py-2.5 text-white transition-colors ${
-                  isCreating 
-                    ? "cursor-not-allowed bg-gray-500" 
-                    : "cursor-pointer bg-blue-600 hover:bg-blue-700"
-                }`}
-              >
-                {isCreating ? '提交中...' : '提交留言'}
-              </button>
-            </div>
-          </form>
+        <div className="mb-8">
+          <QuoteForm 
+            onSuccess={handleFormSuccess}
+            onCancel={() => setShowForm(false)}
+          />
         </div>
       )}
 
       {/* 留言列表 */}
       {quotes.length === 0 ? (
-        <div className="rounded-lg bg-gray-50 px-5 py-15 text-center">
-          <h3 className="mb-4 text-gray-600 text-lg">暂无留言</h3>
-          <p className="mb-5 text-gray-500">成为第一个留言的人吧！</p>
+        <div className="py-16 text-center">
+          <div className="text-gray-400 text-lg">暂无留言</div>
+          <p className="mt-2 text-gray-500 text-sm">成为第一个留言的人吧</p>
           <button
             type="button"
             onClick={() => setShowForm(true)}
-            className="cursor-pointer rounded-md border-0 bg-blue-600 px-6 py-3 font-medium text-white transition-colors hover:bg-blue-700"
+            className="mt-4 rounded-full bg-gray-900 px-6 py-2 text-sm text-white transition-colors hover:bg-gray-700"
           >
-            添加留言
+            写留言
           </button>
         </div>
       ) : (
-        <div className="flex flex-col gap-5">
+        <div className="space-y-6">
           {quotes.map((quote: ApiQuote) => (
             <div 
               key={quote.id} 
-              className="rounded-lg border border-gray-300 bg-white p-5 shadow-sm"
+              className="group border-gray-100 border-b pb-6 last:border-b-0"
             >
-              <div className="mb-4 flex items-start justify-between">
+              <div className="mb-3 flex items-start justify-between">
                 <div>
-                  <h4 className="m-0 mb-1 font-semibold text-gray-800 text-lg">
+                  <h3 className="font-medium text-gray-900">
                     {quote.name}
-                  </h4>
-                  <p className="m-0 text-gray-600 text-sm">
+                  </h3>
+                  <p className="text-gray-500 text-sm">
                     {quote.email}
                   </p>
                 </div>
                 <button 
                   type="button"
-                  className="cursor-pointer rounded border-0 bg-red-600 px-3 py-1.5 text-white text-xs transition-colors hover:bg-red-700"
+                  className="rounded px-2 py-1 text-gray-400 text-xs opacity-0 transition-all hover:bg-gray-100 hover:text-red-600 group-hover:opacity-100"
                   onClick={() => handleDeleteQuote(quote.id)}
+                  disabled={deleteQuoteMutation.isPending}
                 >
                   删除
                 </button>
               </div>
-              <div className="mb-4">
-                <p className="m-0 text-gray-800 leading-relaxed">
+              <div className="mb-3">
+                <p className="text-gray-800 leading-relaxed">
                   {quote.message}
                 </p>
               </div>
-              <div className="text-gray-500 text-xs">
+              <div className="text-gray-400 text-xs">
                 {quote.createdAt ? new Date(quote.createdAt).toLocaleString('zh-CN') : '未知时间'}
               </div>
             </div>
           ))}
         </div>
       )}
+
+      {/* 返回首页 */}
+      <div className="mt-12 text-center">
+        <Link 
+          to="/"
+          className="text-gray-500 text-sm transition-colors hover:text-gray-900"
+        >
+          ← 返回首页
+        </Link>
+      </div>
     </div>
   )
 } 

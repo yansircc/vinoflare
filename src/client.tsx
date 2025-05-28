@@ -1,7 +1,10 @@
+import { QueryClientProvider } from '@tanstack/react-query'
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { RouterProvider, createRouter } from '@tanstack/react-router'
-import React, { StrictMode } from 'react'
+import React, { StrictMode, useState } from 'react'
 import { createRoot } from 'react-dom/client'
 
+import { createQueryClient } from './lib/query-client'
 // Import the generated route tree
 import { routeTree } from './routeTree.gen'
 
@@ -15,6 +18,18 @@ declare module '@tanstack/react-router' {
   }
 }
 
+function App() {
+  // 使用 useState 确保 QueryClient 实例在组件生命周期内保持稳定
+  const [queryClient] = useState(() => createQueryClient())
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <RouterProvider router={router} />
+      <ReactQueryDevtools initialIsOpen={false} />
+    </QueryClientProvider>
+  )
+}
+
 // Render the app
 const rootElement = document.getElementById('root')!
 if (!rootElement.innerHTML) {
@@ -23,7 +38,7 @@ if (!rootElement.innerHTML) {
     React.createElement(
       StrictMode,
       null,
-      React.createElement(RouterProvider, { router })
+      React.createElement(App)
     )
   )
 } 
