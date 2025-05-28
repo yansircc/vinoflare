@@ -3,6 +3,10 @@
   "name": "try-hono",
   "compatibility_date": "2024-04-01",
   "main": "./src/index.tsx",
+  "assets": {
+    "directory": "./dist/client",
+    "binding": "ASSETS"
+  },
   "d1_databases": [
     {
       "binding": "DB",

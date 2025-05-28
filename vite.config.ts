@@ -4,12 +4,30 @@ import { TanStackRouterVite } from '@tanstack/router-plugin/vite'
 import { defineConfig } from 'vite'
 import ssrPlugin from 'vite-ssr-components/plugin'
 
-export default defineConfig({
-  plugins: [
-    // TanStack Router plugin must be first
-    TanStackRouterVite({ target: 'react', autoCodeSplitting: true }),
-    cloudflare(), 
-    ssrPlugin(),
-    tailwindcss()
-  ]
+export default defineConfig(({ mode }) => {
+  if (mode === 'client') {
+    return {
+      plugins: [
+        TanStackRouterVite({ target: 'react', autoCodeSplitting: true }),
+        tailwindcss()
+      ],
+      build: {
+        rollupOptions: {
+          input: './src/client.tsx',
+          output: {
+            entryFileNames: 'static/client.js',
+          },
+        },
+      },
+    }
+  } else {
+    return {
+      plugins: [
+        TanStackRouterVite({ target: 'react', autoCodeSplitting: true }),
+        cloudflare(), 
+        ssrPlugin(),
+        tailwindcss()
+      ]
+    }
+  }
 })

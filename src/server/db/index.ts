@@ -1,11 +1,7 @@
 import { drizzle } from "drizzle-orm/d1"
 import { quotes } from "./schema"
 
-export interface Env {
-  DB: D1Database;
-}
-
-export function createDb(env: Env) {
+export function createDb(env: CloudflareBindings) {
   return drizzle(env.DB);
 }
 

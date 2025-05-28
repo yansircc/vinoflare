@@ -2,7 +2,7 @@ import { zValidator } from '@hono/zod-validator'
 import { eq } from 'drizzle-orm'
 import { Hono } from 'hono'
 import { z } from 'zod'
-import { type Env, createDb, quotes } from '../db'
+import { createDb, quotes } from '../db'
 
 // Zod schemas for validation
 const createQuoteSchema = z.object({
@@ -22,7 +22,7 @@ const paramsSchema = z.object({
 })
 
 // Create the quotes router
-export const quotesRouter = new Hono<{ Bindings: Env }>()
+export const quotesRouter = new Hono<{ Bindings: CloudflareBindings }>()
   // GET /quotes - 获取所有留言
   .get('/', async (c) => {
     const db = createDb(c.env)

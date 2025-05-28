@@ -16,7 +16,8 @@
     "esModuleInterop": true
   },
   "include": [
-    "src/**/*"
+    "src/**/*",
+    "worker-configuration.d.ts"
   ],
   "exclude": [
     "node_modules",

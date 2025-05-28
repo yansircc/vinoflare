@@ -2,13 +2,12 @@
 import { zValidator } from '@hono/zod-validator'
 import { Hono } from 'hono'
 import { z } from 'zod'
-import { env } from './lib/env'
+import { getEnv } from './lib/env'
 import { renderer } from './renderer'
-import type { Env } from './server/db'
 import { createDb, quotes } from './server/db'
 import { quotesRouter } from './server/routers/quote-router'
 
-const app = new Hono<{ Bindings: Env }>()
+const app = new Hono<{ Bindings: CloudflareBindings }>()
 
 app.use(renderer)
 
@@ -24,9 +23,11 @@ const routes = app.route('/api/quotes', quotesRouter)
 
 // 添加环境信息端点，用于调试
 app.get('/api/env', (c) => {
+  const env = getEnv(c.env)
   return c.json({
     app_url: env.APP_URL,
     node_env: env.NODE_ENV,
+    vite_api_url: env.VITE_API_URL,
     // 不要暴露敏感信息，这里只是为了演示
     timestamp: new Date().toISOString(),
   })
@@ -38,6 +39,7 @@ app.post('/submit-quote',
   async (c) => {
     const db = createDb(c.env)
     const validatedData = c.req.valid('form')
+    const env = getEnv(c.env)
     
     try {
       await db.insert(quotes).values({
@@ -56,8 +58,23 @@ app.post('/submit-quote',
   }
 )
 
-// Serve the TanStack Router app for all OTHER routes (this must be LAST)
+// 处理静态资源请求
 app.get('*', async (c) => {
+  const url = new URL(c.req.url)
+  
+  // 如果是静态资源请求，尝试从 ASSETS 获取
+  if (url.pathname.startsWith('/assets/') || 
+      url.pathname.startsWith('/src/') || 
+      url.pathname === '/favicon.ico') {
+    try {
+      return await c.env.ASSETS.fetch(c.req.raw)
+    } catch (error) {
+      console.error('Error fetching asset:', error)
+      // 如果资源不存在，继续到下面的 SPA 处理
+    }
+  }
+  
+  // 对于其他所有路由，返回 SPA 的 HTML
   return c.render(
     <div id="root">
       {/* TanStack Router will be mounted here on the client side */}

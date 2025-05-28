@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { hc } from 'hono/client'
 import type { AppType } from '../index'
-import { clientEnv } from './env-client'
+import { clientEnv } from './env'
 
 // 定义 API 响应类型，匹配服务器返回的数据格式
 export interface ApiQuote {
