@@ -2,6 +2,7 @@
 import { zValidator } from '@hono/zod-validator'
 import { Hono } from 'hono'
 import { z } from 'zod'
+import { env } from './lib/env'
 import { renderer } from './renderer'
 import type { Env } from './server/db'
 import { createDb, quotes } from './server/db'
@@ -21,6 +22,16 @@ const formSchema = z.object({
 // Mount the quotes router for API access FIRST
 const routes = app.route('/api/quotes', quotesRouter)
 
+// 添加环境信息端点，用于调试
+app.get('/api/env', (c) => {
+  return c.json({
+    app_url: env.APP_URL,
+    node_env: env.NODE_ENV,
+    // 不要暴露敏感信息，这里只是为了演示
+    timestamp: new Date().toISOString(),
+  })
+})
+
 // Handle form submission
 app.post('/submit-quote', 
   zValidator('form', formSchema),
@@ -35,12 +46,12 @@ app.post('/submit-quote',
         message: validatedData.message,
       })
       
-      // Redirect back to home page after successful submission
-      return c.redirect('/')
+      // 使用环境变量中的 APP_URL 进行重定向
+      return c.redirect(env.APP_URL)
     } catch (error) {
       // In a real app, you'd want to show the error to the user
       console.error('Error creating quote:', error)
-      return c.redirect('/')
+      return c.redirect(env.APP_URL)
     }
   }
 )

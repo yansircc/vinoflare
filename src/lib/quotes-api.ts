@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { hc } from 'hono/client'
 import type { AppType } from '../index'
+import { clientEnv } from './env-client'
 
 // 定义 API 响应类型，匹配服务器返回的数据格式
 export interface ApiQuote {
@@ -11,12 +12,22 @@ export interface ApiQuote {
   createdAt: string | null
 }
 
+// 获取 API 基础 URL
+function getApiBaseUrl(): string {
+  // 在客户端，优先使用配置的 VITE_API_URL
+  if (typeof window !== 'undefined') {
+    return clientEnv.VITE_API_URL || window.location.origin
+  }
+  
+  // 在服务器端（SSR），使用默认的本地开发地址
+  return 'http://localhost:5174'
+}
+
 // 创建类型安全的 Hono RPC 客户端
-function createRpcClient(baseUrl = '') {
-  const url = typeof window === 'undefined' 
-    ? `http://localhost:5174${baseUrl}` 
-    : baseUrl
-  return hc<AppType>(url)
+function createRpcClient() {
+  const baseUrl = getApiBaseUrl()
+  console.log('🔗 API Base URL:', baseUrl) // 调试信息
+  return hc<AppType>(baseUrl)
 }
 
 const rpcClient = createRpcClient()

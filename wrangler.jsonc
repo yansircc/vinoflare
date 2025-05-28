@@ -10,5 +10,10 @@
       "database_id": "98d98cb0-4333-4795-b18a-cfeb81da3d3b",
       "migrations_dir": "drizzle/migrations"
     }
-  ]
+  ],
+  "vars": {
+    "APP_URL": "https://try-hono.yansir.workers.dev",
+    "NODE_ENV": "production",
+    "VITE_API_URL": "https://try-hono.yansir.workers.dev/api"
+  }
 }
