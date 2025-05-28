@@ -10,7 +10,7 @@ const paramsSchema = z.object({
 })
 
 // Create the quotes router
-export const quotesRouter = new Hono<{ Bindings: CloudflareBindings }>()
+export const quotesRouter = new Hono<{ Bindings: Env }>()
   // GET /quotes - 获取所有留言
   .get('/', async (c) => {
     const db = createDb(c.env)

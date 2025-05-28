@@ -13,15 +13,47 @@ const envSchema = z.object({
 });
 
 /**
+ * 安全地获取 process.env（仅在 Node.js 环境中可用）
+ */
+function getProcessEnv(key: string): string | undefined {
+  try {
+    return typeof (globalThis as any).process !== "undefined" && (globalThis as any).process.env 
+      ? (globalThis as any).process.env[key] 
+      : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+/**
+ * 安全地检查是否为开发环境
+ */
+export function isDev(): boolean {
+  try {
+    // 检查 import.meta.env
+    if (typeof import.meta !== "undefined" && import.meta.env) {
+      return import.meta.env.DEV === true || import.meta.env.NODE_ENV === "development";
+    }
+    
+    // 检查 process.env
+    const nodeEnv = getProcessEnv("NODE_ENV");
+    return nodeEnv === "development";
+  } catch {
+    // 在 Cloudflare Workers 中，默认为生产环境
+    return false;
+  }
+}
+
+/**
  * 获取环境变量
  * 在 Cloudflare Workers 中，环境变量通过 env 对象传递
  */
 export function getEnv(workerEnv?: any) {
   // 在 Cloudflare Workers 中，环境变量通过 env 参数传递
   const rawEnv = workerEnv || {
-    APP_URL: process.env.APP_URL || "http://localhost:5174",
-    NODE_ENV: process.env.NODE_ENV || "development",
-    VITE_API_URL: process.env.VITE_API_URL,
+    APP_URL: getProcessEnv("APP_URL") || "http://localhost:5174",
+    NODE_ENV: getProcessEnv("NODE_ENV") || "development",
+    VITE_API_URL: getProcessEnv("VITE_API_URL"),
   };
 
   try {
@@ -44,8 +76,8 @@ export function getEnv(workerEnv?: any) {
  */
 export const clientEnv = {
   VITE_API_URL: typeof window !== "undefined" 
-    ? (window as any).__ENV__?.VITE_API_URL || import.meta.env?.VITE_API_URL
-    : process.env.VITE_API_URL,
+    ? (window as any).__ENV__?.VITE_API_URL || (typeof import.meta !== "undefined" && import.meta.env?.VITE_API_URL)
+    : getProcessEnv("VITE_API_URL"),
 };
 
 /**

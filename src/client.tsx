@@ -4,6 +4,10 @@ import { RouterProvider, createRouter } from '@tanstack/react-router'
 import React, { StrictMode, useState } from 'react'
 import { createRoot } from 'react-dom/client'
 
+// 导入 CSS 文件
+import './app.css'
+
+import { isDev } from './lib/env'
 import { createQueryClient } from './lib/query-client'
 // Import the generated route tree
 import { routeTree } from './routeTree.gen'
@@ -25,7 +29,7 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <RouterProvider router={router} />
-      {import.meta.env.DEV && <ReactQueryDevtools initialIsOpen={false} />}
+      {isDev() && <ReactQueryDevtools initialIsOpen={false} />}
     </QueryClientProvider>
   )
 }

@@ -14,10 +14,17 @@ export default defineConfig(({ mode }) => {
       build: {
         outDir: 'dist/client',
         emptyOutDir: false,
+        manifest: true,
         rollupOptions: {
           input: './src/client.tsx',
           output: {
             entryFileNames: 'static/client.js',
+            assetFileNames: (assetInfo) => {
+              if (assetInfo.name?.endsWith('.css')) {
+                return 'assets/client.css'
+              }
+              return 'assets/[name]-[hash][extname]'
+            },
           },
         },
       },

@@ -7,7 +7,7 @@ import { renderer } from './renderer'
 import { createDb, quotes } from './server/db'
 import { quotesRouter } from './server/routers/quote-router'
 
-const app = new Hono<{ Bindings: CloudflareBindings }>()
+const app = new Hono<{ Bindings: Env }>()
 
 app.use(renderer)
 
