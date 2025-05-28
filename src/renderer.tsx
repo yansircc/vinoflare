@@ -2,9 +2,9 @@
 import { jsxRenderer } from 'hono/jsx-renderer'
 import { Link, ViteClient } from 'vite-ssr-components/hono'
 
-export const renderer = jsxRenderer(({ children }) => {
-  // 检测是否为开发环境
-  const isDev = process.env.NODE_ENV === 'development'
+export const renderer = jsxRenderer(({ children }, c) => {
+  // 在 Cloudflare Workers 中检测环境
+  const isDev = c?.env?.NODE_ENV === 'development'
   
   return (
     <html lang="zh-CN">
@@ -20,7 +20,7 @@ export const renderer = jsxRenderer(({ children }) => {
         {isDev ? (
           <script type="module" src="/src/client.tsx" />
         ) : (
-          <script type="module" src="/static/client.js" />
+          <script type="module" src="/client.js" />
         )}
       </body>
     </html>

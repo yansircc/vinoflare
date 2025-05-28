@@ -12,6 +12,8 @@ export default defineConfig(({ mode }) => {
         tailwindcss()
       ],
       build: {
+        outDir: 'dist/client',
+        emptyOutDir: false,
         rollupOptions: {
           input: './src/client.tsx',
           output: {

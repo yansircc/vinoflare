@@ -65,6 +65,7 @@ app.get('*', async (c) => {
   // 如果是静态资源请求，尝试从 ASSETS 获取
   if (url.pathname.startsWith('/assets/') || 
       url.pathname.startsWith('/src/') || 
+      url.pathname.startsWith('/static/') ||
       url.pathname === '/favicon.ico') {
     try {
       return await c.env.ASSETS.fetch(c.req.raw)
