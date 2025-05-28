@@ -1,7 +1,7 @@
+/** @jsxImportSource hono/jsx */
 import { zValidator } from '@hono/zod-validator'
 import { Hono } from 'hono'
 import { z } from 'zod'
-import { QuoteForm } from './components/QuoteForm'
 import { renderer } from './renderer'
 import type { Env } from './server/db'
 import { createDb, quotes } from './server/db'
@@ -18,40 +18,8 @@ const formSchema = z.object({
   message: z.string().min(1, '留言不能为空'),
 })
 
-app.get('/', async (c) => {
-  const db = createDb(c.env)
-  const allQuotes = await db.select().from(quotes).orderBy(quotes.createdAt)
-  
-  return c.render(
-    <div>
-      <h1>Hello! 欢迎使用留言板系统</h1>
-      <QuoteForm />
-      
-      <div style="max-width: 500px; margin: 40px auto; padding: 20px;">
-        <h2>所有留言</h2>
-        {allQuotes.length === 0 ? (
-          <p>暂无留言</p>
-        ) : (
-          <div style="display: flex; flex-direction: column; gap: 20px;">
-            {allQuotes.map((quote) => (
-              <div key={quote.id} style="border: 1px solid #ddd; padding: 15px; border-radius: 8px; background-color: #f9f9f9;">
-                <div style="margin-bottom: 10px;">
-                  <strong>{quote.name}</strong> ({quote.email})
-                </div>
-                <div style="margin-bottom: 10px;">
-                  {quote.message}
-                </div>
-                <div style="font-size: 12px; color: #666;">
-                  {quote.createdAt ? new Date(quote.createdAt).toLocaleString('zh-CN') : '未知时间'}
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-    </div>
-  )
-})
+// Mount the quotes router for API access FIRST
+const routes = app.route('/api/quotes', quotesRouter)
 
 // Handle form submission
 app.post('/submit-quote', 
@@ -77,8 +45,14 @@ app.post('/submit-quote',
   }
 )
 
-// Mount the quotes router for API access
-const routes = app.route('/api/quotes', quotesRouter)
+// Serve the TanStack Router app for all OTHER routes (this must be LAST)
+app.get('*', async (c) => {
+  return c.render(
+    <div id="root">
+      {/* TanStack Router will be mounted here on the client side */}
+    </div>
+  )
+})
 
 // Export the app type for RPC client
 export type AppType = typeof routes
