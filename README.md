@@ -1,6 +1,10 @@
-# Hono 全栈开发模板
+# Vinoflare - Hono 全栈开发模板
 
 一个现代化、类型安全的全栈应用开发模板，使用**标准 Hono 模式**和 RPC 实现无缝开发体验。
+
+## Vinoflare是什么意思？
+Vinoflare = vite + hono + cloudflare，是一个全栈开发模板，可以无缝获取 cloudflare 全家桶能力，同时又可以一键直接部署到 cloudflare workers 上。
+另外，这套模板天生就是为了实现类型安全，同时还内置了 tanstack form，使得开发会变成一种享受。
 
 ## 特性
 
