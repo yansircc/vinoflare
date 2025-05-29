@@ -1,13 +1,25 @@
 import { defineConfig } from 'drizzle-kit';
+import type { Config } from 'drizzle-kit';
 
-export default defineConfig({
-  out: './drizzle/migrations',
-  schema: './src/server/db/schema.ts',
-  dialect: 'sqlite',
-  driver: 'd1-http',
-  dbCredentials: {
-    accountId: process.env.CLOUDFLARE_ACCOUNT_ID!,
-    databaseId: process.env.CLOUDFLARE_DATABASE_ID!,
-    token: process.env.CLOUDFLARE_D1_TOKEN!,
-  },
-}); 
+const { LOCAL_DB_PATH, CLOUDFLARE_DATABASE_ID, CLOUDFLARE_D1_TOKEN, CLOUDFLARE_ACCOUNT_ID } = process.env;
+
+// Use better-sqlite driver for local development
+export default LOCAL_DB_PATH
+  ? ({
+      schema: './src/server/db/schema.ts',
+      dialect: 'sqlite',
+      dbCredentials: {
+        url: LOCAL_DB_PATH,
+      },
+    } satisfies Config)
+  : defineConfig({
+      out: './drizzle/migrations',
+      schema: './src/server/db/schema.ts',
+      dialect: 'sqlite',
+      driver: 'd1-http',
+      dbCredentials: {
+        accountId: CLOUDFLARE_ACCOUNT_ID!,
+        databaseId: CLOUDFLARE_DATABASE_ID!,
+        token: CLOUDFLARE_D1_TOKEN!,
+      },
+    });
