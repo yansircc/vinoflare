@@ -15,9 +15,6 @@ export function createApiClient(baseUrl?: string) {
   })
 }
 
-// 类型安全的 API 客户端实例
-export const hono = createApiClient()
-
 // 常见 API 模式的辅助函数
 export const apiHelpers = {
   // 设置认证令牌
@@ -46,7 +43,28 @@ export const apiHelpers = {
     }
     return headers
   },
+
+  // 创建带认证的客户端实例
+  createAuthClient() {
+    const token = localStorage.getItem('auth-token')
+    const url = typeof window !== 'undefined' ? window.location.origin : 'http://localhost:5173'
+    
+    console.log('🔧 创建带认证的客户端，token:', token)
+    
+    return hc<AppType>(url, {
+      init: {
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+      },
+    })
+  },
 }
+
+export const client = createApiClient() 
+export const authClient = apiHelpers.createAuthClient()
 
 // 导出类型以在组件中使用
 export type ApiClient = ReturnType<typeof createApiClient> 

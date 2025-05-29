@@ -2,17 +2,17 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import type { InferRequestType, InferResponseType } from 'hono/client'
 import { toast } from 'sonner'
 import { catchError } from '../utils/catchError'
-import { apiHelpers, hono } from './api-client'
+import { authClient, client } from './api-client'
 import { createQueryKeys } from './api-factory'
 
 // 从 Hono RPC 推断类型，更加类型安全
-type GetQuotesResponse = InferResponseType<typeof hono.api.quotes.$get>['data']
-type GetQuoteResponse = InferResponseType<(typeof hono.api.quotes)[':id']['$get']>['data']  
-type CreateQuoteRequest = InferRequestType<typeof hono.api.quotes.$post>['json']
-type CreateQuoteResponse = InferResponseType<typeof hono.api.quotes.$post>
-type UpdateQuoteRequest = InferRequestType<(typeof hono.api.quotes)[':id']['$put']>['json']
-type UpdateQuoteResponse = InferResponseType<(typeof hono.api.quotes)[':id']['$put']>
-type DeleteQuoteResponse = InferResponseType<(typeof hono.api.quotes)[':id']['$delete']>
+type GetQuotesResponse = InferResponseType<typeof client.api.quotes.$get>['data']
+type GetQuoteResponse = InferResponseType<(typeof client.api.quotes)[':id']['$get']>['data']  
+type CreateQuoteRequest = InferRequestType<typeof client.api.quotes.$post>['json']
+type CreateQuoteResponse = InferResponseType<typeof client.api.quotes.$post>
+type UpdateQuoteRequest = InferRequestType<(typeof client.api.quotes)[':id']['$put']>['json']
+type UpdateQuoteResponse = InferResponseType<(typeof client.api.quotes)[':id']['$put']>
+type DeleteQuoteResponse = InferResponseType<(typeof client.api.quotes)[':id']['$delete']>
 
 // 创建 Query Keys
 const quotesKeys = createQueryKeys('quotes')
@@ -25,7 +25,8 @@ export const useQuotes = () => {
     queryKey: quotesKeys.all,
     queryFn: async (): Promise<GetQuotesResponse> => {
       const { data: result } = await catchError(async () => {
-        return (await hono.api.quotes.$get()).json()
+        const res = await client.api.quotes.$get()
+        return res.json()
       }, {
         onError: (err) => {
           console.error('获取留言失败', err)
@@ -46,9 +47,11 @@ export const useQuote = (id: string | number) => {
     queryKey: quotesKeys.detail(id),
       queryFn: async (): Promise<GetQuoteResponse> => {
       const { data: result, error } = await catchError(async () => {
-        return (await hono.api.quotes[':id'].$get({
+
+        const res = await authClient.api.quotes[':id'].$get({
           param: { id: id.toString() }
-        })).json()
+        })
+        return res.json()
       })
       if (error || !result) {
         throw new Error('获取留言失败')
@@ -66,7 +69,8 @@ export const useCreateQuote = () => {
   return useMutation<CreateQuoteResponse, Error, CreateQuoteRequest>({
     mutationFn: async (newQuote) => {
       const { data: result, error } = await catchError(async () => {
-        return (await hono.api.quotes.$post({ json: newQuote })).json()
+        const res = await authClient.api.quotes.$post({ json: newQuote })
+        return res.json()
       })
       if (error || !result) {
         throw new Error('创建留言失败')
@@ -82,7 +86,6 @@ export const useCreateQuote = () => {
     },
   })
 }
-
 // 更新留言
 export const useUpdateQuote = () => {
   const queryClient = useQueryClient()
@@ -94,10 +97,11 @@ export const useUpdateQuote = () => {
   >({
     mutationFn: async ({ id, data }) => {
       const { data: result, error } = await catchError(async () => {
-        return (await hono.api.quotes[':id'].$put({
+        const res = await authClient.api.quotes[':id'].$put({
           param: { id: id.toString() },
           json: data
-        })).json()
+          })
+        return res.json()
       })
       if (error || !result) {
         throw new Error('更新留言失败')
@@ -126,9 +130,10 @@ export const useDeleteQuote = () => {
   return useMutation<DeleteQuoteResponse, Error, string | number>({
     mutationFn: async (id) => {
       const { data: result, error } = await catchError(async () => {
-        return (await hono.api.quotes[':id'].$delete({
-          param: { id: id.toString() }
-        })).json()
+        const res = await authClient.api.quotes[':id'].$delete({
+          param: { id: id.toString() },
+        })
+        return res.json()
       })
       if (error || !result) {
         throw new Error('删除留言失败')
