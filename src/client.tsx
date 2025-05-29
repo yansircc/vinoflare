@@ -7,15 +7,16 @@ import { createRoot } from 'react-dom/client'
 // 导入 CSS 文件
 import './app.css'
 
+import { Toaster } from 'sonner'
 import { isDev } from './lib/env'
 import { createQueryClient } from './lib/query-client'
-// Import the generated route tree
+// 导入生成的路由树
 import { routeTree } from './routeTree.gen'
 
-// Create a new router instance
+// 创建新的路由器实例
 const router = createRouter({ routeTree })
 
-// Register the router instance for type safety
+// 注册路由器实例以确保类型安全
 declare module '@tanstack/react-router' {
   interface Register {
     router: typeof router
@@ -29,12 +30,19 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <RouterProvider router={router} />
+      <Toaster
+					className="z-50"
+					duration={2000}
+					theme="dark"
+					richColors
+					position="top-center"
+				/>
       {isDev() && <ReactQueryDevtools initialIsOpen={false} />}
     </QueryClientProvider>
   )
 }
 
-// Render the app
+// 渲染应用
 const rootElement = document.getElementById('root')!
 if (!rootElement.innerHTML) {
   const root = createRoot(rootElement)

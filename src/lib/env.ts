@@ -79,8 +79,3 @@ export const clientEnv = {
     ? (window as any).__ENV__?.VITE_API_URL || (typeof import.meta !== "undefined" && import.meta.env?.VITE_API_URL)
     : getProcessEnv("VITE_API_URL"),
 };
-
-/**
- * 类型定义
- */
-export type EnvType = z.infer<typeof envSchema>; 

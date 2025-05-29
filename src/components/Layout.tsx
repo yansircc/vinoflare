@@ -1,6 +1,4 @@
 import { Link, Outlet } from '@tanstack/react-router'
-import { TanStackRouterDevtools } from '@tanstack/router-devtools'
-import { isDev } from '../lib/env'
 
 export function Layout() {
   return (
@@ -60,9 +58,6 @@ export function Layout() {
           </div>
         </div>
       </footer>
-
-      {/* 开发工具 */}
-      {isDev() && <TanStackRouterDevtools />}
     </div>
-  )
-} 
+  );
+}

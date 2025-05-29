@@ -1,149 +1,79 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { hc } from 'hono/client'
 import type { AppType } from '../index'
-import type { Quote, QuoteCreate } from '../server/db/types'
-import { clientEnv } from './env'
+import type { QuoteCreate, QuoteSlect } from '../server/db/types'
+import { createCrudHooks, getApiBaseUrl } from './api-factory'
 
-// 获取 API 基础 URL
-function getApiBaseUrl(): string {
-  // 在客户端，优先使用配置的 VITE_API_URL
-  if (typeof window !== 'undefined') {
-    return clientEnv.VITE_API_URL || window.location.origin
-  }
-  
-  // 在服务器端（SSR），使用默认的本地开发地址
-  return 'http://localhost:5174'
-}
-
-// 创建类型安全的 Hono RPC 客户端
-function createRpcClient() {
-  const baseUrl = getApiBaseUrl()
-  console.log('🔗 API Base URL:', baseUrl) // 调试信息
-  return hc<AppType>(baseUrl)
-}
-
-const rpcClient = createRpcClient()
-
-// Query Keys
-export const quotesKeys = {
-  all: ['quotes'] as const,
-  lists: () => [...quotesKeys.all, 'list'] as const,
-  list: (filters: string) => [...quotesKeys.lists(), { filters }] as const,
-  details: () => [...quotesKeys.all, 'detail'] as const,
-  detail: (id: number) => [...quotesKeys.details(), id] as const,
-}
+// 创建类型安全的 RPC 客户端
+const rpcClient = hc<AppType>(getApiBaseUrl()) as any
 
 // API 函数
 const quotesApi = {
-  getAll: async (): Promise<Quote[]> => {
+  getAll: async (): Promise<QuoteSlect[]> => {
     const res = await rpcClient.api.quotes.$get()
     if (!res.ok) {
-      throw new Error(`Failed to fetch quotes: ${res.status}`)
+      throw new Error(`获取留言失败: ${res.status}`)
     }
     const result = await res.json()
     return result.data || []
   },
 
-  getById: async (id: number): Promise<Quote> => {
+  getById: async (id: string | number): Promise<QuoteSlect> => {
     const res = await rpcClient.api.quotes[':id'].$get({
       param: { id: id.toString() }
     })
     if (!res.ok) {
-      throw new Error(`Failed to fetch quote: ${res.status}`)
+      throw new Error(`获取留言失败: ${res.status}`)
     }
     const result = await res.json()
     return result.data
   },
 
-  create: async (data: QuoteCreate): Promise<Quote> => {
+  create: async (data: QuoteCreate): Promise<QuoteSlect> => {
     const res = await rpcClient.api.quotes.$post({
       json: data
     })
     if (!res.ok) {
-      throw new Error(`Failed to create quote: ${res.status}`)
+      throw new Error(`创建留言失败: ${res.status}`)
     }
     const result = await res.json()
     return result.data
   },
 
-  update: async ({ id, data }: { id: number; data: Partial<Quote> }): Promise<Quote> => {
+  update: async ({ id, data }: { id: string | number; data: Partial<QuoteSlect> }): Promise<QuoteSlect> => {
     const res = await rpcClient.api.quotes[':id'].$put({
       param: { id: id.toString() },
       json: data
     })
     if (!res.ok) {
-      throw new Error(`Failed to update quote: ${res.status}`)
+      throw new Error(`更新留言失败: ${res.status}`)
     }
     const result = await res.json()
     return result.data
   },
 
-  delete: async (id: number): Promise<void> => {
+  delete: async (id: string | number): Promise<void> => {
     const res = await rpcClient.api.quotes[':id'].$delete({
       param: { id: id.toString() }
     })
     if (!res.ok) {
-      throw new Error(`Failed to delete quote: ${res.status}`)
+      throw new Error(`删除留言失败: ${res.status}`)
     }
   }
 }
 
-// React Query Hooks
+// 使用工厂创建 CRUD hooks
+const quotesHooks = createCrudHooks<QuoteSlect, QuoteCreate>({
+  resource: 'quotes',
+  api: quotesApi,
+  getId: (quote) => quote.id,
+})
 
-// 获取所有留言
-export function useQuotes() {
-  return useQuery({
-    queryKey: quotesKeys.lists(),
-    queryFn: quotesApi.getAll,
-  })
-}
-
-// 获取单个留言
-export function useQuote(id: number) {
-  return useQuery({
-    queryKey: quotesKeys.detail(id),
-    queryFn: () => quotesApi.getById(id),
-    enabled: !!id,
-  })
-}
-
-// 创建留言
-export function useCreateQuote() {
-  const queryClient = useQueryClient()
-  
-  return useMutation({
-    mutationFn: quotesApi.create,
-    onSuccess: () => {
-      // 使新的留言列表失效，触发重新获取
-      queryClient.invalidateQueries({ queryKey: quotesKeys.lists() })
-    },
-  })
-}
-
-// 更新留言
-export function useUpdateQuote() {
-  const queryClient = useQueryClient()
-  
-  return useMutation({
-    mutationFn: quotesApi.update,
-    onSuccess: (data) => {
-      // 更新缓存中的留言列表
-      queryClient.invalidateQueries({ queryKey: quotesKeys.lists() })
-      // 更新单个留言的缓存
-      queryClient.setQueryData(quotesKeys.detail(data.id), data)
-    },
-  })
-}
-
-// 删除留言
-export function useDeleteQuote() {
-  const queryClient = useQueryClient()
-  
-  return useMutation({
-    mutationFn: quotesApi.delete,
-    onSuccess: () => {
-      // 使留言列表失效，触发重新获取
-      queryClient.invalidateQueries({ queryKey: quotesKeys.lists() })
-    },
-  })
-} 
+// 导出 hooks
+export const {
+  queryKeys: quotesKeys,
+  useList: useQuotes,
+  useItem: useQuote,
+  useCreate: useCreateQuote,
+  useUpdate: useUpdateQuote,
+  useDelete: useDeleteQuote,
+} = quotesHooks

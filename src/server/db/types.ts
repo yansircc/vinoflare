@@ -5,9 +5,15 @@ export const quoteCreateSchema = createInsertSchema(quotes);
 export const quoteSelectSchema = createSelectSchema(quotes);
 export const quoteUpdateSchema = createUpdateSchema(quotes);
 
-export type QuoteCreateSchema = typeof quoteCreateSchema;
-export type QuoteSelectSchema = typeof quoteSelectSchema;
-export type QuoteUpdateSchema = typeof quoteUpdateSchema;
-
-export type Quote = typeof quotes.$inferSelect;
+export type QuoteSlect = typeof quotes.$inferSelect;
 export type QuoteCreate = typeof quotes.$inferInsert;
+export type QuoteUpdate = Partial<typeof quotes.$inferSelect>;
+
+// 用于身份验证的用户类型
+export type User = {
+  id: number
+  name: string
+  email: string
+  createdAt: Date
+  updatedAt: Date
+}

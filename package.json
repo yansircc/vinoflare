@@ -10,9 +10,11 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:studio": "drizzle-kit studio",
-    "db:push": "drizzle-kit push"
+    "db:push": "drizzle-kit push",
+    "find:deadcode": "ts-prune"
   },
   "dependencies": {
+    "@hono/trpc-server": "^0.3.4",
     "@hono/zod-validator": "^0.6.0",
     "@tailwindcss/vite": "^4.1.8",
     "@tanstack/form-core": "^1.12.0",
@@ -22,6 +24,9 @@
     "@tanstack/react-router": "^1.120.11",
     "@tanstack/router-plugin": "^1.120.11",
     "@tanstack/zod-form-adapter": "^0.42.1",
+    "@trpc/client": "^11.1.4",
+    "@trpc/react-query": "^11.1.4",
+    "@trpc/server": "^11.1.4",
     "@types/bun": "^1.2.14",
     "@types/node": "^22.15.24",
     "drizzle-orm": "^0.44.0",
@@ -29,12 +34,12 @@
     "hono": "^4.7.10",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
+    "sonner": "^2.0.3",
     "tailwindcss": "^4.1.8",
     "zod": "^3.25.32"
   },
   "devDependencies": {
     "@cloudflare/vite-plugin": "^1.3.0",
-    "@tanstack/router-devtools": "^1.120.11",
     "@types/react": "^19.1.6",
     "@types/react-dom": "^19.1.5",
     "drizzle-kit": "^0.31.1",

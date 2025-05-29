@@ -2,7 +2,7 @@ import { Link, createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react'
 import { QuoteForm } from '../components/QuoteForm'
 import { useDeleteQuote, useQuotes } from '../lib/quotes-api'
-import type { Quote } from '../server/db/types'
+import type { QuoteSlect } from '../server/db/types'
   
 export const Route = createFileRoute('/quotes/')({
   component: QuotesList,
@@ -86,7 +86,7 @@ function QuotesList() {
         </div>
       ) : (
         <div className="space-y-6">
-          {quotes.map((quote: Quote) => (
+          {quotes.map((quote: QuoteSlect) => (
             <div 
               key={quote.id} 
               className="group border-gray-100 border-b pb-6 last:border-b-0"
