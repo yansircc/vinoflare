@@ -2,33 +2,10 @@ import { zValidator } from '@hono/zod-validator'
 import { eq } from 'drizzle-orm'
 import { Hono } from 'hono'
 import { HTTPException } from 'hono/http-exception'
-import { z } from 'zod'
 import { createDb, quotes } from '../db'
 import type { User } from '../db/types'
+import { quoteCreateSchema, quoteIdSchema, quoteUpdateSchema } from '../db/types'
 import { authMiddleware, loggingMiddleware } from '../middleware/procedures'
-
-// 输入验证模式
-const createQuoteSchema = z.object({
-  name: z.string().min(1, '姓名是必需的'),
-  email: z.string().email('无效的邮箱地址'),
-  message: z.string().min(1, '留言内容是必需的'),
-})
-
-const updateQuoteSchema = z.object({
-  name: z.string().min(1).optional(),
-  email: z.string().email().optional(),
-  message: z.string().min(1).optional(),
-})
-
-const getQuoteSchema = z.object({
-  id: z.string().transform((val) => {
-    const num = Number.parseInt(val, 10)
-    if (Number.isNaN(num)) {
-      throw new Error('无效的 ID')
-    }
-    return num
-  }),
-})
 
 // 按照 Hono RPC 模式创建留言路由器
 const app = new Hono<{ 
@@ -54,7 +31,7 @@ const app = new Hono<{
   
   // GET /api/quotes/:id - 获取单条留言（公开）
   .get('/api/quotes/:id', 
-    zValidator('param', getQuoteSchema),
+    zValidator('param', quoteIdSchema),
     loggingMiddleware,
     async (c) => {
       const db = createDb(c.env)
@@ -80,7 +57,7 @@ const app = new Hono<{
   // POST /api/quotes - 创建新留言（需要认证）
   .post('/api/quotes',
     authMiddleware,
-    zValidator('json', createQuoteSchema),
+    zValidator('json', quoteCreateSchema),
     loggingMiddleware,
     async (c) => {
       const db = createDb(c.env)
@@ -107,8 +84,8 @@ const app = new Hono<{
   // PUT /api/quotes/:id - 更新留言（需要认证）
   .put('/api/quotes/:id',
     authMiddleware,
-    zValidator('param', getQuoteSchema),
-    zValidator('json', updateQuoteSchema),
+    zValidator('param', quoteIdSchema),
+    zValidator('json', quoteUpdateSchema),
     async (c) => {
       const db = createDb(c.env)
       const user = c.get('user')
@@ -152,7 +129,7 @@ const app = new Hono<{
   // DELETE /api/quotes/:id - 删除留言（需要认证）
   .delete('/api/quotes/:id',
     authMiddleware,
-    zValidator('param', getQuoteSchema),
+    zValidator('param', quoteIdSchema),
     async (c) => {
       const db = createDb(c.env)
       const user = c.get('user')

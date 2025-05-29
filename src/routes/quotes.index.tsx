@@ -48,7 +48,7 @@ function QuotesList() {
   }
 
   return (
-    <div className="mx-auto min-h-screen max-w-2xl px-4 py-8">
+    <div className="mx-auto max-w-4xl">
       {/* 头部 */}
       <div className="mb-8 flex items-center justify-between">
         <h1 className="font-light text-2xl text-gray-900">留言板</h1>

@@ -2,7 +2,7 @@ import { Link, Outlet } from '@tanstack/react-router'
 
 export function Layout() {
   return (
-    <div className="min-h-screen bg-white">
+    <div className="flex h-screen flex-col space-y-20 bg-white">
       {/* 导航栏 */}
       <header className="border-gray-200 border-b bg-white">
         <div className="mx-auto max-w-4xl px-4">
@@ -41,12 +41,12 @@ export function Layout() {
       </header>
 
       {/* 主内容区域 */}
-      <main className="mx-auto max-w-4xl px-4">
+      <main className="flex-1">
         <Outlet />
       </main>
 
       {/* 页脚 */}
-      <footer className="mt-20 border-gray-200 border-t bg-gray-50">
+      <footer className="border-gray-200 border-t bg-gray-50">
         <div className="mx-auto max-w-4xl px-4 py-8">
           <div className="text-center">
             <p className="text-gray-500 text-sm">
