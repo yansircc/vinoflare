@@ -11,14 +11,14 @@ export const createQueryClient = () => {
         // 缓存时间（30分钟）
         gcTime: 1000 * 60 * 30,
         // 重试次数
-        retry: 1,
+        retry: false,
         // 重新获取配置
         refetchOnWindowFocus: false,
         refetchOnReconnect: true,
       },
       mutations: {
         // 变更重试次数
-        retry: 1,
+        retry: false,
       },
     },
     queryCache: new QueryCache({

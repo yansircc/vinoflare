@@ -11,11 +11,11 @@ export const authMiddleware = createMiddleware<{
   // 在真实应用中，您将在这里验证 JWT
   const authHeader = c.req.header('Authorization')
   
-  // if (!authHeader || !authHeader.startsWith('Bearer ')) {
-  //   throw new HTTPException(401, {
-  //     message: '未授权 - 缺少或无效的令牌',
-  //   })
-  // }
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    throw new HTTPException(401, {
+      message: '未授权 - 缺少或无效的令牌',
+    })
+  }
 
   // 演示用的模拟用户 - 替换为真实的 JWT 验证
   const mockUser: User = {
