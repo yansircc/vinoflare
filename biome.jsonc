@@ -6,7 +6,7 @@
 		"useIgnoreFile": true
 	},
 	"files": { "ignoreUnknown": false, "ignore": [] },
-	"formatter": { "enabled": false },
+	"formatter": { "enabled": true },
 	"organizeImports": { "enabled": true },
 	"linter": {
 		"enabled": true,

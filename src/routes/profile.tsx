@@ -7,8 +7,7 @@ export const Route = createFileRoute("/profile")({
 
 function ProfilePage() {
   return (
-    <div className="mx-auto max-w-4xl px-4 py-8">
-      <h1 className="mb-8 font-bold text-3xl">个人资料</h1>
+    <div className="mx-auto max-w-4xl">
       <UserProfile />
     </div>
   );

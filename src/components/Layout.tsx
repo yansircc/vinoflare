@@ -1,68 +1,72 @@
 import { Link, Outlet } from '@tanstack/react-router'
+import { headerNav } from '../config/header-nav'
 import { useSession } from '../lib/api-client'
 
 export function Layout() {
   const { data: session, isPending } = useSession();
 
   return (
-    <div className="flex h-screen flex-col space-y-20 bg-white">
+    <div className="flex min-h-screen flex-col bg-white">
       {/* 导航栏 */}
-      <header className="border-gray-200 border-b bg-white">
-        <div className="mx-auto max-w-4xl px-4">
-          <nav className="flex items-center justify-between py-4">
-            {/* Logo/标题 */}
+      <header className="sticky top-0 z-50 border-gray-100 border-b bg-gray-50 backdrop-blur-md">
+        <div className="mx-auto max-w-6xl px-6">
+          <nav className="flex h-16 items-center justify-between">
+            {/* Logo */}
             <Link 
               to="/" 
-              className="font-medium text-gray-900 text-xl transition-colors hover:text-gray-700"
+              className="font-semibold text-gray-900 text-xl transition-colors hover:text-blue-600"
             >
-              留言板系统
+              VinoFlare
             </Link>
             
-            {/* 导航链接 */}
-            <div className="flex items-center gap-8">
-              <Link 
-                to="/" 
-                className="font-medium text-gray-600 transition-colors hover:text-gray-900"
-                activeProps={{ 
-                  className: "font-medium text-gray-900 border-b-[3px] border-gray-900 pb-1" 
-                }}
-              >
-                首页
-              </Link>
-              <Link 
-                to="/quotes" 
-                className="font-medium text-gray-600 transition-colors hover:text-gray-900"
-                activeProps={{ 
-                  className: "font-medium text-gray-900 border-b-[3px] border-gray-900 pb-1" 
-                }}
-              >
-                留言列表
-              </Link>
-              
-              {/* 认证相关导航 */}
+            {/* 主导航 */}
+            <div className="hidden items-center gap-8 md:flex">
+              {headerNav.map((item) => (
+                <Link 
+                  key={item.href}
+                  to={item.href}
+                  className="relative font-medium text-gray-600 text-sm transition-colors hover:text-gray-900"
+                >
+                  {item.label}
+                </Link>
+              ))}
+            </div>
+            
+            {/* 用户区域 */}
+            <div className="flex items-center gap-4">
               {isPending ? (
-                <div className="text-gray-500 text-sm">加载中...</div>
+                <div className="flex items-center gap-2">
+                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-blue-200 border-t-blue-600" />
+                  <span className="text-gray-500 text-sm">加载中</span>
+                </div>
               ) : session?.user ? (
-                <div className="flex items-center gap-4">
-                  <span className="text-gray-600 text-sm">
-                    欢迎, {session.user.name}
-                  </span>
+                <div className="flex items-center gap-3">
+                  <div className="hidden items-center gap-2 sm:flex">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-r from-blue-500 to-purple-600 font-medium text-sm text-white">
+                      {session.user.image ? <img src={session.user.image} alt="User avatar" className="h-8 w-8 rounded-full" /> : session.user.name?.charAt(0).toUpperCase()}
+                    </div>
+                    <span className="font-medium text-gray-700 text-sm">
+                      {session.user.name}
+                    </span>
+                  </div>
                   <Link 
                     to="/profile"
-                    className="font-medium text-gray-600 transition-colors hover:text-gray-900"
+                    className="font-medium text-gray-600 text-sm transition-colors hover:text-blue-600"
                   >
-                    个人资料
+                    设置
                   </Link>
                 </div>
               ) : (
-                <div className="flex items-center gap-4">
-                  <Link 
-                    to="/login"
-                    className="rounded-md bg-indigo-600 px-4 py-2 text-sm text-white transition-colors hover:bg-indigo-700"
-                  >
-                    Discord 登录
-                  </Link>
-                </div>
+                <Link 
+                  to="/login"
+                  className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 font-medium text-sm text-white transition-colors hover:bg-blue-700"
+                >
+                  <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
+                    <title>Discord logo</title>
+                    <path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419-.0190 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1568 2.4189Z"/>
+                  </svg>
+                  Discord 登录
+                </Link>
               )}
             </div>
           </nav>
@@ -70,19 +74,19 @@ export function Layout() {
       </header>
 
       {/* 主内容区域 */}
-      <main className="flex-1">
+      <main className="mt-16 flex-1">
         <Outlet />
       </main>
 
       {/* 页脚 */}
-      <footer className="border-gray-200 border-t bg-gray-50">
-        <div className="mx-auto max-w-4xl px-4 py-8">
-          <div className="text-center">
-            <p className="text-gray-500 text-sm">
-              基于 Hono + TanStack + Cloudflare 构建
+      <footer className="border-gray-100 border-t bg-gray-50">
+        <div className="mx-auto max-w-6xl px-6 py-8">
+          <div className="space-y-2 text-center">
+            <p className="font-medium text-gray-600 text-sm">
+              基于现代技术栈构建
             </p>
-            <p className="mt-1 text-gray-400 text-xs">
-              展示现代全栈应用的最佳实践
+            <p className="text-gray-400 text-xs">
+              Hono • React • TanStack Router • Cloudflare
             </p>
           </div>
         </div>

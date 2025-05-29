@@ -11,21 +11,15 @@
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
-import { Route as TestAuthImport } from './routes/test-auth'
 import { Route as ProfileImport } from './routes/profile'
 import { Route as LoginImport } from './routes/login'
 import { Route as IndexImport } from './routes/index'
 import { Route as QuotesIndexImport } from './routes/quotes.index'
 import { Route as PostsIndexImport } from './routes/posts.index'
 import { Route as QuotesIdImport } from './routes/quotes.$id'
+import { Route as PostsIdImport } from './routes/posts.$id'
 
 // Create/Update Routes
-
-const TestAuthRoute = TestAuthImport.update({
-  id: '/test-auth',
-  path: '/test-auth',
-  getParentRoute: () => rootRoute,
-} as any)
 
 const ProfileRoute = ProfileImport.update({
   id: '/profile',
@@ -63,6 +57,12 @@ const QuotesIdRoute = QuotesIdImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
+const PostsIdRoute = PostsIdImport.update({
+  id: '/posts/$id',
+  path: '/posts/$id',
+  getParentRoute: () => rootRoute,
+} as any)
+
 // Populate the FileRoutesByPath interface
 
 declare module '@tanstack/react-router' {
@@ -88,11 +88,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProfileImport
       parentRoute: typeof rootRoute
     }
-    '/test-auth': {
-      id: '/test-auth'
-      path: '/test-auth'
-      fullPath: '/test-auth'
-      preLoaderRoute: typeof TestAuthImport
+    '/posts/$id': {
+      id: '/posts/$id'
+      path: '/posts/$id'
+      fullPath: '/posts/$id'
+      preLoaderRoute: typeof PostsIdImport
       parentRoute: typeof rootRoute
     }
     '/quotes/$id': {
@@ -125,7 +125,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/profile': typeof ProfileRoute
-  '/test-auth': typeof TestAuthRoute
+  '/posts/$id': typeof PostsIdRoute
   '/quotes/$id': typeof QuotesIdRoute
   '/posts': typeof PostsIndexRoute
   '/quotes': typeof QuotesIndexRoute
@@ -135,7 +135,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/profile': typeof ProfileRoute
-  '/test-auth': typeof TestAuthRoute
+  '/posts/$id': typeof PostsIdRoute
   '/quotes/$id': typeof QuotesIdRoute
   '/posts': typeof PostsIndexRoute
   '/quotes': typeof QuotesIndexRoute
@@ -146,7 +146,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/profile': typeof ProfileRoute
-  '/test-auth': typeof TestAuthRoute
+  '/posts/$id': typeof PostsIdRoute
   '/quotes/$id': typeof QuotesIdRoute
   '/posts/': typeof PostsIndexRoute
   '/quotes/': typeof QuotesIndexRoute
@@ -158,7 +158,7 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/profile'
-    | '/test-auth'
+    | '/posts/$id'
     | '/quotes/$id'
     | '/posts'
     | '/quotes'
@@ -167,7 +167,7 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/profile'
-    | '/test-auth'
+    | '/posts/$id'
     | '/quotes/$id'
     | '/posts'
     | '/quotes'
@@ -176,7 +176,7 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/profile'
-    | '/test-auth'
+    | '/posts/$id'
     | '/quotes/$id'
     | '/posts/'
     | '/quotes/'
@@ -187,7 +187,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   LoginRoute: typeof LoginRoute
   ProfileRoute: typeof ProfileRoute
-  TestAuthRoute: typeof TestAuthRoute
+  PostsIdRoute: typeof PostsIdRoute
   QuotesIdRoute: typeof QuotesIdRoute
   PostsIndexRoute: typeof PostsIndexRoute
   QuotesIndexRoute: typeof QuotesIndexRoute
@@ -197,7 +197,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   LoginRoute: LoginRoute,
   ProfileRoute: ProfileRoute,
-  TestAuthRoute: TestAuthRoute,
+  PostsIdRoute: PostsIdRoute,
   QuotesIdRoute: QuotesIdRoute,
   PostsIndexRoute: PostsIndexRoute,
   QuotesIndexRoute: QuotesIndexRoute,
@@ -216,7 +216,7 @@ export const routeTree = rootRoute
         "/",
         "/login",
         "/profile",
-        "/test-auth",
+        "/posts/$id",
         "/quotes/$id",
         "/posts/",
         "/quotes/"
@@ -231,8 +231,8 @@ export const routeTree = rootRoute
     "/profile": {
       "filePath": "profile.tsx"
     },
-    "/test-auth": {
-      "filePath": "test-auth.tsx"
+    "/posts/$id": {
+      "filePath": "posts.$id.tsx"
     },
     "/quotes/$id": {
       "filePath": "quotes.$id.tsx"

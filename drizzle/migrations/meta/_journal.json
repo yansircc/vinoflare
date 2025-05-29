@@ -29,6 +29,13 @@
       "when": 1748533366162,
       "tag": "0003_serious_mimic",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1748544034559,
+      "tag": "0004_chemical_pyro",
+      "breakpoints": true
     }
   ]
 }

@@ -14,3 +14,7 @@ binding = "DB"
 database_name = "vinoflare"
 database_id = "3a61e58f-ecdb-4f91-a158-1c871887ca37"
 migrations_dir = "drizzle/migrations"
+
+[[kv_namespaces]]
+binding = "KV"
+id = "2feeb93090b342ec95a232fac333d8c7"

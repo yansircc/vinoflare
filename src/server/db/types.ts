@@ -1,6 +1,6 @@
 import { createInsertSchema, createSelectSchema,createUpdateSchema } from "drizzle-zod";
 import { z } from "zod";
-import { posts, quotes, type session, type user } from "./schema";
+import { quotes, type session, type user } from "./schema";
 
 // quote
 export const quoteCreateSchema = createInsertSchema(quotes);
@@ -21,25 +21,6 @@ export const quoteIdSchema = z.object({
 export type QuoteSlect = typeof quotes.$inferSelect;
 export type QuoteCreate = typeof quotes.$inferInsert;
 export type QuoteUpdate = Partial<typeof quotes.$inferSelect>;
-
-// post
-export const postCreateSchema = createInsertSchema(posts);
-export const postSelectSchema = createSelectSchema(posts);
-export const postUpdateSchema = createUpdateSchema(posts);
-
-export const postIdSchema = z.object({
-  id: z.string().transform((val) => {
-    const num = Number.parseInt(val, 10)
-    if (Number.isNaN(num)) {
-      throw new Error('无效的 ID')
-    }
-    return num
-  }),
-})
-
-export type PostSlect = typeof posts.$inferSelect;
-export type PostCreate = typeof posts.$inferInsert;
-export type PostUpdate = Partial<typeof posts.$inferSelect>;
 
 // Better Auth 用户类型
 export type AuthUser = typeof user.$inferSelect;
