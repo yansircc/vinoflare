@@ -323,8 +323,15 @@ export async function catchError<
 		...globalCatchErrorOptions,
 		...options,
 	} as CatchErrorOptions<E>; // 类型断言仍然需要，因为 E 可能与 global 不同
-	const { logger, logOnError, logErrorSeverity, retry, timeout, onError, onFinally } =
-		mergedOptions;
+	const {
+		logger,
+		logOnError,
+		logErrorSeverity,
+		retry,
+		timeout,
+		onError,
+		onFinally,
+	} = mergedOptions;
 	const currentLogger: Logger = logger || console; // Logger 类型是明确的
 	const severity: "error" | "warn" | "info" | "debug" =
 		logErrorSeverity || "error";
@@ -383,7 +390,7 @@ export async function catchError<
 		isFinalError = false,
 	) => {
 		if (!onError) return;
-		
+
 		try {
 			onError({
 				error: err,
@@ -580,7 +587,8 @@ export function catchErrorSync<T, E extends Error = Error>(
 		CatchErrorOptions<E>,
 		"timeout" | "retry" | "onProgress"
 	>;
-	const { logger, logOnError, logErrorSeverity, onError, onFinally } = mergedOptions;
+	const { logger, logOnError, logErrorSeverity, onError, onFinally } =
+		mergedOptions;
 	const currentLogger: Logger = logger || console;
 	const severity: "error" | "warn" | "info" | "debug" =
 		logErrorSeverity || "error";
@@ -629,7 +637,7 @@ export function catchErrorSync<T, E extends Error = Error>(
 		currentMeta: ErrorResult<unknown, E>["meta"],
 	) => {
 		if (!onError) return;
-		
+
 		try {
 			onError({
 				error: err,

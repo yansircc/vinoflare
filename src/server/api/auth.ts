@@ -6,8 +6,8 @@ const app = new Hono<BetterAuthContext>();
 
 // Better Auth 路由处理器
 app.all("/*", (c) => {
-  const auth = createAuth(c.env.DB, c.env);
-  return auth.handler(c.req.raw);
+	const auth = createAuth(c.env.DB, c.env);
+	return auth.handler(c.req.raw);
 });
 
-export default app; 
+export default app;
