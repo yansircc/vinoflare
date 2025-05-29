@@ -51,7 +51,7 @@ export function isDev(): boolean {
 export function getEnv(workerEnv?: any) {
   // 在 Cloudflare Workers 中，环境变量通过 env 参数传递
   const rawEnv = workerEnv || {
-    APP_URL: getProcessEnv("APP_URL") || "http://localhost:5174",
+    APP_URL: getProcessEnv("APP_URL") || "http://localhost:5173",
     NODE_ENV: getProcessEnv("NODE_ENV") || "development",
     VITE_API_URL: getProcessEnv("VITE_API_URL"),
   };
@@ -64,7 +64,7 @@ export function getEnv(workerEnv?: any) {
     
     // 在开发环境中提供默认值
     return {
-      APP_URL: rawEnv.APP_URL || "http://localhost:5174",
+      APP_URL: rawEnv.APP_URL || "http://localhost:5173",
       NODE_ENV: rawEnv.NODE_ENV || "development",
       VITE_API_URL: rawEnv.VITE_API_URL,
     };

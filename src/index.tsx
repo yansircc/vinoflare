@@ -1,6 +1,5 @@
 /** @jsxImportSource hono/jsx */
 import { Hono } from 'hono'
-import { compress } from 'hono/compress'
 import { logger } from 'hono/logger'
 import { renderer } from './renderer'
 import { api } from './server/api'
@@ -12,22 +11,6 @@ const app = new Hono<{ Bindings: Env }>()
 // 全局中间件
 app.use('*', logger())
 app.use(renderer)
-
-// 仅对 API 路由应用压缩，并且仅在生产环境中
-// 这可以防止与 JSX 渲染和开发工具发生冲突
-app.use('/api/*', async (c, next) => {
-  // 通过 Cloudflare Workers 环境检查是否为生产环境
-  const isProduction = c.env?.NODE_ENV === 'production'
-  
-  if (isProduction) {
-    // 在生产环境中应用压缩
-    const compressMiddleware = compress()
-    return compressMiddleware(c, next)
-  } else {
-    // 在开发环境中跳过压缩
-    await next()
-  }
-})
 
 // 挂载 API 路由
 const routes = app.route('/', api)

@@ -1,5 +1,7 @@
 /** @jsxImportSource hono/jsx */
 import { jsxRenderer } from 'hono/jsx-renderer'
+// 在构建时会被替换为实际的资源路径
+import assetsManifest from './assets-manifest.json'
 
 export const renderer = jsxRenderer(({ children }, c) => {
   // 在 Cloudflare Workers 中检测环境
@@ -8,14 +10,14 @@ export const renderer = jsxRenderer(({ children }, c) => {
   return (
     <html lang="zh-CN">
       <head>
-        <meta charset="UTF-8" />
+        <meta charSet="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>留言板系统</title>
-        {/* CSS 引用 - 现在使用固定文件名 */}
+        {/* CSS 引用 - 使用资源清单中的路径 */}
         {isDev ? (
           <link href="/src/app.css" rel="stylesheet" />
         ) : (
-          <link href="/assets/client.css" rel="stylesheet" />
+          <link href={assetsManifest.css} rel="stylesheet" />
         )}
       </head>
       <body>
@@ -23,7 +25,7 @@ export const renderer = jsxRenderer(({ children }, c) => {
         {isDev ? (
           <script type="module" src="/src/client.tsx" />
         ) : (
-          <script type="module" src="/static/client.js" />
+          <script type="module" src={assetsManifest.js} />
         )}
       </body>
     </html>

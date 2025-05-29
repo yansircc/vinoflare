@@ -9,7 +9,7 @@ export function getApiBaseUrl(): string {
   }
   
   // 在服务器端（SSR），使用默认的本地开发地址
-  return 'http://localhost:5174'
+  return 'http://localhost:5173'
 }
 
 // Query Key 工厂
