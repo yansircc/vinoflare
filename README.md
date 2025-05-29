@@ -270,6 +270,15 @@ wrangler secret put JWT_SECRET
 - ✅ 使用标准 JSON 而不是自定义序列化
 - ✅ 遵循官方 Hono 文档模式
 
+## 改造顺序推荐
+- server/db/schema.ts (如有必要，此处添加数据库表)
+- `bun db:generate` && `wrangler d1 migrations apply DB --local`
+- server/db/types.ts（添加完数据表后，此处添加对应的 types）
+- server/routers/ (添加对应的 rpc 路由)
+- lib/quote-schema.ts (如有必要，添加对应的验证类型)
+- components/ (如有必要，添加)
+- routes/ (添加对应路由，添加是会自动生成一个模板)
+
 ## 贡献
 
 此模板遵循官方 Hono 模式和最佳实践。欢迎：

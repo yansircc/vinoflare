@@ -1,8 +1,9 @@
 import { drizzle } from "drizzle-orm/d1"
-import { quotes } from "./schema"
+import * as schema from "./schema"
+import * as types from "./types"
 
 export function createDb(env: Env) {
   return drizzle(env.DB);
 }
 
-export { quotes };
+export { types, schema }

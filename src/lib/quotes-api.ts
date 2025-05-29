@@ -77,9 +77,11 @@ export const useCreateQuote = () => {
       }
       return result
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: quotesKeys.all })
-      toast.success('留言创建成功！')
+      toast.success('留言创建成功！', {
+        description: data.message,
+      })
     },
     onError: (error) => {
       toast.error(error.message)

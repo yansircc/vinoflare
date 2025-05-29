@@ -2,16 +2,14 @@ import { zValidator } from '@hono/zod-validator'
 import { eq } from 'drizzle-orm'
 import { Hono } from 'hono'
 import { HTTPException } from 'hono/http-exception'
-import { createDb, quotes } from '../db'
-import type { User } from '../db/types'
-import { quoteCreateSchema, quoteIdSchema, quoteUpdateSchema } from '../db/types'
+import { createDb, schema, types } from '../db'
 import { authMiddleware, loggingMiddleware } from '../middleware/procedures'
 
 // 按照 Hono RPC 模式创建留言路由器
 const app = new Hono<{ 
   Bindings: Env
   Variables: {
-    user: User
+    user: types.User
   }
 }>()
   // GET /api/quotes - 列出所有留言（公开）
@@ -19,8 +17,8 @@ const app = new Hono<{
     const db = createDb(c.env)
     const allQuotes = await db
       .select()
-      .from(quotes)
-      .orderBy(quotes.createdAt)
+      .from(schema.quotes)
+      .orderBy(schema.quotes.createdAt)
     
     return c.json({
       success: true,
@@ -31,7 +29,7 @@ const app = new Hono<{
   
   // GET /api/quotes/:id - 获取单条留言（公开）
   .get('/api/quotes/:id', 
-    zValidator('param', quoteIdSchema),
+    zValidator('param', types.quoteIdSchema),
     loggingMiddleware,
     async (c) => {
       const db = createDb(c.env)
@@ -39,8 +37,8 @@ const app = new Hono<{
       
       const [quote] = await db
         .select()
-        .from(quotes)
-        .where(eq(quotes.id, id))
+        .from(schema.quotes)
+        .where(eq(schema.quotes.id, id))
         .limit(1)
       
       if (!quote) {
@@ -57,7 +55,7 @@ const app = new Hono<{
   // POST /api/quotes - 创建新留言（需要认证）
   .post('/api/quotes',
     authMiddleware,
-    zValidator('json', quoteCreateSchema),
+    zValidator('json', types.quoteCreateSchema),
     loggingMiddleware,
     async (c) => {
       const db = createDb(c.env)
@@ -65,7 +63,7 @@ const app = new Hono<{
       const validatedInput = c.req.valid('json')
       
       const [newQuote] = await db
-        .insert(quotes)
+        .insert(schema.quotes)
         .values({
           name: validatedInput.name,
           email: validatedInput.email,
@@ -84,8 +82,8 @@ const app = new Hono<{
   // PUT /api/quotes/:id - 更新留言（需要认证）
   .put('/api/quotes/:id',
     authMiddleware,
-    zValidator('param', quoteIdSchema),
-    zValidator('json', quoteUpdateSchema),
+    zValidator('param', types.quoteIdSchema),
+    zValidator('json', types.quoteUpdateSchema),
     async (c) => {
       const db = createDb(c.env)
       const user = c.get('user')
@@ -95,8 +93,8 @@ const app = new Hono<{
       // 检查留言是否存在
       const [existingQuote] = await db
         .select()
-        .from(quotes)
-        .where(eq(quotes.id, id))
+        .from(schema.quotes)
+        .where(eq(schema.quotes.id, id))
         .limit(1)
       
       if (!existingQuote) {
@@ -113,9 +111,9 @@ const app = new Hono<{
       }
       
       const [updatedQuote] = await db
-        .update(quotes)
+        .update(schema.quotes)
         .set(filteredUpdateData)
-        .where(eq(quotes.id, id))
+        .where(eq(schema.quotes.id, id))
         .returning()
       
       return c.json({
@@ -129,7 +127,7 @@ const app = new Hono<{
   // DELETE /api/quotes/:id - 删除留言（需要认证）
   .delete('/api/quotes/:id',
     authMiddleware,
-    zValidator('param', quoteIdSchema),
+    zValidator('param', types.quoteIdSchema),
     async (c) => {
       const db = createDb(c.env)
       const user = c.get('user')
@@ -138,15 +136,15 @@ const app = new Hono<{
       // 检查留言是否存在
       const [existingQuote] = await db
         .select()
-        .from(quotes)
-        .where(eq(quotes.id, id))
+        .from(schema.quotes)
+        .where(eq(schema.quotes.id, id))
         .limit(1)
       
       if (!existingQuote) {
         throw new HTTPException(404, { message: '留言未找到' })
       }
       
-      await db.delete(quotes).where(eq(quotes.id, id))
+      await db.delete(schema.quotes).where(eq(schema.quotes.id, id))
       
       return c.json({
         success: true,
@@ -159,7 +157,7 @@ const app = new Hono<{
   // GET /api/quotes/stats - 获取留言统计（公开）
   .get('/api/quotes/stats', loggingMiddleware, async (c) => {
     const db = createDb(c.env)
-    const allQuotes = await db.select().from(quotes)
+    const allQuotes = await db.select().from(schema.quotes)
     
     const stats = {
       total: allQuotes.length,
