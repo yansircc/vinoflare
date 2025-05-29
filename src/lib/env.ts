@@ -9,7 +9,6 @@ import { z } from "zod";
 const envSchema = z.object({
   APP_URL: z.string().url(),
   NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
-  VITE_API_URL: z.string().url().optional(),
 });
 
 /**
@@ -53,7 +52,6 @@ export function getEnv(workerEnv?: any) {
   const rawEnv = workerEnv || {
     APP_URL: getProcessEnv("APP_URL") || "http://localhost:5173",
     NODE_ENV: getProcessEnv("NODE_ENV") || "development",
-    VITE_API_URL: getProcessEnv("VITE_API_URL"),
   };
 
   try {
@@ -66,7 +64,6 @@ export function getEnv(workerEnv?: any) {
     return {
       APP_URL: rawEnv.APP_URL || "http://localhost:5173",
       NODE_ENV: rawEnv.NODE_ENV || "development",
-      VITE_API_URL: rawEnv.VITE_API_URL,
     };
   }
 }
@@ -75,7 +72,7 @@ export function getEnv(workerEnv?: any) {
  * 客户端环境变量
  */
 export const clientEnv = {
-  VITE_API_URL: typeof window !== "undefined" 
-    ? (window as any).__ENV__?.VITE_API_URL || (typeof import.meta !== "undefined" && import.meta.env?.VITE_API_URL)
-    : getProcessEnv("VITE_API_URL"),
+  APP_URL: typeof window !== "undefined" 
+    ? (window as any).__ENV__?.APP_URL || (typeof import.meta !== "undefined" && import.meta.env?.APP_URL)
+    : getProcessEnv("APP_URL"),
 };

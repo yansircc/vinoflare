@@ -1,16 +1,4 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { clientEnv } from './env'
-
-// 获取 API 基础 URL
-export function getApiBaseUrl(): string {
-  // 在客户端，优先使用配置的 VITE_API_URL
-  if (typeof window !== 'undefined') {
-    return clientEnv.VITE_API_URL || window.location.origin
-  }
-  
-  // 在服务器端（SSR），使用默认的本地开发地址
-  return 'http://localhost:5173'
-}
 
 // Query Key 工厂
 export function createQueryKeys<T extends string>(resource: T) {
