@@ -1,5 +1,5 @@
 {
-  "name": "try-hono",
+  "name": "vinoflare",
   "type": "module",
   "scripts": {
     "dev": "vite --port 5173",
@@ -11,7 +11,10 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:studio": "drizzle-kit studio",
-    "db:push": "drizzle-kit push",
+    "db:push:local": "wrangler d1 migrations apply DB --local",
+    "db:push:remote": "drizzle-kit push",
+    "env:sync:local": "bun scripts/sync-dev-vars.ts",
+    "env:sync:remote": "wrangler secret bulk .env.production",
     "find:deadcode": "ts-prune"
   },
   "dependencies": {

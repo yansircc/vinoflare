@@ -44,8 +44,23 @@ src/
 # 安装依赖
 bun install
 
-# 设置数据库
-bun run db:push
+# 设定环境变量
+cp .env.example .env
+
+# 生成 .dev.vars
+bun run env:sync:local
+
+# 创建 D1 数据库，随后需编辑 wrangler.toml 和 .env
+wrangler d1 create DB_NAME
+
+# 生成 cloudflare types
+bun run cf-typegen
+
+# 生成数据库迁移文件
+bun run db:generate
+
+# 推送到本地数据库
+bun run db:push:local
 
 # 启动开发服务器
 bun run dev
@@ -240,6 +255,15 @@ apiHelpers.clearAuthToken()
 ### Cloudflare Workers
 
 ```bash
+# 创建 .env.production
+cp .env .env.production
+
+# 同步密钥到云端
+bun run env:sync:remote
+
+# 推送迁移文件到云端数据库
+bun run db:push:remote
+
 # 构建应用
 bun run build
 

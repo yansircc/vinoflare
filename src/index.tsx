@@ -22,7 +22,7 @@ app.get('*', async (c) => {
   // 静态资源路径
   const isStaticAsset = 
     url.pathname.startsWith('/assets/') || 
-      url.pathname.startsWith('/src/') || 
+      url.pathname.startsWith('/chunks/') || 
       url.pathname.startsWith('/static/') ||
     url.pathname === '/favicon.ico'
   
