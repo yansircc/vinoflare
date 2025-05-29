@@ -1,4 +1,5 @@
 import { createRootRoute } from "@tanstack/react-router";
+import NotFoundComponent from "../components/404";
 import { Layout } from "../components/Layout";
 
 export const Route = createRootRoute({
@@ -21,6 +22,7 @@ export const Route = createRootRoute({
 		],
 	}),
 	component: RootComponent,
+	notFoundComponent: NotFoundComponent,
 });
 
 function RootComponent() {

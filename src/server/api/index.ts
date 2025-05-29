@@ -1,6 +1,11 @@
 import { Hono } from "hono";
+import { bodyLimit } from "hono/body-limit";
 import { cors } from "hono/cors";
+import { etag } from "hono/etag";
+import { prettyJSON } from "hono/pretty-json";
+import { requestId } from "hono/request-id";
 import { secureHeaders } from "hono/secure-headers";
+import { timeout } from "hono/timeout";
 import { trimTrailingSlash } from "hono/trailing-slash";
 import {
 	errorHandlerMiddleware,
@@ -16,6 +21,42 @@ const app = new Hono<BaseContext>()
 	// 全局中间件 - 按顺序应用
 	// 错误处理（最先应用）
 	.use("*", errorHandlerMiddleware)
+
+	// 格式化响应
+	.use("*", prettyJSON())
+
+	// 请求超时（30秒）
+	.use("*", timeout(30000))
+
+	// 请求ID生成（用于日志追踪）
+	.use("*", requestId())
+
+	// 请求体大小限制（10MB）
+	.use(
+		"*",
+		bodyLimit({
+			maxSize: 10 * 1024 * 1024, // 10MB
+			onError: (c) => {
+				return c.json(
+					{
+						success: false,
+						error: "请求体过大，最大允许 10MB",
+						timestamp: new Date().toISOString(),
+					},
+					413,
+				);
+			},
+		}),
+	)
+
+	// ETag 缓存优化（仅对成功响应启用）
+	.use("*", async (c, next) => {
+		await next();
+		// 只对 2xx 状态码启用 ETag
+		if (c.res.status >= 200 && c.res.status < 300) {
+			return etag()(c, async () => {});
+		}
+	})
 
 	// 安全头
 	.use(
@@ -74,6 +115,7 @@ const app = new Hono<BaseContext>()
 			timestamp: new Date().toISOString(),
 			version: "1.0.0",
 			environment: (c.env as any)?.NODE_ENV || "unknown",
+			requestId: c.get("requestId"),
 		});
 	})
 
@@ -93,7 +135,6 @@ const app = new Hono<BaseContext>()
 		});
 	})
 
-	// 挂载路由器
 	// 认证路由
 	.route("/api/auth", authRouter)
 
@@ -101,15 +142,17 @@ const app = new Hono<BaseContext>()
 	.route("/api", quotesRouter)
 	.route("/api", postsRouter)
 
-	// 404 处理
+	// 404 处理 - 正确的方式
 	.notFound((c) => {
 		return c.json(
 			{
 				success: false,
 				error: "端点未找到",
-				path: c.req.path,
+				message: `路径 ${c.req.path} 不存在`,
 				method: c.req.method,
+				path: c.req.path,
 				timestamp: new Date().toISOString(),
+				requestId: c.get("requestId"),
 			},
 			404,
 		);
