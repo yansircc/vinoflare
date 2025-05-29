@@ -10,6 +10,7 @@ export const Route = createFileRoute('/quotes/')({
 
 function QuotesList() {
   const [showForm, setShowForm] = useState(false)
+  const [editingQuote, setEditingQuote] = useState<QuoteSlect | null>(null)
 
   // 使用 TanStack Query hooks
   const { data: quotes = [], isLoading, isError, error } = useQuotes()
@@ -25,8 +26,18 @@ function QuotesList() {
     }
   }
 
+  const handleEditQuote = (quote: QuoteSlect) => {
+    setEditingQuote(quote)
+    setShowForm(false) // 关闭新建表单
+  }
+
   const handleFormSuccess = () => {
     setShowForm(false)
+    setEditingQuote(null)
+  }
+
+  const handleCancelEdit = () => {
+    setEditingQuote(null)
   }
 
   if (isLoading) {
@@ -54,7 +65,10 @@ function QuotesList() {
         <h1 className="font-light text-2xl text-gray-900">留言板</h1>
         <button
           type="button"
-          onClick={() => setShowForm(!showForm)}
+          onClick={() => {
+            setShowForm(!showForm)
+            setEditingQuote(null) // 关闭编辑表单
+          }}
           className="rounded-full bg-gray-900 px-4 py-2 text-sm text-white transition-colors hover:bg-gray-700"
         >
           {showForm ? '取消' : '写留言'}
@@ -67,6 +81,20 @@ function QuotesList() {
           <QuoteForm 
             onSuccess={handleFormSuccess}
             onCancel={() => setShowForm(false)}
+          />
+        </div>
+      )}
+
+      {/* 编辑留言表单 */}
+      {editingQuote && (
+        <div className="mb-8">
+          <div className="mb-4">
+            <h2 className="font-medium text-gray-900 text-lg">编辑留言</h2>
+          </div>
+          <QuoteForm 
+            initialData={editingQuote}
+            onSuccess={handleFormSuccess}
+            onCancel={handleCancelEdit}
           />
         </div>
       )}
@@ -100,14 +128,23 @@ function QuotesList() {
                     {quote.email}
                   </p>
                 </div>
-                <button 
-                  type="button"
-                  className="rounded px-2 py-1 text-gray-400 text-xs opacity-0 transition-all hover:bg-gray-100 hover:text-red-600 group-hover:opacity-100"
-                  onClick={() => handleDeleteQuote(quote.id)}
-                  disabled={deleteQuoteMutation.isPending}
-                >
-                  删除
-                </button>
+                <div className="flex gap-1">
+                  <button 
+                    type="button"
+                    className="rounded px-2 py-1 text-gray-400 text-xs opacity-0 transition-all hover:bg-gray-100 hover:text-blue-600 group-hover:opacity-100"
+                    onClick={() => handleEditQuote(quote)}
+                  >
+                    编辑
+                  </button>
+                  <button 
+                    type="button"
+                    className="rounded px-2 py-1 text-gray-400 text-xs opacity-0 transition-all hover:bg-gray-100 hover:text-red-600 group-hover:opacity-100"
+                    onClick={() => handleDeleteQuote(quote.id)}
+                    disabled={deleteQuoteMutation.isPending}
+                  >
+                    删除
+                  </button>
+                </div>
               </div>
               <div className="mb-3">
                 <p className="text-gray-800 leading-relaxed">

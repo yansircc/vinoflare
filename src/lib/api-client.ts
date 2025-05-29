@@ -16,7 +16,7 @@ export function createApiClient(baseUrl?: string) {
 }
 
 // 类型安全的 API 客户端实例
-export const api = createApiClient()
+export const client = createApiClient()
 
 // 常见 API 模式的辅助函数
 export const apiHelpers = {

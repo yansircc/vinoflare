@@ -1,11 +1,13 @@
 import { type AnyFieldApi, useForm } from '@tanstack/react-form'
 import { useState } from 'react'
 import { type QuoteFormData, defaultQuoteFormValues, quoteFormSchema } from '../lib/quote-schema'
-import { useCreateQuote } from '../lib/quotes-api'
+import { useCreateQuote, useUpdateQuote } from '../lib/quotes-api'
+import type { QuoteSlect } from '../server/db/types'
 
 interface QuoteFormProps {
   onSuccess?: () => void
   onCancel?: () => void
+  initialData?: QuoteSlect // 用于编辑模式
 }
 
 // 错误提示组件
@@ -22,20 +24,34 @@ function FieldInfo({ field }: { field: AnyFieldApi }) {
 	);
 }
 
-export function QuoteForm({ onSuccess, onCancel }: QuoteFormProps) {
+export function QuoteForm({ onSuccess, onCancel, initialData }: QuoteFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const createQuoteMutation = useCreateQuote()
+  const updateQuoteMutation = useUpdateQuote()
+  
+  const isEdit = !!initialData
 
   const form = useForm({
-    defaultValues: defaultQuoteFormValues,
+    defaultValues: initialData ? {
+      name: initialData.name,
+      email: initialData.email,
+      message: initialData.message
+    } : defaultQuoteFormValues,
     onSubmit: async ({ value }: { value: QuoteFormData }) => {
       setIsSubmitting(true)
       try {
-        await createQuoteMutation.mutateAsync(value)
+        if (isEdit && initialData) {
+          await updateQuoteMutation.mutateAsync({ 
+            id: initialData.id, 
+            data: value 
+          })
+        } else {
+          await createQuoteMutation.mutateAsync(value)
+        }
         form.reset()
         onSuccess?.()
       } catch (error) {
-        console.error('Error creating quote:', error)
+        console.error('保存失败：', error)
       } finally {
         setIsSubmitting(false)
       }
@@ -159,7 +175,7 @@ export function QuoteForm({ onSuccess, onCancel }: QuoteFormProps) {
                 disabled={!canSubmit || isSubmitting || isFormSubmitting}
                 className="rounded-full bg-gray-900 px-6 py-2 text-sm text-white transition-colors hover:bg-gray-700 disabled:cursor-not-allowed disabled:bg-gray-400"
               >
-                {isSubmitting || isFormSubmitting ? '提交中...' : '提交留言'}
+                {isSubmitting || isFormSubmitting ? (isEdit ? '更新中...' : '提交中...') : (isEdit ? '更新留言' : '提交留言')}
               </button>
             )}
           </form.Subscribe>

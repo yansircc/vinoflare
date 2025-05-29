@@ -1,22 +1,17 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import type { InferRequestType, InferResponseType } from 'hono/client'
 import { toast } from 'sonner'
-import { api, apiHelpers } from './api-client'
+import { apiHelpers, client } from './api-client'
 import { createQueryKeys } from './api-factory'
 
 // 从 Hono RPC 推断类型，更加类型安全
-type GetQuotesResponse = InferResponseType<typeof api.api.quotes.$get>
-type GetQuoteResponse = InferResponseType<(typeof api.api.quotes)[':id']['$get']>
-type CreateQuoteRequest = InferRequestType<typeof api.api.quotes.$post>['json']
-type CreateQuoteResponse = InferResponseType<typeof api.api.quotes.$post>
-type UpdateQuoteRequest = InferRequestType<(typeof api.api.quotes)[':id']['$put']>['json']
-type UpdateQuoteResponse = InferResponseType<(typeof api.api.quotes)[':id']['$put']>
-type DeleteQuoteResponse = InferResponseType<(typeof api.api.quotes)[':id']['$delete']>
-
-// 从响应类型中提取实际的数据类型
-type Quote = NonNullable<GetQuotesResponse['data']>[0]
-type QuoteCreate = CreateQuoteRequest
-type QuoteUpdate = UpdateQuoteRequest
+type GetQuotesResponse = InferResponseType<typeof client.api.quotes.$get>['data']
+type GetQuoteResponse = InferResponseType<(typeof client.api.quotes)[':id']['$get']>['data']  
+type CreateQuoteRequest = InferRequestType<typeof client.api.quotes.$post>['json']
+type CreateQuoteResponse = InferResponseType<typeof client.api.quotes.$post>
+type UpdateQuoteRequest = InferRequestType<(typeof client.api.quotes)[':id']['$put']>['json']
+type UpdateQuoteResponse = InferResponseType<(typeof client.api.quotes)[':id']['$put']>
+type DeleteQuoteResponse = InferResponseType<(typeof client.api.quotes)[':id']['$delete']>
 
 // 创建 Query Keys
 const quotesKeys = createQueryKeys('quotes')
@@ -27,8 +22,8 @@ const quotesKeys = createQueryKeys('quotes')
 export const useQuotes = () => {
   return useQuery({
     queryKey: quotesKeys.all,
-    queryFn: async (): Promise<Quote[]> => {
-      const response = await api.api.quotes.$get()
+    queryFn: async (): Promise<GetQuotesResponse> => {
+      const response = await client.api.quotes.$get()
       if (!response.ok) {
         throw new Error('获取留言失败')
       }
@@ -42,8 +37,8 @@ export const useQuotes = () => {
 export const useQuote = (id: string | number) => {
   return useQuery({
     queryKey: quotesKeys.detail(id),
-    queryFn: async (): Promise<Quote> => {
-      const response = await api.api.quotes[':id'].$get({
+      queryFn: async (): Promise<GetQuoteResponse> => {
+      const response = await client.api.quotes[':id'].$get({
         param: { id: id.toString() }
       })
       if (!response.ok) {
@@ -60,9 +55,9 @@ export const useQuote = (id: string | number) => {
 export const useCreateQuote = () => {
   const queryClient = useQueryClient()
 
-  return useMutation<CreateQuoteResponse, Error, QuoteCreate>({
+  return useMutation<CreateQuoteResponse, Error, CreateQuoteRequest>({
     mutationFn: async (newQuote) => {
-      const response = await api.api.quotes.$post(
+      const response = await client.api.quotes.$post(
         { json: newQuote },
         { headers: apiHelpers.withAuth() }
       )
@@ -89,10 +84,10 @@ export const useUpdateQuote = () => {
   return useMutation<
     UpdateQuoteResponse,
     Error,
-    { id: string | number; data: QuoteUpdate }
+    { id: string | number; data: UpdateQuoteRequest }
   >({
     mutationFn: async ({ id, data }) => {
-      const response = await api.api.quotes[':id'].$put(
+      const response = await client.api.quotes[':id'].$put(
         {
           param: { id: id.toString() },
           json: data
@@ -126,7 +121,7 @@ export const useDeleteQuote = () => {
 
   return useMutation<DeleteQuoteResponse, Error, string | number>({
     mutationFn: async (id) => {
-      const response = await api.api.quotes[':id'].$delete(
+      const response = await client.api.quotes[':id'].$delete(
         { param: { id: id.toString() } },
         { headers: apiHelpers.withAuth() }
       )
@@ -145,9 +140,3 @@ export const useDeleteQuote = () => {
     },
   })
 }
-
-// 导出类型供其他文件使用
-export type { Quote, QuoteCreate, QuoteUpdate }
-
-// 导出 query keys 供外部使用
-export { quotesKeys }

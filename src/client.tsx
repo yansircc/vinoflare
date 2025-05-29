@@ -33,7 +33,6 @@ function App() {
       <Toaster
 					className="z-50"
 					duration={2000}
-					theme="dark"
 					richColors
 					position="top-center"
 				/>
