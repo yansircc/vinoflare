@@ -120,15 +120,26 @@ function QuotesList() {
               className="group border-gray-100 border-b pb-6 last:border-b-0"
             >
               <div className="mb-3 flex items-start justify-between">
-                <div>
-                  <h3 className="font-medium text-gray-900">
+                <div className="flex-1">
+                  <Link 
+                    to="/quotes/$id" 
+                    params={{ id: quote.id.toString() }}
+                    className="cursor-pointer font-medium text-gray-900 transition-colors hover:text-blue-600"
+                  >
                     {quote.name}
-                  </h3>
+                  </Link>
                   <p className="text-gray-500 text-sm">
                     {quote.email}
                   </p>
                 </div>
                 <div className="flex gap-1">
+                  <Link 
+                    to="/quotes/$id" 
+                    params={{ id: quote.id.toString() }}
+                    className="rounded px-2 py-1 text-gray-400 text-xs opacity-0 transition-all hover:bg-gray-100 hover:text-blue-600 group-hover:opacity-100"
+                  >
+                    查看
+                  </Link>
                   <button 
                     type="button"
                     className="rounded px-2 py-1 text-gray-400 text-xs opacity-0 transition-all hover:bg-gray-100 hover:text-blue-600 group-hover:opacity-100"
@@ -148,8 +159,20 @@ function QuotesList() {
               </div>
               <div className="mb-3">
                 <p className="text-gray-800 leading-relaxed">
-                  {quote.message}
+                  {quote.message.length > 150 
+                    ? `${quote.message.slice(0, 150)}...` 
+                    : quote.message
+                  }
                 </p>
+                {quote.message.length > 150 && (
+                  <Link 
+                    to="/quotes/$id" 
+                    params={{ id: quote.id.toString() }}
+                    className="mt-1 text-blue-600 text-sm transition-colors hover:text-blue-800"
+                  >
+                    查看完整内容 →
+                  </Link>
+                )}
               </div>
               <div className="text-gray-400 text-xs">
                 {quote.createdAt ? new Date(quote.createdAt).toLocaleString('zh-CN') : '未知时间'}
