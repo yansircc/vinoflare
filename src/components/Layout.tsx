@@ -1,6 +1,9 @@
 import { Link, Outlet } from '@tanstack/react-router'
+import { useSession } from '../lib/api-client'
 
 export function Layout() {
+  const { data: session, isPending } = useSession();
+
   return (
     <div className="flex h-screen flex-col space-y-20 bg-white">
       {/* 导航栏 */}
@@ -35,6 +38,32 @@ export function Layout() {
               >
                 留言列表
               </Link>
+              
+              {/* 认证相关导航 */}
+              {isPending ? (
+                <div className="text-gray-500 text-sm">加载中...</div>
+              ) : session?.user ? (
+                <div className="flex items-center gap-4">
+                  <span className="text-gray-600 text-sm">
+                    欢迎, {session.user.name}
+                  </span>
+                  <Link 
+                    to="/profile"
+                    className="font-medium text-gray-600 transition-colors hover:text-gray-900"
+                  >
+                    个人资料
+                  </Link>
+                </div>
+              ) : (
+                <div className="flex items-center gap-4">
+                  <Link 
+                    to="/login"
+                    className="rounded-md bg-indigo-600 px-4 py-2 text-sm text-white transition-colors hover:bg-indigo-700"
+                  >
+                    Discord 登录
+                  </Link>
+                </div>
+              )}
             </div>
           </nav>
         </div>

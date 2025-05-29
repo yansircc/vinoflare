@@ -1,13 +1,29 @@
+import { createAuthClient } from "better-auth/react";
 import { hc } from 'hono/client'
-import type { AppType } from '../index'
+import type { ApiType } from '../server/api'
+
+// 创建 Better Auth 客户端
+export const authClient = createAuthClient({
+  baseURL: typeof window !== 'undefined' ? window.location.origin : 'http://localhost:5173',
+  basePath: "/api/auth", // Better Auth 路由的前缀
+});
+
+// 导出认证方法
+export const {
+  signIn,
+  signUp,
+  signOut,
+  useSession,
+  getSession,
+} = authClient;
 
 // 创建 API 客户端
 export function createApiClient(baseUrl?: string) {
   const url = baseUrl || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:5173')
   
-  return hc<AppType>(url, {
+  return hc<ApiType>(url, {
     init: {
-      credentials: 'include',
+      credentials: 'include', // 重要：包含 cookies 以支持 Better Auth 会话
       headers: {
         'Content-Type': 'application/json',
       },
@@ -15,56 +31,61 @@ export function createApiClient(baseUrl?: string) {
   })
 }
 
-// 常见 API 模式的辅助函数
+// Better Auth 集成的 API 辅助函数
 export const apiHelpers = {
-  // 设置认证令牌
-  setAuthToken(token: string) {
-    localStorage.setItem('auth-token', token)
-  },
-  
-  // 清除认证令牌
-  clearAuthToken() {
-    localStorage.removeItem('auth-token')
-  },
-  
-  // 检查是否已认证
-  isAuthenticated() {
-    return !!localStorage.getItem('auth-token')
-  },
-  
-  // 向请求添加认证头
-  withAuth(headers: Record<string, string> = {}) {
-    const token = localStorage.getItem('auth-token')
-    if (token) {
-      return {
-        ...headers,
-        Authorization: `Bearer ${token}`,
-      }
+  // 检查是否已认证（使用 Better Auth 会话）
+  async isAuthenticated() {
+    try {
+      const session = await getSession();
+      return !!session.data;
+    } catch {
+      return false;
     }
-    return headers
   },
 
-  // 创建带认证的客户端实例
-  createAuthClient() {
-    const token = localStorage.getItem('auth-token')
+  // 创建带认证的客户端实例（会自动包含 cookies）
+  createAuthenticatedClient() {
     const url = typeof window !== 'undefined' ? window.location.origin : 'http://localhost:5173'
     
-    console.log('🔧 创建带认证的客户端，token:', token)
-    
-    return hc<AppType>(url, {
+    return hc<ApiType>(url, {
       init: {
-        credentials: 'include',
+        credentials: 'include', // 包含 cookies，Better Auth 会自动处理认证
         headers: {
           'Content-Type': 'application/json',
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
       },
     })
   },
+
+  // Discord 登录处理
+  async handleDiscordLogin() {
+    try {
+      const result = await authClient.signIn.social({
+        provider: "discord",
+        callbackURL: "/",
+      });
+
+      return result;
+    } catch (error) {
+      console.error('Discord login error:', error);
+      throw error;
+    }
+  },
+
+  // 登出处理
+  async handleSignOut() {
+    try {
+      await signOut();
+    } catch (error) {
+      console.error('Logout error:', error);
+      throw error;
+    }
+  },
 }
 
+// 默认客户端实例 - 现在正确访问 /api 路径
 export const client = createApiClient().api
-export const authClient = apiHelpers.createAuthClient().api
+export const authenticatedClient = apiHelpers.createAuthenticatedClient().api
 
 // 导出类型以在组件中使用
 export type ApiClient = ReturnType<typeof createApiClient> 

@@ -15,6 +15,20 @@
       "when": 1748523445455,
       "tag": "0001_great_odin",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1748531684250,
+      "tag": "0002_common_sleeper",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1748533366162,
+      "tag": "0003_serious_mimic",
+      "breakpoints": true
     }
   ]
 }

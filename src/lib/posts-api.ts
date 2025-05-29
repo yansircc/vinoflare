@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import type { InferRequestType, InferResponseType } from 'hono/client'
 import { toast } from 'sonner'
 import { catchError } from '../utils/catchError'
-import { authClient, client } from './api-client'
+import { authenticatedClient, client } from './api-client'
 import { createQueryKeys } from './api-factory'
 
 // 从 Hono RPC 推断类型，更加类型安全 
@@ -37,7 +37,7 @@ export const useCreatePost = () => {
   return useMutation<CreatePostResponse, Error, CreatePostRequest>({
     mutationFn: async (newPost) => {
       const { data: result, error } = await catchError(async () => {
-        const res = await authClient.posts.$post({ json: newPost })
+        const res = await authenticatedClient.posts.$post({ json: newPost })
         return res.json()
       })
       if (error || !result) {

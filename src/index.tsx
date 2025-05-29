@@ -4,9 +4,10 @@ import { logger } from 'hono/logger'
 import { renderer } from './renderer'
 import { api } from './server/api'
 import type { ApiType } from './server/api'
+import type { BaseContext } from './server/types/context'
 
 // 创建主应用
-const app = new Hono<{ Bindings: Env }>()
+const app = new Hono<BaseContext>()
 
 // 全局中间件
 app.use('*', logger())

@@ -11,12 +11,33 @@
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
+import { Route as TestAuthImport } from './routes/test-auth'
+import { Route as ProfileImport } from './routes/profile'
+import { Route as LoginImport } from './routes/login'
 import { Route as IndexImport } from './routes/index'
 import { Route as QuotesIndexImport } from './routes/quotes.index'
 import { Route as PostsIndexImport } from './routes/posts.index'
 import { Route as QuotesIdImport } from './routes/quotes.$id'
 
 // Create/Update Routes
+
+const TestAuthRoute = TestAuthImport.update({
+  id: '/test-auth',
+  path: '/test-auth',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const ProfileRoute = ProfileImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const LoginRoute = LoginImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRoute,
+} as any)
 
 const IndexRoute = IndexImport.update({
   id: '/',
@@ -53,6 +74,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexImport
       parentRoute: typeof rootRoute
     }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginImport
+      parentRoute: typeof rootRoute
+    }
+    '/profile': {
+      id: '/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof ProfileImport
+      parentRoute: typeof rootRoute
+    }
+    '/test-auth': {
+      id: '/test-auth'
+      path: '/test-auth'
+      fullPath: '/test-auth'
+      preLoaderRoute: typeof TestAuthImport
+      parentRoute: typeof rootRoute
+    }
     '/quotes/$id': {
       id: '/quotes/$id'
       path: '/quotes/$id'
@@ -81,6 +123,9 @@ declare module '@tanstack/react-router' {
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/login': typeof LoginRoute
+  '/profile': typeof ProfileRoute
+  '/test-auth': typeof TestAuthRoute
   '/quotes/$id': typeof QuotesIdRoute
   '/posts': typeof PostsIndexRoute
   '/quotes': typeof QuotesIndexRoute
@@ -88,6 +133,9 @@ export interface FileRoutesByFullPath {
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/login': typeof LoginRoute
+  '/profile': typeof ProfileRoute
+  '/test-auth': typeof TestAuthRoute
   '/quotes/$id': typeof QuotesIdRoute
   '/posts': typeof PostsIndexRoute
   '/quotes': typeof QuotesIndexRoute
@@ -96,6 +144,9 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
+  '/login': typeof LoginRoute
+  '/profile': typeof ProfileRoute
+  '/test-auth': typeof TestAuthRoute
   '/quotes/$id': typeof QuotesIdRoute
   '/posts/': typeof PostsIndexRoute
   '/quotes/': typeof QuotesIndexRoute
@@ -103,15 +154,40 @@ export interface FileRoutesById {
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/quotes/$id' | '/posts' | '/quotes'
+  fullPaths:
+    | '/'
+    | '/login'
+    | '/profile'
+    | '/test-auth'
+    | '/quotes/$id'
+    | '/posts'
+    | '/quotes'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/quotes/$id' | '/posts' | '/quotes'
-  id: '__root__' | '/' | '/quotes/$id' | '/posts/' | '/quotes/'
+  to:
+    | '/'
+    | '/login'
+    | '/profile'
+    | '/test-auth'
+    | '/quotes/$id'
+    | '/posts'
+    | '/quotes'
+  id:
+    | '__root__'
+    | '/'
+    | '/login'
+    | '/profile'
+    | '/test-auth'
+    | '/quotes/$id'
+    | '/posts/'
+    | '/quotes/'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  LoginRoute: typeof LoginRoute
+  ProfileRoute: typeof ProfileRoute
+  TestAuthRoute: typeof TestAuthRoute
   QuotesIdRoute: typeof QuotesIdRoute
   PostsIndexRoute: typeof PostsIndexRoute
   QuotesIndexRoute: typeof QuotesIndexRoute
@@ -119,6 +195,9 @@ export interface RootRouteChildren {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  LoginRoute: LoginRoute,
+  ProfileRoute: ProfileRoute,
+  TestAuthRoute: TestAuthRoute,
   QuotesIdRoute: QuotesIdRoute,
   PostsIndexRoute: PostsIndexRoute,
   QuotesIndexRoute: QuotesIndexRoute,
@@ -135,6 +214,9 @@ export const routeTree = rootRoute
       "filePath": "__root.tsx",
       "children": [
         "/",
+        "/login",
+        "/profile",
+        "/test-auth",
         "/quotes/$id",
         "/posts/",
         "/quotes/"
@@ -142,6 +224,15 @@ export const routeTree = rootRoute
     },
     "/": {
       "filePath": "index.tsx"
+    },
+    "/login": {
+      "filePath": "login.tsx"
+    },
+    "/profile": {
+      "filePath": "profile.tsx"
+    },
+    "/test-auth": {
+      "filePath": "test-auth.tsx"
     },
     "/quotes/$id": {
       "filePath": "quotes.$id.tsx"

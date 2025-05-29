@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import type { InferRequestType, InferResponseType } from 'hono/client'
 import { toast } from 'sonner'
 import { catchError } from '../utils/catchError'
-import { authClient, client } from './api-client'
+import { authenticatedClient, client } from './api-client'
 import { createQueryKeys } from './api-factory'
 
 // 从 Hono RPC 推断类型，更加类型安全
@@ -48,7 +48,7 @@ export const useQuote = (id: string | number) => {
       queryFn: async (): Promise<GetQuoteResponse> => {
       const { data: result, error } = await catchError(async () => {
 
-        const res = await authClient.quotes[':id'].$get({
+        const res = await authenticatedClient.quotes[':id'].$get({
           param: { id: id.toString() }
         })
         return res.json()
@@ -69,7 +69,7 @@ export const useCreateQuote = () => {
   return useMutation<CreateQuoteResponse, Error, CreateQuoteRequest>({
     mutationFn: async (newQuote) => {
       const { data: result, error } = await catchError(async () => {
-        const res = await authClient.quotes.$post({ json: newQuote })
+        const res = await authenticatedClient.quotes.$post({ json: newQuote })
         return res.json()
       })
       if (error || !result) {
@@ -99,7 +99,7 @@ export const useUpdateQuote = () => {
   >({
     mutationFn: async ({ id, data }) => {
       const { data: result, error } = await catchError(async () => {
-        const res = await authClient.quotes[':id'].$put({
+        const res = await authenticatedClient.quotes[':id'].$put({
           param: { id: id.toString() },
           json: data
           })
@@ -132,7 +132,7 @@ export const useDeleteQuote = () => {
   return useMutation<DeleteQuoteResponse, Error, string | number>({
     mutationFn: async (id) => {
       const { data: result, error } = await catchError(async () => {
-        const res = await authClient.quotes[':id'].$delete({
+        const res = await authenticatedClient.quotes[':id'].$delete({
           param: { id: id.toString() },
         })
         return res.json()
