@@ -285,26 +285,18 @@ const app = new Hono<BaseContext>()
 			const id = c.req.param("id");
 
 			if (!id) {
-				return c.json(
-					{
-						success: false,
-						error: "无效的文章ID",
-					},
-					400,
-				);
+				throw new HTTPException(400, {
+					message: "无效的文章ID",
+				});
 			}
 
 			const store = new PostsKVStore(c.env.KV);
 			const post = await store.getPost(id);
 
 			if (!post) {
-				return c.json(
-					{
-						success: false,
-						error: "文章不存在",
-					},
-					404,
-				);
+				throw new HTTPException(404, {
+					message: "文章不存在",
+				});
 			}
 
 			return c.json({
@@ -333,13 +325,9 @@ const app = new Hono<BaseContext>()
 				const updates = c.req.valid("json");
 
 				if (!id) {
-					return c.json(
-						{
-							success: false,
-							error: "无效的文章ID",
-						},
-						400,
-					);
+					throw new HTTPException(400, {
+						message: "无效的文章ID",
+					});
 				}
 
 				const store = new PostsKVStore(c.env.KV);
@@ -373,13 +361,9 @@ const app = new Hono<BaseContext>()
 			const id = c.req.param("id");
 
 			if (!id) {
-				return c.json(
-					{
-						success: false,
-						error: "无效的文章ID",
-					},
-					400,
-				);
+				throw new HTTPException(400, {
+					message: "无效的文章ID",
+				});
 			}
 
 			const store = new PostsKVStore(c.env.KV);
