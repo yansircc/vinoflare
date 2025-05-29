@@ -6,13 +6,13 @@ import { authClient, client } from './api-client'
 import { createQueryKeys } from './api-factory'
 
 // 从 Hono RPC 推断类型，更加类型安全
-type GetQuotesResponse = InferResponseType<typeof client.api.quotes.$get>['data']
-type GetQuoteResponse = InferResponseType<(typeof client.api.quotes)[':id']['$get']>['data']  
-type CreateQuoteRequest = InferRequestType<typeof client.api.quotes.$post>['json']
-type CreateQuoteResponse = InferResponseType<typeof client.api.quotes.$post>
-type UpdateQuoteRequest = InferRequestType<(typeof client.api.quotes)[':id']['$put']>['json']
-type UpdateQuoteResponse = InferResponseType<(typeof client.api.quotes)[':id']['$put']>
-type DeleteQuoteResponse = InferResponseType<(typeof client.api.quotes)[':id']['$delete']>
+type GetQuotesResponse = InferResponseType<typeof client.quotes.$get>['data']
+type GetQuoteResponse = InferResponseType<(typeof client.quotes)[':id']['$get']>['data']  
+type CreateQuoteRequest = InferRequestType<typeof client.quotes.$post>['json']
+type CreateQuoteResponse = InferResponseType<typeof client.quotes.$post>
+type UpdateQuoteRequest = InferRequestType<(typeof client.quotes)[':id']['$put']>['json']
+type UpdateQuoteResponse = InferResponseType<(typeof client.quotes)[':id']['$put']>
+type DeleteQuoteResponse = InferResponseType<(typeof client.quotes)[':id']['$delete']>
 
 // 创建 Query Keys
 const quotesKeys = createQueryKeys('quotes')
@@ -25,7 +25,7 @@ export const useQuotes = () => {
     queryKey: quotesKeys.all,
     queryFn: async (): Promise<GetQuotesResponse> => {
       const { data: result } = await catchError(async () => {
-        const res = await client.api.quotes.$get()
+        const res = await client.quotes.$get()
         return res.json()
       }, {
         onError: (err) => {
@@ -48,7 +48,7 @@ export const useQuote = (id: string | number) => {
       queryFn: async (): Promise<GetQuoteResponse> => {
       const { data: result, error } = await catchError(async () => {
 
-        const res = await authClient.api.quotes[':id'].$get({
+        const res = await authClient.quotes[':id'].$get({
           param: { id: id.toString() }
         })
         return res.json()
@@ -69,7 +69,7 @@ export const useCreateQuote = () => {
   return useMutation<CreateQuoteResponse, Error, CreateQuoteRequest>({
     mutationFn: async (newQuote) => {
       const { data: result, error } = await catchError(async () => {
-        const res = await authClient.api.quotes.$post({ json: newQuote })
+        const res = await authClient.quotes.$post({ json: newQuote })
         return res.json()
       })
       if (error || !result) {
@@ -99,7 +99,7 @@ export const useUpdateQuote = () => {
   >({
     mutationFn: async ({ id, data }) => {
       const { data: result, error } = await catchError(async () => {
-        const res = await authClient.api.quotes[':id'].$put({
+        const res = await authClient.quotes[':id'].$put({
           param: { id: id.toString() },
           json: data
           })
@@ -132,7 +132,7 @@ export const useDeleteQuote = () => {
   return useMutation<DeleteQuoteResponse, Error, string | number>({
     mutationFn: async (id) => {
       const { data: result, error } = await catchError(async () => {
-        const res = await authClient.api.quotes[':id'].$delete({
+        const res = await authClient.quotes[':id'].$delete({
           param: { id: id.toString() },
         })
         return res.json()

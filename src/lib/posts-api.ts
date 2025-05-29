@@ -6,9 +6,9 @@ import { authClient, client } from './api-client'
 import { createQueryKeys } from './api-factory'
 
 // 从 Hono RPC 推断类型，更加类型安全 
-type GetLatestPostResponse = InferResponseType<typeof client.api.posts.latest.$get>['data']
-type CreatePostRequest = InferRequestType<typeof client.api.posts.$post>['json']
-type CreatePostResponse = InferResponseType<typeof client.api.posts.$post>
+type GetLatestPostResponse = InferResponseType<typeof client.posts.latest.$get>['data']
+type CreatePostRequest = InferRequestType<typeof client.posts.$post>['json']
+type CreatePostResponse = InferResponseType<typeof client.posts.$post>
 
 // 创建 Query Keys
 const postsKeys = createQueryKeys('posts')
@@ -19,7 +19,7 @@ export const useLatestPost = () => {
     queryKey: postsKeys.latest(),
     queryFn: async (): Promise<GetLatestPostResponse> => {
       const { data: result, error } = await catchError(async () => {
-        const res = await client.api.posts.latest.$get()
+        const res = await client.posts.latest.$get()
         return res.json()
       })
       if (error || !result) {
@@ -37,7 +37,7 @@ export const useCreatePost = () => {
   return useMutation<CreatePostResponse, Error, CreatePostRequest>({
     mutationFn: async (newPost) => {
       const { data: result, error } = await catchError(async () => {
-        const res = await authClient.api.posts.$post({ json: newPost })
+        const res = await authClient.posts.$post({ json: newPost })
         return res.json()
       })
       if (error || !result) {

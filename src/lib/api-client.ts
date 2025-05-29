@@ -63,8 +63,8 @@ export const apiHelpers = {
   },
 }
 
-export const client = createApiClient() 
-export const authClient = apiHelpers.createAuthClient()
+export const client = createApiClient().api
+export const authClient = apiHelpers.createAuthClient().api
 
 // 导出类型以在组件中使用
 export type ApiClient = ReturnType<typeof createApiClient> 

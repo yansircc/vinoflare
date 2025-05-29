@@ -110,7 +110,7 @@ import { hc } from 'hono/client'
 import type { InferResponseType } from 'hono/client'
 
 const api = hc<AppType>('/')
-const response = await api.api.quotes.$get()
+const response = await client.quotes.$get()
 const data = await response.json() // 完全类型化！
 ```
 
@@ -211,7 +211,7 @@ import type { InferResponseType } from 'hono/client'
 const { data } = useQuery({
   queryKey: ['posts'],
   queryFn: async () => {
-    const response = await api.api.posts.$get()
+    const response = await client.posts.$get()
     if (!response.ok) throw new Error('获取失败')
     return await response.json()
   },
@@ -220,7 +220,7 @@ const { data } = useQuery({
 // 带认证的类型安全变更
 const createMutation = useMutation({
   mutationFn: async (newPost) => {
-    const response = await api.api.posts.$post({
+    const response = await client.posts.$post({
       json: newPost,
     }, {
       headers: apiHelpers.withAuth(),
@@ -240,7 +240,7 @@ const createMutation = useMutation({
 apiHelpers.setAuthToken(token)
 
 // 在 API 调用中使用
-const response = await api.api.quotes.$post({
+const response = await client.quotes.$post({
   json: data,
 }, {
   headers: apiHelpers.withAuth(),
