@@ -1,5 +1,5 @@
+import type { ApiType } from "@/server/api";
 import { hc } from "hono/client";
-import type { ApiType } from "../server/api";
 
 // 创建 API 客户端
 export function createApiClient(baseUrl?: string) {

@@ -1,12 +1,12 @@
-import { zValidator } from "@hono/zod-validator";
-import { Hono } from "hono";
-import { HTTPException } from "hono/http-exception";
 import {
 	authMiddleware,
 	loggingMiddleware,
 	optionalAuthMiddleware,
-} from "../../middleware/procedures";
-import type { BaseContext } from "../../types/context";
+} from "@/server/middleware/procedures";
+import type { BaseContext } from "@/server/types/context";
+import { zValidator } from "@hono/zod-validator";
+import { Hono } from "hono";
+import { HTTPException } from "hono/http-exception";
 import { PostsKVStore } from "./helper";
 import { postCreateSchema, postUpdateSchema, querySchema } from "./types";
 

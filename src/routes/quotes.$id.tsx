@@ -1,5 +1,5 @@
+import { useQuote } from "@/hooks/quotes/api";
 import { Link, createFileRoute } from "@tanstack/react-router";
-import { useQuote } from "../hooks/quotes/quotes-api";
 
 export const Route = createFileRoute("/quotes/$id")({
 	component: QuoteDetail,

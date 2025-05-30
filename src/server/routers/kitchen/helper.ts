@@ -97,19 +97,13 @@ export class KitchenKVStore {
 			await this.saveTask(task);
 			tasks.push(task);
 
-			// 发送到队列
+			// 发送到队列 - 移除 action 字段，匹配新的消息格式
 			await this.queue.send({
 				taskId,
-				action: "process_ingredient",
 				ingredient,
 				userId,
 				timestamp: now,
 			});
-
-			// 更新任务状态为 processing
-			task.status = "processing";
-			task.startTime = now;
-			await this.saveTask(task);
 
 			// 添加到用户任务列表
 			existingTaskIds.push(taskId);

@@ -1,6 +1,6 @@
+import type { client } from "@/api/client";
 import type { InferRequestType, InferResponseType } from "hono/client";
 import { z } from "zod";
-import type { client } from "../../api/client";
 
 // 留言表单的 Zod schema
 export const quoteFormSchema = z.object({

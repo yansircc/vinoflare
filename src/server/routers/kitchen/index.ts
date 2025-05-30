@@ -1,12 +1,12 @@
-import { zValidator } from "@hono/zod-validator";
-import { Hono } from "hono";
-import { HTTPException } from "hono/http-exception";
 import {
 	authMiddleware,
 	loggingMiddleware,
 	optionalAuthMiddleware,
-} from "../../middleware/procedures";
-import type { BaseContext } from "../../types/context";
+} from "@/server/middleware/procedures";
+import type { BaseContext } from "@/server/types/context";
+import { zValidator } from "@hono/zod-validator";
+import { Hono } from "hono";
+import { HTTPException } from "hono/http-exception";
 import { KitchenKVStore, processIngredientsSchema } from "./helper";
 import { PREDEFINED_INGREDIENTS } from "./mock-data";
 import type { Ingredient, ProcessingStatus, ProcessingTask } from "./types";
@@ -203,7 +203,61 @@ const app = new Hono<BaseContext>()
 				cause: error,
 			});
 		}
-	});
+	})
+
+	// 强制重置所有处理中的任务状态（调试用）
+	.post(
+		"/kitchen/tasks/reset-processing",
+		authMiddleware,
+		loggingMiddleware,
+		async (c) => {
+			try {
+				const user = c.get("user");
+
+				if (!user) {
+					throw new HTTPException(401, { message: "用户未登录" });
+				}
+
+				const kv = c.env.KV;
+				let resetCount = 0;
+
+				// 获取所有任务
+				const list = await kv.list({ prefix: "task:" });
+
+				for (const key of list.keys) {
+					const task = (await kv.get(
+						key.name,
+						"json",
+					)) as ProcessingTask | null;
+					if (task && task.userId === user.id && task.status === "processing") {
+						// 将处理中的任务重置为待处理
+						task.status = "pending";
+						task.progress = 0;
+						task.startTime = undefined;
+						task.estimatedEndTime = undefined;
+
+						await kv.put(key.name, JSON.stringify(task), {
+							expirationTtl: 24 * 60 * 60,
+						});
+
+						resetCount++;
+					}
+				}
+
+				return c.json({
+					success: true,
+					message: `已重置 ${resetCount} 个处理中的任务`,
+					resetCount,
+				});
+			} catch (error) {
+				console.error("重置任务状态失败:", error);
+				throw new HTTPException(500, {
+					message: "重置任务状态失败",
+					cause: error,
+				});
+			}
+		},
+	);
 
 export const kitchenRouter = app;
 export type KitchenRouterType = typeof app;

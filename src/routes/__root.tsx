@@ -1,8 +1,8 @@
+import NotFoundComponent from "@/components/404";
+import { Layout } from "@/components/Layout";
+import { isDev } from "@/lib/env";
 import { createRootRoute } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
-import NotFoundComponent from "../components/404";
-import { Layout } from "../components/Layout";
-import { isDev } from "../lib/env";
 
 export const Route = createRootRoute({
 	head: () => ({

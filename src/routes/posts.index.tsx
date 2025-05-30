@@ -1,7 +1,7 @@
+import { useDeletePost, usePosts } from "@/hooks/posts/api";
+import { PostForm } from "@/hooks/posts/ui/PostForm";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { PostForm } from "../components/PostForm";
-import { useDeletePost, usePosts } from "../hooks/posts/posts-api";
 
 export const Route = createFileRoute("/posts/")({
 	component: PostsList,

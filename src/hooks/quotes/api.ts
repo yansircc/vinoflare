@@ -1,9 +1,9 @@
+import { client } from "@/api/client";
+import { authenticatedClient } from "@/lib/auth";
+import { createQueryKeys } from "@/lib/query-factory";
+import { catchError } from "@/utils/catchError";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { client } from "../../api/client";
-import { authenticatedClient } from "../../lib/auth";
-import { createQueryKeys } from "../../lib/query-factory";
-import { catchError } from "../../utils/catchError";
 
 import type {
 	CreateQuoteRequest,
@@ -13,7 +13,7 @@ import type {
 	GetQuotesResponse,
 	UpdateQuoteRequest,
 	UpdateQuoteResponse,
-} from "./quote-types";
+} from "./types";
 
 // 创建 Query Keys
 const quotesKeys = createQueryKeys("quotes");

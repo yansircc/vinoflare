@@ -1,7 +1,7 @@
+import type { client } from "@/api/client";
+import type { authenticatedClient } from "@/lib/auth";
 import type { InferResponseType } from "hono/client";
 import { z } from "zod";
-import type { client } from "../../api/client";
-import type { authenticatedClient } from "../../lib/auth";
 
 // 文章表单的 Zod schema
 export const postFormSchema = z.object({

@@ -1,6 +1,6 @@
+import type { ApiType } from "@/server/api";
 import { createAuthClient } from "better-auth/react";
 import { hc } from "hono/client";
-import type { ApiType } from "../server/api";
 
 // 创建 Better Auth 客户端
 export const authClient = createAuthClient({

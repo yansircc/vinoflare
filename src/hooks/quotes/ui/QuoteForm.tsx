@@ -1,12 +1,12 @@
+import type { QuoteSlect } from "@/server/db/types";
 import { type AnyFieldApi, useForm } from "@tanstack/react-form";
 import { useState } from "react";
+import { useCreateQuote, useUpdateQuote } from "../api";
 import {
 	type QuoteFormData,
 	defaultQuoteFormValues,
 	quoteFormSchema,
-} from "../hooks/quotes/quote-types";
-import { useCreateQuote, useUpdateQuote } from "../hooks/quotes/quotes-api";
-import type { QuoteSlect } from "../server/db/types";
+} from "../types";
 
 interface QuoteFormProps {
 	onSuccess?: () => void;

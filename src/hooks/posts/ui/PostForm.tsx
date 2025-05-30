@@ -1,11 +1,11 @@
 import { type AnyFieldApi, useForm } from "@tanstack/react-form";
 import { useState } from "react";
+import { useCreatePost } from "../api";
 import {
 	type PostFormData,
 	defaultPostFormValues,
 	postFormSchema,
-} from "../hooks/posts/post-schema";
-import { useCreatePost } from "../hooks/posts/posts-api";
+} from "../types";
 
 interface PostFormProps {
 	onSuccess?: () => void;

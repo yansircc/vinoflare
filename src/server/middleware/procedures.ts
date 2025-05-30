@@ -1,3 +1,4 @@
+import { isDev } from "@/lib/env";
 import { createMiddleware } from "hono/factory";
 import { HTTPException } from "hono/http-exception";
 import { createAuth } from "../auth";
@@ -39,14 +40,16 @@ export const authMiddleware = createMiddleware<AuthContext>(async (c, next) => {
 		await next();
 	} catch (error) {
 		// 详细的错误日志记录
-		console.error("🔐 认证中间件错误:", {
-			error: error instanceof Error ? error.message : "Unknown error",
-			path: c.req.path,
-			method: c.req.method,
-			userAgent: c.req.header("user-agent"),
-			ip: c.req.header("cf-connecting-ip") || c.req.header("x-forwarded-for"),
-			timestamp: new Date().toISOString(),
-		});
+		if (!isDev) {
+			console.error("🔐 认证中间件错误:", {
+				error: error instanceof Error ? error.message : "Unknown error",
+				path: c.req.path,
+				method: c.req.method,
+				userAgent: c.req.header("user-agent"),
+				ip: c.req.header("cf-connecting-ip") || c.req.header("x-forwarded-for"),
+				timestamp: new Date().toISOString(),
+			});
+		}
 
 		// 如果已经是HTTPException，直接抛出
 		if (error instanceof HTTPException) {
@@ -101,11 +104,13 @@ export const loggingMiddleware = createMiddleware(async (c, next) => {
 	c.res.headers.set("x-request-id", requestId);
 
 	// 记录请求开始
-	console.log(`🚀 [${requestId}] ${c.req.method} ${c.req.path} - Start`, {
-		userAgent: c.req.header("user-agent"),
-		ip: c.req.header("cf-connecting-ip") || c.req.header("x-forwarded-for"),
-		referer: c.req.header("referer"),
-	});
+	if (!isDev) {
+		console.log(`🚀 [${requestId}] ${c.req.method} ${c.req.path} - Start`, {
+			userAgent: c.req.header("user-agent"),
+			ip: c.req.header("cf-connecting-ip") || c.req.header("x-forwarded-for"),
+			referer: c.req.header("referer"),
+		});
+	}
 
 	await next();
 

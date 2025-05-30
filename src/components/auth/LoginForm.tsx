@@ -1,5 +1,5 @@
+import { authClient } from "@/lib/auth";
 import { useState } from "react";
-import { authClient } from "../../lib/auth";
 
 export function LoginForm() {
 	const [isLoading, setIsLoading] = useState(false);

@@ -1,6 +1,6 @@
+import type { client } from "@/api/client";
+import type { authenticatedClient } from "@/lib/auth";
 import type { InferRequestType, InferResponseType } from "hono/client";
-import type { client } from "../../api/client";
-import type { authenticatedClient } from "../../lib/auth";
 
 // 定义 API 类型
 export type GetIngredientsResponse = InferResponseType<

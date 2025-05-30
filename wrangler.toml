@@ -25,7 +25,7 @@ queue = "vinoflare"
 
 [[queues.consumers]]
 queue = "vinoflare"
-max_batch_size = 5
-max_batch_timeout = 3
-max_retries = 3
+max_batch_size = 1
+max_batch_timeout = 10
+max_concurrency = 1
 dead_letter_queue = "vinoflare-dlq"

@@ -1,8 +1,8 @@
+import { useDeleteQuote, useQuotes } from "@/hooks/quotes/api";
+import { QuoteForm } from "@/hooks/quotes/ui/QuoteForm";
+import type { QuoteSlect } from "@/server/db/types";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { QuoteForm } from "../components/QuoteForm";
-import { useDeleteQuote, useQuotes } from "../hooks/quotes/quotes-api";
-import type { QuoteSlect } from "../server/db/types";
 
 export const Route = createFileRoute("/quotes/")({
 	component: QuotesList,

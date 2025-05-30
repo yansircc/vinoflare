@@ -1,4 +1,4 @@
-import { apiHelpers, useSession } from "../../lib/auth";
+import { apiHelpers, useSession } from "@/lib/auth";
 
 export function UserProfile() {
 	const { data: session, isPending } = useSession();
