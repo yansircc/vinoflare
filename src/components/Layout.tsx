@@ -1,12 +1,12 @@
 import { Link, Outlet } from "@tanstack/react-router";
 import { headerNav } from "../config/header-nav";
-import { useSession } from "../lib/api-client";
+import { useSession } from "../lib/auth";
 
 export function Layout() {
 	const { data: session, isPending } = useSession();
 
 	return (
-		<div className="flex min-h-screen flex-col bg-white">
+		<div className="flex min-h-screen flex-col gap-16 bg-white">
 			{/* 导航栏 */}
 			<header className="sticky top-0 z-50 border-gray-100 border-b bg-gray-50 backdrop-blur-md">
 				<div className="mx-auto max-w-6xl px-6">
@@ -86,7 +86,7 @@ export function Layout() {
 			</header>
 
 			{/* 主内容区域 */}
-			<main className="mt-16 flex-1">
+			<main className="flex-1">
 				<Outlet />
 			</main>
 

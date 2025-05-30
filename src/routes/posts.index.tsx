@@ -1,7 +1,7 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { PostForm } from "../components/PostForm";
-import { useDeletePost, usePosts } from "../lib/posts-api";
+import { useDeletePost, usePosts } from "../hooks/posts/posts-api";
 
 export const Route = createFileRoute("/posts/")({
 	component: PostsList,

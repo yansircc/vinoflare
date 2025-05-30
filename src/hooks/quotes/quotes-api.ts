@@ -1,9 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { InferRequestType, InferResponseType } from "hono/client";
 import { toast } from "sonner";
-import { catchError } from "../utils/catchError";
-import { authenticatedClient, client } from "./api-client";
-import { createQueryKeys } from "./api-factory";
+import { client } from "../../api/client";
+import { authenticatedClient } from "../../lib/auth";
+import { createQueryKeys } from "../../lib/query-factory";
+import { catchError } from "../../utils/catchError";
 
 // 从 Hono RPC 推断类型，更加类型安全
 type GetQuotesResponse = InferResponseType<typeof client.quotes.$get>["data"];

@@ -1,8 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { catchError } from "../utils/catchError";
-import { authenticatedClient, client } from "./api-client";
-import { createQueryKeys } from "./api-factory";
+import { client } from "../../api/client";
+import { authenticatedClient } from "../../lib/auth";
+import { createQueryKeys } from "../../lib/query-factory";
+import { catchError } from "../../utils/catchError";
 
 // 创建 Query Keys
 const postsKeys = createQueryKeys("posts");

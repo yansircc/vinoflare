@@ -4,8 +4,8 @@ import {
 	type QuoteFormData,
 	defaultQuoteFormValues,
 	quoteFormSchema,
-} from "../lib/quote-schema";
-import { useCreateQuote, useUpdateQuote } from "../lib/quotes-api";
+} from "../hooks/quotes/quote-schema";
+import { useCreateQuote, useUpdateQuote } from "../hooks/quotes/quotes-api";
 import type { QuoteSlect } from "../server/db/types";
 
 interface QuoteFormProps {

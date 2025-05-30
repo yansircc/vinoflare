@@ -14,24 +14,6 @@ export const authClient = createAuthClient({
 // 导出认证方法
 export const { signIn, signUp, signOut, useSession, getSession } = authClient;
 
-// 创建 API 客户端
-export function createApiClient(baseUrl?: string) {
-	const url =
-		baseUrl ||
-		(typeof window !== "undefined"
-			? window.location.origin
-			: "http://localhost:5173");
-
-	return hc<ApiType>(url, {
-		init: {
-			credentials: "include", // 重要：包含 cookies 以支持 Better Auth 会话
-			headers: {
-				"Content-Type": "application/json",
-			},
-		},
-	});
-}
-
 // Better Auth 集成的 API 辅助函数
 export const apiHelpers = {
 	// 检查是否已认证（使用 Better Auth 会话）
@@ -87,9 +69,5 @@ export const apiHelpers = {
 	},
 };
 
-// 默认客户端实例 - 现在正确访问 /api 路径
-export const client = createApiClient().api;
+// 认证客户端实例
 export const authenticatedClient = apiHelpers.createAuthenticatedClient().api;
-
-// 导出类型以在组件中使用
-export type ApiClient = ReturnType<typeof createApiClient>;

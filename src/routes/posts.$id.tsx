@@ -1,5 +1,5 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
-import { usePost } from "../lib/posts-api";
+import { usePost } from "../hooks/posts/posts-api";
 
 export const Route = createFileRoute("/posts/$id")({
 	component: PostDetail,

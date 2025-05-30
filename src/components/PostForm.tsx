@@ -4,8 +4,8 @@ import {
 	type PostFormData,
 	defaultPostFormValues,
 	postFormSchema,
-} from "../lib/post-schema";
-import { useCreatePost } from "../lib/posts-api";
+} from "../hooks/posts/post-schema";
+import { useCreatePost } from "../hooks/posts/posts-api";
 
 interface PostFormProps {
 	onSuccess?: () => void;
