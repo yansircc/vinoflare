@@ -1,3 +1,4 @@
+import path from "node:path";
 import { cloudflare } from "@cloudflare/vite-plugin";
 import tailwindcss from "@tailwindcss/vite";
 import { TanStackRouterVite } from "@tanstack/router-plugin/vite";
@@ -13,6 +14,11 @@ export default defineConfig(({ mode }) => {
 				tailwindcss(),
 				manifestPlugin(),
 			],
+			resolve: {
+				alias: {
+					"@": path.resolve(__dirname, "./src"),
+				},
+			},
 			build: {
 				outDir: "dist/client",
 				emptyOutDir: true,
@@ -40,6 +46,11 @@ export default defineConfig(({ mode }) => {
 				ssrPlugin(),
 				tailwindcss(),
 			],
+			resolve: {
+				alias: {
+					"@": path.resolve(__dirname, "./src"),
+				},
+			},
 		};
 	}
 });

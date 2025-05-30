@@ -10,7 +10,11 @@
 		"jsx": "react-jsx",
 		"allowSyntheticDefaultImports": true,
 		"esModuleInterop": true,
-		"resolveJsonModule": true
+		"resolveJsonModule": true,
+		"baseUrl": ".",
+		"paths": {
+			"@/*": ["./src/*"]
+		}
 	},
 	"include": ["src/**/*", "worker-configuration.d.ts"],
 	"exclude": ["node_modules", "dist"]

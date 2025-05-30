@@ -1,4 +1,6 @@
+import type { InferRequestType, InferResponseType } from "hono/client";
 import { z } from "zod";
+import type { client } from "../../api/client";
 
 // 留言表单的 Zod schema
 export const quoteFormSchema = z.object({
@@ -35,3 +37,22 @@ export const defaultQuoteFormValues: QuoteFormData = {
 	email: "",
 	message: "",
 };
+
+// 从 Hono RPC 推断类型，更加类型安全
+export type GetQuotesResponse = InferResponseType<typeof client.quotes.$get>;
+export type GetQuoteResponse = InferResponseType<
+	(typeof client.quotes)[":id"]["$get"]
+>;
+export type CreateQuoteRequest = InferRequestType<
+	typeof client.quotes.$post
+>["json"];
+export type CreateQuoteResponse = InferResponseType<typeof client.quotes.$post>;
+export type UpdateQuoteRequest = InferRequestType<
+	(typeof client.quotes)[":id"]["$put"]
+>["json"];
+export type UpdateQuoteResponse = InferResponseType<
+	(typeof client.quotes)[":id"]["$put"]
+>;
+export type DeleteQuoteResponse = InferResponseType<
+	(typeof client.quotes)[":id"]["$delete"]
+>;

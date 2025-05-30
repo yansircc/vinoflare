@@ -1,4 +1,7 @@
+import type { InferResponseType } from "hono/client";
 import { z } from "zod";
+import type { client } from "../../api/client";
+import type { authenticatedClient } from "../../lib/auth";
 
 // 文章表单的 Zod schema
 export const postFormSchema = z.object({
@@ -23,3 +26,20 @@ export const defaultPostFormValues: PostFormData = {
 	title: "",
 	content: "",
 };
+
+export type GetPostsResponse = InferResponseType<typeof client.posts.$get>;
+export type GetPostResponse = InferResponseType<
+	(typeof client.posts)[":id"]["$get"]
+>;
+export type GetLatestPostResponse = InferResponseType<
+	typeof client.posts.latest.$get
+>;
+export type CreatePostResponse = InferResponseType<
+	typeof authenticatedClient.posts.$post
+>;
+export type UpdatePostResponse = InferResponseType<
+	(typeof authenticatedClient.posts)[":id"]["$put"]
+>;
+export type DeletePostResponse = InferResponseType<
+	(typeof authenticatedClient.posts)[":id"]["$delete"]
+>;

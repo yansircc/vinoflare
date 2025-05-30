@@ -1,27 +1,19 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import type { InferRequestType, InferResponseType } from "hono/client";
 import { toast } from "sonner";
 import { client } from "../../api/client";
 import { authenticatedClient } from "../../lib/auth";
 import { createQueryKeys } from "../../lib/query-factory";
 import { catchError } from "../../utils/catchError";
 
-// 从 Hono RPC 推断类型，更加类型安全
-type GetQuotesResponse = InferResponseType<typeof client.quotes.$get>["data"];
-type GetQuoteResponse = InferResponseType<
-	(typeof client.quotes)[":id"]["$get"]
->["data"];
-type CreateQuoteRequest = InferRequestType<typeof client.quotes.$post>["json"];
-type CreateQuoteResponse = InferResponseType<typeof client.quotes.$post>;
-type UpdateQuoteRequest = InferRequestType<
-	(typeof client.quotes)[":id"]["$put"]
->["json"];
-type UpdateQuoteResponse = InferResponseType<
-	(typeof client.quotes)[":id"]["$put"]
->;
-type DeleteQuoteResponse = InferResponseType<
-	(typeof client.quotes)[":id"]["$delete"]
->;
+import type {
+	CreateQuoteRequest,
+	CreateQuoteResponse,
+	DeleteQuoteResponse,
+	GetQuoteResponse,
+	GetQuotesResponse,
+	UpdateQuoteRequest,
+	UpdateQuoteResponse,
+} from "./quote-types";
 
 // 创建 Query Keys
 const quotesKeys = createQueryKeys("quotes");
@@ -33,22 +25,14 @@ export const useQuotes = () => {
 	return useQuery({
 		queryKey: quotesKeys.all,
 		queryFn: async (): Promise<GetQuotesResponse> => {
-			const { data: result } = await catchError(
-				async () => {
-					const res = await client.quotes.$get({ query: {} });
-					return res.json();
-				},
-				{
-					onError: (err) => {
-						console.error("获取留言失败", err);
-					},
-				},
-			);
+			const { data: result, error } = await catchError(async () => {
+				return await client.quotes.$get({ query: {} });
+			});
 
-			if (!result) {
+			if (error || !result) {
 				throw new Error("获取留言失败");
 			}
-			return result.data;
+			return result.json();
 		},
 	});
 };
@@ -59,15 +43,14 @@ export const useQuote = (id: string | number) => {
 		queryKey: quotesKeys.detail(id),
 		queryFn: async (): Promise<GetQuoteResponse> => {
 			const { data: result, error } = await catchError(async () => {
-				const res = await authenticatedClient.quotes[":id"].$get({
+				return await authenticatedClient.quotes[":id"].$get({
 					param: { id: id.toString() },
 				});
-				return res.json();
 			});
 			if (error || !result) {
 				throw new Error("获取留言失败");
 			}
-			return result.data;
+			return result.json();
 		},
 		enabled: !!id,
 	});

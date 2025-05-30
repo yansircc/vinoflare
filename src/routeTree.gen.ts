@@ -13,6 +13,7 @@
 import { Route as rootRoute } from './routes/__root'
 import { Route as ProfileImport } from './routes/profile'
 import { Route as LoginImport } from './routes/login'
+import { Route as KitchenImport } from './routes/kitchen'
 import { Route as IndexImport } from './routes/index'
 import { Route as QuotesIndexImport } from './routes/quotes.index'
 import { Route as PostsIndexImport } from './routes/posts.index'
@@ -30,6 +31,12 @@ const ProfileRoute = ProfileImport.update({
 const LoginRoute = LoginImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const KitchenRoute = KitchenImport.update({
+  id: '/kitchen',
+  path: '/kitchen',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -72,6 +79,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexImport
+      parentRoute: typeof rootRoute
+    }
+    '/kitchen': {
+      id: '/kitchen'
+      path: '/kitchen'
+      fullPath: '/kitchen'
+      preLoaderRoute: typeof KitchenImport
       parentRoute: typeof rootRoute
     }
     '/login': {
@@ -123,6 +137,7 @@ declare module '@tanstack/react-router' {
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/kitchen': typeof KitchenRoute
   '/login': typeof LoginRoute
   '/profile': typeof ProfileRoute
   '/posts/$id': typeof PostsIdRoute
@@ -133,6 +148,7 @@ export interface FileRoutesByFullPath {
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/kitchen': typeof KitchenRoute
   '/login': typeof LoginRoute
   '/profile': typeof ProfileRoute
   '/posts/$id': typeof PostsIdRoute
@@ -144,6 +160,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
+  '/kitchen': typeof KitchenRoute
   '/login': typeof LoginRoute
   '/profile': typeof ProfileRoute
   '/posts/$id': typeof PostsIdRoute
@@ -156,6 +173,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/kitchen'
     | '/login'
     | '/profile'
     | '/posts/$id'
@@ -165,6 +183,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/kitchen'
     | '/login'
     | '/profile'
     | '/posts/$id'
@@ -174,6 +193,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/kitchen'
     | '/login'
     | '/profile'
     | '/posts/$id'
@@ -185,6 +205,7 @@ export interface FileRouteTypes {
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  KitchenRoute: typeof KitchenRoute
   LoginRoute: typeof LoginRoute
   ProfileRoute: typeof ProfileRoute
   PostsIdRoute: typeof PostsIdRoute
@@ -195,6 +216,7 @@ export interface RootRouteChildren {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  KitchenRoute: KitchenRoute,
   LoginRoute: LoginRoute,
   ProfileRoute: ProfileRoute,
   PostsIdRoute: PostsIdRoute,
@@ -214,6 +236,7 @@ export const routeTree = rootRoute
       "filePath": "__root.tsx",
       "children": [
         "/",
+        "/kitchen",
         "/login",
         "/profile",
         "/posts/$id",
@@ -224,6 +247,9 @@ export const routeTree = rootRoute
     },
     "/": {
       "filePath": "index.tsx"
+    },
+    "/kitchen": {
+      "filePath": "kitchen.tsx"
     },
     "/login": {
       "filePath": "login.tsx"

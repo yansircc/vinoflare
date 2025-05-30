@@ -35,6 +35,13 @@ function HomePage() {
 					>
 						查看文章
 					</Link>
+
+					<Link
+						to="/kitchen"
+						className="inline-block rounded-full bg-blue-600 px-8 py-3 font-medium text-white transition-all hover:scale-105 hover:bg-blue-700"
+					>
+						🍳 智能厨房
+					</Link>
 				</div>
 			</div>
 

@@ -11,6 +11,7 @@ import {
 	errorHandlerMiddleware,
 	loggingMiddleware,
 } from "../middleware/procedures";
+import { kitchenRouter } from "../routers/kitchen";
 import { postsRouter } from "../routers/posts";
 import { quotesRouter } from "../routers/quotes";
 import type { BaseContext } from "../types/context";
@@ -141,6 +142,7 @@ const app = new Hono<BaseContext>()
 	// 业务路由器
 	.route("/api", quotesRouter)
 	.route("/api", postsRouter)
+	.route("/api", kitchenRouter)
 
 	// 404 处理 - 正确的方式
 	.notFound((c) => {

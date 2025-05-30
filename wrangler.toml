@@ -18,3 +18,12 @@ migrations_dir = "drizzle/migrations"
 [[kv_namespaces]]
 binding = "KV"
 id = "2feeb93090b342ec95a232fac333d8c7"
+
+[[queues.producers]]
+binding = "QUEUES"
+queue = "vinoflare"
+
+[[queues.consumers]]
+queue = "vinoflare"
+max_batch_size = 5
+max_batch_timeout = 1

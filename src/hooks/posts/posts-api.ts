@@ -5,6 +5,15 @@ import { authenticatedClient } from "../../lib/auth";
 import { createQueryKeys } from "../../lib/query-factory";
 import { catchError } from "../../utils/catchError";
 
+import type {
+	CreatePostResponse,
+	DeletePostResponse,
+	GetLatestPostResponse,
+	GetPostResponse,
+	GetPostsResponse,
+	UpdatePostResponse,
+} from "./post-schema";
+
 // 创建 Query Keys
 const postsKeys = createQueryKeys("posts");
 
@@ -20,22 +29,20 @@ export const usePosts = (
 
 	return useQuery({
 		queryKey: postsKeys.list({ page, limit, sort }),
-		queryFn: async () => {
+		queryFn: async (): Promise<GetPostsResponse> => {
 			const { data: result, error } = await catchError(async () => {
-				// @ts-ignore - Hono 类型推断限制
-				const res = await client.posts.$get({
+				return await client.posts.$get({
 					query: {
 						page: page.toString(),
 						limit: limit.toString(),
-						sort,
+						sort: sort as "newest" | "oldest",
 					},
 				});
-				return res.json();
 			});
 			if (error || !result) {
 				throw new Error("获取文章列表失败");
 			}
-			return result;
+			return result.json();
 		},
 	});
 };
@@ -44,18 +51,16 @@ export const usePosts = (
 export const usePost = (id: string) => {
 	return useQuery({
 		queryKey: postsKeys.detail(id),
-		queryFn: async () => {
+		queryFn: async (): Promise<GetPostResponse> => {
 			const { data: result, error } = await catchError(async () => {
-				// @ts-ignore - Hono 类型推断限制
-				const res = await client.posts[":id"].$get({
+				return await client.posts[":id"].$get({
 					param: { id },
 				});
-				return res.json();
 			});
 			if (error || !result) {
 				throw new Error("获取文章失败");
 			}
-			return result.data;
+			return result.json();
 		},
 		enabled: !!id,
 	});
@@ -65,16 +70,14 @@ export const usePost = (id: string) => {
 export const useLatestPost = () => {
 	return useQuery({
 		queryKey: postsKeys.latest(),
-		queryFn: async () => {
+		queryFn: async (): Promise<GetLatestPostResponse> => {
 			const { data: result, error } = await catchError(async () => {
-				// @ts-ignore - Hono 类型推断限制
-				const res = await client.posts.latest.$get();
-				return res.json();
+				return await client.posts.latest.$get();
 			});
 			if (error || !result) {
 				throw new Error("获取文章失败");
 			}
-			return result.data;
+			return result.json();
 		},
 	});
 };
@@ -86,16 +89,14 @@ export const useCreatePost = () => {
 	return useMutation({
 		mutationFn: async (newPost: { title: string; content: string }) => {
 			const { data: result, error } = await catchError(async () => {
-				// @ts-ignore - Hono 类型推断限制
-				const res = await authenticatedClient.posts.$post({ json: newPost });
-				return res.json();
+				return await authenticatedClient.posts.$post({ json: newPost });
 			});
 			if (error || !result) {
 				throw new Error("创建文章失败");
 			}
-			return result.data;
+			return result.json();
 		},
-		onSuccess: (data: any) => {
+		onSuccess: (data: CreatePostResponse) => {
 			queryClient.invalidateQueries({ queryKey: postsKeys.all });
 			toast.success("文章创建成功！", {
 				description: data.message,
@@ -115,21 +116,22 @@ export const useUpdatePost = () => {
 		mutationFn: async ({
 			id,
 			data,
-		}: { id: string; data: { title?: string; content?: string } }) => {
+		}: {
+			id: string;
+			data: { title?: string; content?: string };
+		}): Promise<UpdatePostResponse> => {
 			const { data: result, error } = await catchError(async () => {
-				// @ts-ignore - Hono 类型推断限制
-				const res = await authenticatedClient.posts[":id"].$put({
+				return await authenticatedClient.posts[":id"].$put({
 					param: { id },
 					json: data,
 				});
-				return res.json();
 			});
 			if (error || !result) {
 				throw new Error("更新文章失败");
 			}
-			return result.data;
+			return result.json();
 		},
-		onSuccess: (data: any, variables) => {
+		onSuccess: (data: UpdatePostResponse, variables) => {
 			queryClient.invalidateQueries({ queryKey: postsKeys.all });
 			queryClient.invalidateQueries({
 				queryKey: postsKeys.detail(variables.id),
@@ -149,20 +151,18 @@ export const useDeletePost = () => {
 	const queryClient = useQueryClient();
 
 	return useMutation({
-		mutationFn: async (id: string) => {
+		mutationFn: async (id: string): Promise<DeletePostResponse> => {
 			const { data: result, error } = await catchError(async () => {
-				// @ts-ignore - Hono 类型推断限制
-				const res = await authenticatedClient.posts[":id"].$delete({
+				return await authenticatedClient.posts[":id"].$delete({
 					param: { id },
 				});
-				return res.json();
 			});
 			if (error || !result) {
 				throw new Error("删除文章失败");
 			}
-			return result;
+			return result.json();
 		},
-		onSuccess: (data: any) => {
+		onSuccess: (data: DeletePostResponse) => {
 			queryClient.invalidateQueries({ queryKey: postsKeys.all });
 			toast.success("文章删除成功！", {
 				description: data.message,

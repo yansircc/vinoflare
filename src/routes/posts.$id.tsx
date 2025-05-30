@@ -35,6 +35,8 @@ function PostDetail() {
 		);
 	}
 
+	const { title, content, createdAt, updatedAt } = post.data;
+
 	return (
 		<div className="mx-auto max-w-4xl">
 			<h1 className="mb-10 text-center font-light text-2xl text-gray-900">
@@ -46,14 +48,12 @@ function PostDetail() {
 				{/* 文章标题和信息 */}
 				<div className="mb-6 border-gray-100 border-b pb-6">
 					<div className="mb-4">
-						<h2 className="font-semibold text-2xl text-gray-900">
-							{post.title}
-						</h2>
+						<h2 className="font-semibold text-2xl text-gray-900">{title}</h2>
 					</div>
 					<div className="text-gray-400 text-sm">
 						发布于{" "}
-						{post.createdAt
-							? new Date(post.createdAt).toLocaleString("zh-CN", {
+						{createdAt
+							? new Date(createdAt).toLocaleString("zh-CN", {
 									year: "numeric",
 									month: "long",
 									day: "numeric",
@@ -61,11 +61,11 @@ function PostDetail() {
 									minute: "2-digit",
 								})
 							: "未知时间"}
-						{post.updatedAt && (
+						{updatedAt && (
 							<>
 								{" • "}
 								更新于{" "}
-								{new Date(post.updatedAt).toLocaleString("zh-CN", {
+								{new Date(updatedAt).toLocaleString("zh-CN", {
 									year: "numeric",
 									month: "long",
 									day: "numeric",
@@ -81,7 +81,7 @@ function PostDetail() {
 				<div className="mb-6">
 					<h3 className="mb-3 font-medium text-gray-900">正文</h3>
 					<div className="whitespace-pre-wrap text-gray-800 text-lg leading-relaxed">
-						{post.content}
+						{content}
 					</div>
 				</div>
 
@@ -98,7 +98,7 @@ function PostDetail() {
 
 			{/* 相关信息 */}
 			<div className="mt-8 text-center">
-				<div className="text-gray-400 text-sm">文章 ID: {post.id}</div>
+				<div className="text-gray-400 text-sm">文章 ID: {id}</div>
 			</div>
 		</div>
 	);

@@ -13,7 +13,7 @@ function QuotesList() {
 	const [editingQuote, setEditingQuote] = useState<QuoteSlect | null>(null);
 
 	// 使用 TanStack Query hooks
-	const { data: quotes = [], isLoading, isError, error } = useQuotes();
+	const { data: quotes, isLoading, isError, error } = useQuotes();
 	const deleteQuoteMutation = useDeleteQuote();
 
 	const handleDeleteQuote = async (id: number) => {
@@ -54,6 +54,14 @@ function QuotesList() {
 				<div className="text-red-500">
 					加载失败: {error?.message || "未知错误"}
 				</div>
+			</div>
+		);
+	}
+
+	if (!quotes) {
+		return (
+			<div className="flex min-h-screen items-center justify-center">
+				<div className="text-gray-500">暂无留言</div>
 			</div>
 		);
 	}
@@ -100,7 +108,7 @@ function QuotesList() {
 			)}
 
 			{/* 留言列表 */}
-			{quotes.length === 0 ? (
+			{quotes.data.length === 0 ? (
 				<div className="py-16 text-center">
 					<div className="text-gray-400 text-lg">暂无留言</div>
 					<p className="mt-2 text-gray-500 text-sm">成为第一个留言的人吧</p>
@@ -114,7 +122,7 @@ function QuotesList() {
 				</div>
 			) : (
 				<div className="space-y-6">
-					{quotes.map((quote: QuoteSlect) => (
+					{quotes.data.map((quote: QuoteSlect) => (
 						<div
 							key={quote.id}
 							className="group border-gray-100 border-b pb-6 last:border-b-0"

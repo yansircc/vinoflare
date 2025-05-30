@@ -35,6 +35,8 @@ function QuoteDetail() {
 		);
 	}
 
+	const { name, email, message, createdAt } = quote.data;
+
 	return (
 		<div className="mx-auto max-w-4xl">
 			<h1 className="mb-10 text-center font-light text-2xl text-gray-900">
@@ -46,15 +48,13 @@ function QuoteDetail() {
 				{/* 留言者信息 */}
 				<div className="mb-6 border-gray-100 border-b pb-6">
 					<div className="mb-2">
-						<h2 className="font-semibold text-gray-900 text-xl">
-							{quote.name}
-						</h2>
+						<h2 className="font-semibold text-gray-900 text-xl">{name}</h2>
 					</div>
-					<div className="text-gray-600">{quote.email}</div>
+					<div className="text-gray-600">{email}</div>
 					<div className="mt-2 text-gray-400 text-sm">
 						发表于{" "}
-						{quote.createdAt
-							? new Date(quote.createdAt).toLocaleString("zh-CN", {
+						{createdAt
+							? new Date(createdAt).toLocaleString("zh-CN", {
 									year: "numeric",
 									month: "long",
 									day: "numeric",
@@ -69,7 +69,7 @@ function QuoteDetail() {
 				<div className="mb-6">
 					<h3 className="mb-3 font-medium text-gray-900">留言内容</h3>
 					<div className="whitespace-pre-wrap text-gray-800 leading-relaxed">
-						{quote.message}
+						{message}
 					</div>
 				</div>
 
@@ -86,7 +86,7 @@ function QuoteDetail() {
 
 			{/* 相关信息 */}
 			<div className="mt-8 text-center">
-				<div className="text-gray-400 text-sm">留言 ID: {quote.id}</div>
+				<div className="text-gray-400 text-sm">留言 ID: {id}</div>
 			</div>
 		</div>
 	);
