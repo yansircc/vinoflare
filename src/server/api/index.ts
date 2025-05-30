@@ -11,6 +11,7 @@ import {
 	errorHandlerMiddleware,
 	loggingMiddleware,
 } from "../middleware/procedures";
+import { galleryRouter } from "../routers/gallery";
 import { kitchenRouter } from "../routers/kitchen";
 import { postsRouter } from "../routers/posts";
 import { quotesRouter } from "../routers/quotes";
@@ -130,6 +131,8 @@ const app = new Hono<BaseContext>()
 				auth: "/api/auth/*",
 				posts: "/api/posts",
 				quotes: "/api/quotes",
+				gallery: "/api/gallery",
+				kitchen: "/api/kitchen",
 				health: "/health",
 			},
 			timestamp: new Date().toISOString(),
@@ -143,6 +146,7 @@ const app = new Hono<BaseContext>()
 	.route("/api", quotesRouter)
 	.route("/api", postsRouter)
 	.route("/api", kitchenRouter)
+	.route("/api", galleryRouter)
 
 	// 404 处理 - 正确的方式
 	.notFound((c) => {

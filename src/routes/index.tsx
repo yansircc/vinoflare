@@ -37,6 +37,13 @@ function HomePage() {
 					</Link>
 
 					<Link
+						to="/gallery"
+						className="inline-block rounded-full bg-green-600 px-8 py-3 font-medium text-white transition-all hover:scale-105 hover:bg-green-700"
+					>
+						🖼️ 图片画廊
+					</Link>
+
+					<Link
 						to="/kitchen"
 						className="inline-block rounded-full bg-blue-600 px-8 py-3 font-medium text-white transition-all hover:scale-105 hover:bg-blue-700"
 					>

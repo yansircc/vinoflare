@@ -12,6 +12,7 @@
 
 import { Route as rootRoute } from './routes/__root'
 import { Route as KitchenImport } from './routes/kitchen'
+import { Route as GalleryImport } from './routes/gallery'
 import { Route as IndexImport } from './routes/index'
 import { Route as QuotesIndexImport } from './routes/quotes/index'
 import { Route as PostsIndexImport } from './routes/posts/index'
@@ -25,6 +26,12 @@ import { Route as AuthLoginImport } from './routes/_auth/login'
 const KitchenRoute = KitchenImport.update({
   id: '/kitchen',
   path: '/kitchen',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const GalleryRoute = GalleryImport.update({
+  id: '/gallery',
+  path: '/gallery',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -79,6 +86,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexImport
+      parentRoute: typeof rootRoute
+    }
+    '/gallery': {
+      id: '/gallery'
+      path: '/gallery'
+      fullPath: '/gallery'
+      preLoaderRoute: typeof GalleryImport
       parentRoute: typeof rootRoute
     }
     '/kitchen': {
@@ -137,6 +151,7 @@ declare module '@tanstack/react-router' {
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/gallery': typeof GalleryRoute
   '/kitchen': typeof KitchenRoute
   '/login': typeof AuthLoginRoute
   '/profile': typeof AuthProfileRoute
@@ -148,6 +163,7 @@ export interface FileRoutesByFullPath {
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/gallery': typeof GalleryRoute
   '/kitchen': typeof KitchenRoute
   '/login': typeof AuthLoginRoute
   '/profile': typeof AuthProfileRoute
@@ -160,6 +176,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
+  '/gallery': typeof GalleryRoute
   '/kitchen': typeof KitchenRoute
   '/_auth/login': typeof AuthLoginRoute
   '/_auth/profile': typeof AuthProfileRoute
@@ -173,6 +190,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/gallery'
     | '/kitchen'
     | '/login'
     | '/profile'
@@ -183,6 +201,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/gallery'
     | '/kitchen'
     | '/login'
     | '/profile'
@@ -193,6 +212,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/gallery'
     | '/kitchen'
     | '/_auth/login'
     | '/_auth/profile'
@@ -205,6 +225,7 @@ export interface FileRouteTypes {
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  GalleryRoute: typeof GalleryRoute
   KitchenRoute: typeof KitchenRoute
   AuthLoginRoute: typeof AuthLoginRoute
   AuthProfileRoute: typeof AuthProfileRoute
@@ -216,6 +237,7 @@ export interface RootRouteChildren {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  GalleryRoute: GalleryRoute,
   KitchenRoute: KitchenRoute,
   AuthLoginRoute: AuthLoginRoute,
   AuthProfileRoute: AuthProfileRoute,
@@ -236,6 +258,7 @@ export const routeTree = rootRoute
       "filePath": "__root.tsx",
       "children": [
         "/",
+        "/gallery",
         "/kitchen",
         "/_auth/login",
         "/_auth/profile",
@@ -247,6 +270,9 @@ export const routeTree = rootRoute
     },
     "/": {
       "filePath": "index.tsx"
+    },
+    "/gallery": {
+      "filePath": "gallery.tsx"
     },
     "/kitchen": {
       "filePath": "kitchen.tsx"

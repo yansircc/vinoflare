@@ -15,4 +15,8 @@ export const headerNav = [
 		label: "厨房",
 		href: "/kitchen",
 	},
+	{
+		label: "图库",
+		href: "/gallery",
+	},
 ];

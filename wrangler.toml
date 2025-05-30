@@ -19,6 +19,10 @@ migrations_dir = "drizzle/migrations"
 binding = "KV"
 id = "2feeb93090b342ec95a232fac333d8c7"
 
+[[r2_buckets]]
+binding = "IMG_BUCKET"
+bucket_name = "vinoflare"
+
 [[queues.producers]]
 binding = "QUEUES"
 queue = "vinoflare"
