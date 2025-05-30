@@ -29,21 +29,24 @@ export async function queueConsumer(
 				ingredient.processingTime + "秒",
 			);
 
-			// 模拟加工过程
-			await simulateProcessing(taskId, ingredient, env, ctx);
+			// 启动后台处理，使用 ctx.waitUntil 确保处理完成
+			const processingPromise = simulateProcessing(
+				taskId,
+				ingredient,
+				env,
+				ctx,
+			);
+			ctx.waitUntil(processingPromise);
 
-			// 确认消息处理成功
+			// 立即确认消息，避免队列超时
 			message.ack();
 
 			console.log(
-				"✅ 食材 " + ingredient.name + " 处理完成 (任务ID: " + taskId + ")",
+				"✅ 食材 " + ingredient.name + " 已开始处理 (任务ID: " + taskId + ")",
 			);
 		} catch (error) {
 			console.error("❌ 处理队列消息失败:", error);
-
-			// 对于失败的消息，可以选择重试或直接丢弃
-			// 这里我们选择丢弃，因为重试逻辑在应用层处理
-			message.ack();
+			message.ack(); // 确认消息以避免重复处理
 		}
 	}
 
@@ -69,85 +72,107 @@ async function simulateProcessing(
 			" 秒",
 	);
 
-	// 获取当前任务
-	const task = (await kv.get(
-		"task:" + taskId,
-		"json",
-	)) as ProcessingTask | null;
-	if (!task) {
-		console.error("任务 " + taskId + " 不存在");
-		return;
-	}
+	try {
+		// 获取当前任务
+		const task = (await kv.get(
+			"task:" + taskId,
+			"json",
+		)) as ProcessingTask | null;
+		if (!task) {
+			console.error("任务 " + taskId + " 不存在");
+			return;
+		}
 
-	// 确保任务状态为 processing
-	task.status = "processing";
-	task.startTime = new Date().toISOString();
-	await kv.put("task:" + taskId, JSON.stringify(task), {
-		expirationTtl: 24 * 60 * 60, // 24小时
-	});
-
-	// 模拟渐进式进度更新
-	for (let progress = 0; progress <= 100; progress += 5) {
-		// 更新任务进度
-		task.progress = progress;
-		task.updatedAt = new Date().toISOString();
-
-		// 保存任务更新
+		// 确保任务状态为 processing
+		task.status = "processing";
+		task.startTime = new Date().toISOString();
 		await kv.put("task:" + taskId, JSON.stringify(task), {
 			expirationTtl: 24 * 60 * 60, // 24小时
 		});
 
-		console.log("📊 食材 " + ingredient.name + " 进度: " + progress + "%");
+		// 模拟渐进式进度更新
+		for (let progress = 0; progress <= 100; progress += 5) {
+			// 更新任务进度
+			task.progress = progress;
+			task.updatedAt = new Date().toISOString();
 
-		// 如果没有完成，等待下一个更新间隔
-		if (progress < 100) {
-			await new Promise((resolve) => setTimeout(resolve, updateInterval));
-		}
-	}
-
-	// 最终处理结果
-	const isSuccess = Math.random() > ingredient.failureRate;
-
-	if (isSuccess) {
-		task.status = "completed";
-		task.endTime = new Date().toISOString();
-		console.log("🎉 食材 " + ingredient.name + " 加工成功！");
-	} else {
-		// 失败处理
-		if (task.retryCount < task.maxRetries) {
-			task.retryCount++;
-			task.progress = 0;
-			task.status = "processing";
-			task.startTime = new Date().toISOString();
-
-			console.log(
-				"🔄 食材 " +
-					ingredient.name +
-					" 加工失败，第 " +
-					task.retryCount +
-					" 次重试",
-			);
-
-			// 重新发送到队列进行重试
-			await env.QUEUES.send({
-				taskId: task.id,
-				action: "process_ingredient",
-				ingredient: task.ingredient,
-				userId: task.userId,
-				timestamp: task.updatedAt,
-				retryCount: task.retryCount,
+			// 保存任务更新
+			await kv.put("task:" + taskId, JSON.stringify(task), {
+				expirationTtl: 24 * 60 * 60, // 24小时
 			});
-		} else {
-			task.status = "failed";
+
+			console.log("📊 食材 " + ingredient.name + " 进度: " + progress + "%");
+
+			// 如果没有完成，等待下一个更新间隔
+			if (progress < 100) {
+				await new Promise((resolve) => setTimeout(resolve, updateInterval));
+			}
+		}
+
+		// 最终处理结果
+		const isSuccess = Math.random() > ingredient.failureRate;
+
+		if (isSuccess) {
+			task.status = "completed";
 			task.endTime = new Date().toISOString();
-			console.log("💥 食材 " + ingredient.name + " 加工最终失败");
+			console.log("🎉 食材 " + ingredient.name + " 加工成功！");
+		} else {
+			// 失败处理
+			if (task.retryCount < task.maxRetries) {
+				task.retryCount++;
+				task.progress = 0;
+				task.status = "processing";
+				task.startTime = new Date().toISOString();
+
+				console.log(
+					"🔄 食材 " +
+						ingredient.name +
+						" 加工失败，第 " +
+						task.retryCount +
+						" 次重试",
+				);
+
+				// 重新发送到队列进行重试
+				await env.QUEUES.send({
+					taskId: task.id,
+					action: "process_ingredient",
+					ingredient: task.ingredient,
+					userId: task.userId,
+					timestamp: task.updatedAt,
+					retryCount: task.retryCount,
+				});
+			} else {
+				task.status = "failed";
+				task.endTime = new Date().toISOString();
+				console.log("💥 食材 " + ingredient.name + " 加工最终失败");
+			}
+		}
+
+		// 保存最终状态
+		await kv.put("task:" + taskId, JSON.stringify(task), {
+			expirationTtl: 24 * 60 * 60, // 24小时
+		});
+	} catch (error) {
+		console.error("处理任务时发生错误:", error);
+
+		// 尝试将任务标记为失败
+		try {
+			const task = (await kv.get(
+				"task:" + taskId,
+				"json",
+			)) as ProcessingTask | null;
+
+			if (task) {
+				task.status = "failed";
+				task.endTime = new Date().toISOString();
+				await kv.put("task:" + taskId, JSON.stringify(task), {
+					expirationTtl: 24 * 60 * 60,
+				});
+			}
+		} catch (saveError) {
+			console.error("保存失败状态时出错:", saveError);
 		}
 	}
-
-	// 保存最终状态
-	await kv.put("task:" + taskId, JSON.stringify(task), {
-		expirationTtl: 24 * 60 * 60, // 24小时
-	});
 }
 
 // 导出默认消费者函数供 Cloudflare Workers 使用
