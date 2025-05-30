@@ -11,28 +11,16 @@
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
-import { Route as ProfileImport } from './routes/profile'
-import { Route as LoginImport } from './routes/login'
 import { Route as KitchenImport } from './routes/kitchen'
 import { Route as IndexImport } from './routes/index'
-import { Route as QuotesIndexImport } from './routes/quotes.index'
-import { Route as PostsIndexImport } from './routes/posts.index'
-import { Route as QuotesIdImport } from './routes/quotes.$id'
-import { Route as PostsIdImport } from './routes/posts.$id'
+import { Route as QuotesIndexImport } from './routes/quotes/index'
+import { Route as PostsIndexImport } from './routes/posts/index'
+import { Route as QuotesIdImport } from './routes/quotes/$id'
+import { Route as PostsIdImport } from './routes/posts/$id'
+import { Route as AuthProfileImport } from './routes/_auth/profile'
+import { Route as AuthLoginImport } from './routes/_auth/login'
 
 // Create/Update Routes
-
-const ProfileRoute = ProfileImport.update({
-  id: '/profile',
-  path: '/profile',
-  getParentRoute: () => rootRoute,
-} as any)
-
-const LoginRoute = LoginImport.update({
-  id: '/login',
-  path: '/login',
-  getParentRoute: () => rootRoute,
-} as any)
 
 const KitchenRoute = KitchenImport.update({
   id: '/kitchen',
@@ -70,6 +58,18 @@ const PostsIdRoute = PostsIdImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
+const AuthProfileRoute = AuthProfileImport.update({
+  id: '/_auth/profile',
+  path: '/profile',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const AuthLoginRoute = AuthLoginImport.update({
+  id: '/_auth/login',
+  path: '/login',
+  getParentRoute: () => rootRoute,
+} as any)
+
 // Populate the FileRoutesByPath interface
 
 declare module '@tanstack/react-router' {
@@ -88,18 +88,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof KitchenImport
       parentRoute: typeof rootRoute
     }
-    '/login': {
-      id: '/login'
+    '/_auth/login': {
+      id: '/_auth/login'
       path: '/login'
       fullPath: '/login'
-      preLoaderRoute: typeof LoginImport
+      preLoaderRoute: typeof AuthLoginImport
       parentRoute: typeof rootRoute
     }
-    '/profile': {
-      id: '/profile'
+    '/_auth/profile': {
+      id: '/_auth/profile'
       path: '/profile'
       fullPath: '/profile'
-      preLoaderRoute: typeof ProfileImport
+      preLoaderRoute: typeof AuthProfileImport
       parentRoute: typeof rootRoute
     }
     '/posts/$id': {
@@ -138,8 +138,8 @@ declare module '@tanstack/react-router' {
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/kitchen': typeof KitchenRoute
-  '/login': typeof LoginRoute
-  '/profile': typeof ProfileRoute
+  '/login': typeof AuthLoginRoute
+  '/profile': typeof AuthProfileRoute
   '/posts/$id': typeof PostsIdRoute
   '/quotes/$id': typeof QuotesIdRoute
   '/posts': typeof PostsIndexRoute
@@ -149,8 +149,8 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/kitchen': typeof KitchenRoute
-  '/login': typeof LoginRoute
-  '/profile': typeof ProfileRoute
+  '/login': typeof AuthLoginRoute
+  '/profile': typeof AuthProfileRoute
   '/posts/$id': typeof PostsIdRoute
   '/quotes/$id': typeof QuotesIdRoute
   '/posts': typeof PostsIndexRoute
@@ -161,8 +161,8 @@ export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
   '/kitchen': typeof KitchenRoute
-  '/login': typeof LoginRoute
-  '/profile': typeof ProfileRoute
+  '/_auth/login': typeof AuthLoginRoute
+  '/_auth/profile': typeof AuthProfileRoute
   '/posts/$id': typeof PostsIdRoute
   '/quotes/$id': typeof QuotesIdRoute
   '/posts/': typeof PostsIndexRoute
@@ -194,8 +194,8 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/kitchen'
-    | '/login'
-    | '/profile'
+    | '/_auth/login'
+    | '/_auth/profile'
     | '/posts/$id'
     | '/quotes/$id'
     | '/posts/'
@@ -206,8 +206,8 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   KitchenRoute: typeof KitchenRoute
-  LoginRoute: typeof LoginRoute
-  ProfileRoute: typeof ProfileRoute
+  AuthLoginRoute: typeof AuthLoginRoute
+  AuthProfileRoute: typeof AuthProfileRoute
   PostsIdRoute: typeof PostsIdRoute
   QuotesIdRoute: typeof QuotesIdRoute
   PostsIndexRoute: typeof PostsIndexRoute
@@ -217,8 +217,8 @@ export interface RootRouteChildren {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   KitchenRoute: KitchenRoute,
-  LoginRoute: LoginRoute,
-  ProfileRoute: ProfileRoute,
+  AuthLoginRoute: AuthLoginRoute,
+  AuthProfileRoute: AuthProfileRoute,
   PostsIdRoute: PostsIdRoute,
   QuotesIdRoute: QuotesIdRoute,
   PostsIndexRoute: PostsIndexRoute,
@@ -237,8 +237,8 @@ export const routeTree = rootRoute
       "children": [
         "/",
         "/kitchen",
-        "/login",
-        "/profile",
+        "/_auth/login",
+        "/_auth/profile",
         "/posts/$id",
         "/quotes/$id",
         "/posts/",
@@ -251,23 +251,23 @@ export const routeTree = rootRoute
     "/kitchen": {
       "filePath": "kitchen.tsx"
     },
-    "/login": {
-      "filePath": "login.tsx"
+    "/_auth/login": {
+      "filePath": "_auth/login.tsx"
     },
-    "/profile": {
-      "filePath": "profile.tsx"
+    "/_auth/profile": {
+      "filePath": "_auth/profile.tsx"
     },
     "/posts/$id": {
-      "filePath": "posts.$id.tsx"
+      "filePath": "posts/$id.tsx"
     },
     "/quotes/$id": {
-      "filePath": "quotes.$id.tsx"
+      "filePath": "quotes/$id.tsx"
     },
     "/posts/": {
-      "filePath": "posts.index.tsx"
+      "filePath": "posts/index.tsx"
     },
     "/quotes/": {
-      "filePath": "quotes.index.tsx"
+      "filePath": "quotes/index.tsx"
     }
   }
 }
