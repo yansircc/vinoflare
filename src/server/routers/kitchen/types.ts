@@ -23,6 +23,7 @@ export interface ProcessingTask {
 	status: ProcessingStatus;
 	startTime?: string;
 	endTime?: string;
+	estimatedEndTime?: string; // 预计完成时间，用于前端计算进度
 	progress: number; // 0-100
 	retryCount: number;
 	maxRetries: number;

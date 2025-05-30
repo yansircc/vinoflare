@@ -135,8 +135,8 @@ export const useProcessIngredients = () => {
 	});
 };
 
-// 轮询更新 - 用于实时监控任务进度
-export const useKitchenTasksPolling = (enabled = true, interval = 3000) => {
+// 轮询更新 - 用于实时监控任务进度，并计算虚拟进度
+export const useKitchenTasksPolling = (enabled = true, interval = 1000) => {
 	const queryResult = useQuery({
 		queryKey: kitchenKeys.lists(),
 		queryFn: async (): Promise<GetTasksResponse> => {
@@ -146,7 +146,16 @@ export const useKitchenTasksPolling = (enabled = true, interval = 3000) => {
 			if (error || !result) {
 				throw new Error("获取任务列表失败");
 			}
-			return await result.json();
+			const response = await result.json();
+
+			// 计算虚拟进度
+			if (response.data) {
+				response.data = response.data.map((task) =>
+					calculateVirtualProgress(task),
+				);
+			}
+
+			return response;
 		},
 		refetchInterval: (query) => {
 			if (!enabled) return false;
@@ -165,6 +174,39 @@ export const useKitchenTasksPolling = (enabled = true, interval = 3000) => {
 
 	return queryResult;
 };
+
+// 计算虚拟进度的辅助函数
+function calculateVirtualProgress(task: ProcessingTask): ProcessingTask {
+	if (
+		task.status !== "processing" ||
+		!task.startTime ||
+		!task.estimatedEndTime
+	) {
+		return task;
+	}
+
+	const now = new Date();
+	const startTime = new Date(task.startTime);
+	const endTime = new Date(task.estimatedEndTime);
+
+	const totalDuration = endTime.getTime() - startTime.getTime();
+	const elapsedTime = now.getTime() - startTime.getTime();
+
+	if (elapsedTime <= 0) {
+		// 还没开始
+		return { ...task, progress: 0 };
+	}
+
+	if (elapsedTime >= totalDuration) {
+		// 应该已经完成了，但状态还没更新
+		return { ...task, progress: 99 }; // 留1%等待最终状态更新
+	}
+
+	// 计算当前进度百分比
+	const progressPercent = Math.floor((elapsedTime / totalDuration) * 100);
+
+	return { ...task, progress: Math.min(99, Math.max(0, progressPercent)) };
+}
 
 // 手动刷新随机食材
 export const useRefreshRandomIngredients = () => {

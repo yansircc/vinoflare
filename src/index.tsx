@@ -4,7 +4,7 @@ import { logger } from "hono/logger";
 import { renderer } from "./renderer";
 import { api } from "./server/api";
 import type { ApiType } from "./server/api";
-import { queueConsumer } from "./server/queue-consumer";
+import queueConsumer from "./server/queue-consumer";
 import type { BaseContext } from "./server/types/context";
 
 // 创建主应用
@@ -32,5 +32,5 @@ export default {
 	fetch: app.fetch,
 
 	// 队列消费者处理器
-	queue: queueConsumer,
+	queue: queueConsumer.queue,
 };
