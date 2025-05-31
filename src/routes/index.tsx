@@ -7,16 +7,16 @@ export const Route = createFileRoute("/")({
 function HomePage() {
 	return (
 		<div className="mx-auto max-w-4xl space-y-16">
-				<div className="text-center">
-					<h1 className="mb-4 font-bold text-4xl text-gray-900">
-						VinoFlare 全栈开发模板
-					</h1>
-					<p className="text-gray-600 text-xl">
-						<span className="font-bold">Vi</span>te + Ho
-						<span className="font-bold">no</span> + Cloud
-						<span className="font-bold">flare</span>，一个完整的全栈开发解决方案
-					</p>
-				</div>
+			<div className="text-center">
+				<h1 className="mb-4 font-bold text-4xl text-gray-900">
+					VinoFlare 全栈开发模板
+				</h1>
+				<p className="text-gray-600 text-xl">
+					<span className="font-bold">Vi</span>te + Ho
+					<span className="font-bold">no</span> + Cloud
+					<span className="font-bold">flare</span>，一个完整的全栈开发解决方案
+				</p>
+			</div>
 
 			{/* 技术栈展示 */}
 			<div className="grid gap-8 md:grid-cols-2">

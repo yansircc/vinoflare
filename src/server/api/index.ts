@@ -2,7 +2,7 @@ import { Hono } from "hono";
 import { hc } from "hono/client";
 import { galleryRouter } from "../routers/gallery";
 import { kitchenRouter } from "../routers/kitchen";
-import { postsRouter } from "../routers/posts";
+import { linksRouter, redirectsRouter } from "../routers/redirects";
 import { todosRouter } from "../routers/todos";
 import type { BaseContext } from "../types/context";
 import authRouter from "./auth";
@@ -13,11 +13,14 @@ const app = new Hono<BaseContext>()
 	.route("/", baseRouter)
 	.route("/api/auth", authRouter)
 
-	// 业务路由器
+	// 业务路由器（API 路由）
 	.route("/api", todosRouter)
-	.route("/api", postsRouter)
+	.route("/api", linksRouter)
 	.route("/api", kitchenRouter)
 	.route("/api", galleryRouter)
+
+	// 短链接重定向路由（放在最后以避免冲突）
+	.route("/", redirectsRouter)
 
 	// 404 处理
 	.notFound((c) => {
@@ -39,3 +42,4 @@ const app = new Hono<BaseContext>()
 export const api = app;
 export type ApiType = typeof app;
 export const client = hc<ApiType>("/").api;
+export const appClient = hc<ApiType>("/");

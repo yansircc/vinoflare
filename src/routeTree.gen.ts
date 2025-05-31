@@ -15,9 +15,9 @@ import { Route as KitchenImport } from './routes/kitchen'
 import { Route as GalleryImport } from './routes/gallery'
 import { Route as IndexImport } from './routes/index'
 import { Route as TodosIndexImport } from './routes/todos/index'
-import { Route as PostsIndexImport } from './routes/posts/index'
+import { Route as RedirectsIndexImport } from './routes/redirects/index'
 import { Route as TodosIdImport } from './routes/todos/$id'
-import { Route as PostsIdImport } from './routes/posts/$id'
+import { Route as RedirectsIdImport } from './routes/redirects/$id'
 import { Route as AuthProfileImport } from './routes/_auth/profile'
 import { Route as AuthLoginImport } from './routes/_auth/login'
 
@@ -47,9 +47,9 @@ const TodosIndexRoute = TodosIndexImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
-const PostsIndexRoute = PostsIndexImport.update({
-  id: '/posts/',
-  path: '/posts/',
+const RedirectsIndexRoute = RedirectsIndexImport.update({
+  id: '/redirects/',
+  path: '/redirects/',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -59,9 +59,9 @@ const TodosIdRoute = TodosIdImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
-const PostsIdRoute = PostsIdImport.update({
-  id: '/posts/$id',
-  path: '/posts/$id',
+const RedirectsIdRoute = RedirectsIdImport.update({
+  id: '/redirects/$id',
+  path: '/redirects/$id',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -116,11 +116,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthProfileImport
       parentRoute: typeof rootRoute
     }
-    '/posts/$id': {
-      id: '/posts/$id'
-      path: '/posts/$id'
-      fullPath: '/posts/$id'
-      preLoaderRoute: typeof PostsIdImport
+    '/redirects/$id': {
+      id: '/redirects/$id'
+      path: '/redirects/$id'
+      fullPath: '/redirects/$id'
+      preLoaderRoute: typeof RedirectsIdImport
       parentRoute: typeof rootRoute
     }
     '/todos/$id': {
@@ -130,11 +130,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TodosIdImport
       parentRoute: typeof rootRoute
     }
-    '/posts/': {
-      id: '/posts/'
-      path: '/posts'
-      fullPath: '/posts'
-      preLoaderRoute: typeof PostsIndexImport
+    '/redirects/': {
+      id: '/redirects/'
+      path: '/redirects'
+      fullPath: '/redirects'
+      preLoaderRoute: typeof RedirectsIndexImport
       parentRoute: typeof rootRoute
     }
     '/todos/': {
@@ -155,9 +155,9 @@ export interface FileRoutesByFullPath {
   '/kitchen': typeof KitchenRoute
   '/login': typeof AuthLoginRoute
   '/profile': typeof AuthProfileRoute
-  '/posts/$id': typeof PostsIdRoute
+  '/redirects/$id': typeof RedirectsIdRoute
   '/todos/$id': typeof TodosIdRoute
-  '/posts': typeof PostsIndexRoute
+  '/redirects': typeof RedirectsIndexRoute
   '/todos': typeof TodosIndexRoute
 }
 
@@ -167,9 +167,9 @@ export interface FileRoutesByTo {
   '/kitchen': typeof KitchenRoute
   '/login': typeof AuthLoginRoute
   '/profile': typeof AuthProfileRoute
-  '/posts/$id': typeof PostsIdRoute
+  '/redirects/$id': typeof RedirectsIdRoute
   '/todos/$id': typeof TodosIdRoute
-  '/posts': typeof PostsIndexRoute
+  '/redirects': typeof RedirectsIndexRoute
   '/todos': typeof TodosIndexRoute
 }
 
@@ -180,9 +180,9 @@ export interface FileRoutesById {
   '/kitchen': typeof KitchenRoute
   '/_auth/login': typeof AuthLoginRoute
   '/_auth/profile': typeof AuthProfileRoute
-  '/posts/$id': typeof PostsIdRoute
+  '/redirects/$id': typeof RedirectsIdRoute
   '/todos/$id': typeof TodosIdRoute
-  '/posts/': typeof PostsIndexRoute
+  '/redirects/': typeof RedirectsIndexRoute
   '/todos/': typeof TodosIndexRoute
 }
 
@@ -194,9 +194,9 @@ export interface FileRouteTypes {
     | '/kitchen'
     | '/login'
     | '/profile'
-    | '/posts/$id'
+    | '/redirects/$id'
     | '/todos/$id'
-    | '/posts'
+    | '/redirects'
     | '/todos'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -205,9 +205,9 @@ export interface FileRouteTypes {
     | '/kitchen'
     | '/login'
     | '/profile'
-    | '/posts/$id'
+    | '/redirects/$id'
     | '/todos/$id'
-    | '/posts'
+    | '/redirects'
     | '/todos'
   id:
     | '__root__'
@@ -216,9 +216,9 @@ export interface FileRouteTypes {
     | '/kitchen'
     | '/_auth/login'
     | '/_auth/profile'
-    | '/posts/$id'
+    | '/redirects/$id'
     | '/todos/$id'
-    | '/posts/'
+    | '/redirects/'
     | '/todos/'
   fileRoutesById: FileRoutesById
 }
@@ -229,9 +229,9 @@ export interface RootRouteChildren {
   KitchenRoute: typeof KitchenRoute
   AuthLoginRoute: typeof AuthLoginRoute
   AuthProfileRoute: typeof AuthProfileRoute
-  PostsIdRoute: typeof PostsIdRoute
+  RedirectsIdRoute: typeof RedirectsIdRoute
   TodosIdRoute: typeof TodosIdRoute
-  PostsIndexRoute: typeof PostsIndexRoute
+  RedirectsIndexRoute: typeof RedirectsIndexRoute
   TodosIndexRoute: typeof TodosIndexRoute
 }
 
@@ -241,9 +241,9 @@ const rootRouteChildren: RootRouteChildren = {
   KitchenRoute: KitchenRoute,
   AuthLoginRoute: AuthLoginRoute,
   AuthProfileRoute: AuthProfileRoute,
-  PostsIdRoute: PostsIdRoute,
+  RedirectsIdRoute: RedirectsIdRoute,
   TodosIdRoute: TodosIdRoute,
-  PostsIndexRoute: PostsIndexRoute,
+  RedirectsIndexRoute: RedirectsIndexRoute,
   TodosIndexRoute: TodosIndexRoute,
 }
 
@@ -262,9 +262,9 @@ export const routeTree = rootRoute
         "/kitchen",
         "/_auth/login",
         "/_auth/profile",
-        "/posts/$id",
+        "/redirects/$id",
         "/todos/$id",
-        "/posts/",
+        "/redirects/",
         "/todos/"
       ]
     },
@@ -283,14 +283,14 @@ export const routeTree = rootRoute
     "/_auth/profile": {
       "filePath": "_auth/profile.tsx"
     },
-    "/posts/$id": {
-      "filePath": "posts/$id.tsx"
+    "/redirects/$id": {
+      "filePath": "redirects/$id.tsx"
     },
     "/todos/$id": {
       "filePath": "todos/$id.tsx"
     },
-    "/posts/": {
-      "filePath": "posts/index.tsx"
+    "/redirects/": {
+      "filePath": "redirects/index.tsx"
     },
     "/todos/": {
       "filePath": "todos/index.tsx"

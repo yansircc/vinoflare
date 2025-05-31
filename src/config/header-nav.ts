@@ -8,8 +8,8 @@ export const headerNav = [
 		href: "/todos",
 	},
 	{
-		label: "文章",
-		href: "/posts",
+		label: "短链",
+		href: "/redirects",
 	},
 	{
 		label: "厨房",

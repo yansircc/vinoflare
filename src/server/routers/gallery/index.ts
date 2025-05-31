@@ -63,53 +63,48 @@ const app = new Hono<BaseContext>()
 	})
 
 	// GET /gallery/stats - 获取图库统计（必须在 :id 路由之前！）
-	.get(
-		"/stats",
-		optionalAuthMiddleware,
-		loggingMiddleware,
-		async (c) => {
-			try {
-				// 从 R2 获取所有文件信息
-				const list = await c.env.IMG_BUCKET.list();
-				const objects = list.objects;
+	.get("/stats", optionalAuthMiddleware, loggingMiddleware, async (c) => {
+		try {
+			// 从 R2 获取所有文件信息
+			const list = await c.env.IMG_BUCKET.list();
+			const objects = list.objects;
 
-				const now = new Date();
-				const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
-				const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+			const now = new Date();
+			const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+			const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
 
-				const stats = {
-					total: objects.length,
-					lastDay: objects.filter((obj) => {
-						return new Date(obj.uploaded) > oneDayAgo;
-					}).length,
-					lastWeek: objects.filter((obj) => {
-						return new Date(obj.uploaded) > oneWeekAgo;
-					}).length,
-					totalSize: objects.reduce((sum, obj) => sum + obj.size, 0),
-					averageSize:
-						objects.length > 0
-							? Math.round(
-									objects.reduce((sum, obj) => sum + obj.size, 0) /
-										objects.length,
-								)
-							: 0,
-				};
+			const stats = {
+				total: objects.length,
+				lastDay: objects.filter((obj) => {
+					return new Date(obj.uploaded) > oneDayAgo;
+				}).length,
+				lastWeek: objects.filter((obj) => {
+					return new Date(obj.uploaded) > oneWeekAgo;
+				}).length,
+				totalSize: objects.reduce((sum, obj) => sum + obj.size, 0),
+				averageSize:
+					objects.length > 0
+						? Math.round(
+								objects.reduce((sum, obj) => sum + obj.size, 0) /
+									objects.length,
+							)
+						: 0,
+			};
 
-				return c.json({
-					success: true,
-					data: stats,
-					generatedAt: now.toISOString(),
-					requestedBy: c.get("user")?.name || "anonymous",
-				});
-			} catch (error) {
-				console.error("获取图库统计失败:", error);
-				throw new HTTPException(500, {
-					message: "获取图库统计失败",
-					cause: error,
-				});
-			}
-		},
-	)
+			return c.json({
+				success: true,
+				data: stats,
+				generatedAt: now.toISOString(),
+				requestedBy: c.get("user")?.name || "anonymous",
+			});
+		} catch (error) {
+			console.error("获取图库统计失败:", error);
+			throw new HTTPException(500, {
+				message: "获取图库统计失败",
+				cause: error,
+			});
+		}
+	})
 
 	// GET /gallery/:id - 获取单个图片信息
 	.get(
@@ -308,42 +303,38 @@ const app = new Hono<BaseContext>()
 	)
 
 	// GET /gallery/:id/image - 直接从 R2 获取图片文件
-	.get(
-		"/:id/image",
-		zValidator("param", galleryIdSchema),
-		async (c) => {
-			try {
-				const { id } = c.req.valid("param");
+	.get("/:id/image", zValidator("param", galleryIdSchema), async (c) => {
+		try {
+			const { id } = c.req.valid("param");
 
-				// 从 R2 获取文件
-				const object = await c.env.IMG_BUCKET.get(id);
+			// 从 R2 获取文件
+			const object = await c.env.IMG_BUCKET.get(id);
 
-				if (!object) {
-					throw new HTTPException(404, {
-						message: "图片文件不存在",
-					});
-				}
-
-				// 设置响应头
-				return new Response(object.body, {
-					headers: {
-						"Content-Type": object.httpMetadata?.contentType || "image/jpeg",
-						"Content-Length": object.size.toString(),
-						"Cache-Control": "public, max-age=31536000", // 缓存1年
-					},
-				});
-			} catch (error) {
-				console.error("获取图片文件失败:", error);
-				if (error instanceof HTTPException) {
-					throw error;
-				}
-				throw new HTTPException(500, {
-					message: "获取图片文件失败",
-					cause: error,
+			if (!object) {
+				throw new HTTPException(404, {
+					message: "图片文件不存在",
 				});
 			}
-		},
-	);
+
+			// 设置响应头
+			return new Response(object.body, {
+				headers: {
+					"Content-Type": object.httpMetadata?.contentType || "image/jpeg",
+					"Content-Length": object.size.toString(),
+					"Cache-Control": "public, max-age=31536000", // 缓存1年
+				},
+			});
+		} catch (error) {
+			console.error("获取图片文件失败:", error);
+			if (error instanceof HTTPException) {
+				throw error;
+			}
+			throw new HTTPException(500, {
+				message: "获取图片文件失败",
+				cause: error,
+			});
+		}
+	});
 
 export const galleryRouter = app;
 export type GalleryRouterType = typeof app;
