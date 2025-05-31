@@ -4,15 +4,15 @@ import {
 	createUpdateSchema,
 } from "drizzle-zod";
 import { z } from "zod";
-import { quotes, type session, type user } from "./schema";
+import { type session, todos, type user } from "./schema";
 
-// quote
-export const quoteCreateSchema = createInsertSchema(quotes);
-export const quoteSelectSchema = createSelectSchema(quotes);
-export const quoteUpdateSchema = createUpdateSchema(quotes);
+// todo
+export const todoCreateSchema = createInsertSchema(todos);
+export const todoSelectSchema = createSelectSchema(todos);
+export const todoUpdateSchema = createUpdateSchema(todos);
 
 // 导出一个和 id 相关的 schema
-export const quoteIdSchema = z.object({
+export const todoIdSchema = z.object({
 	id: z.string().transform((val) => {
 		const num = Number.parseInt(val, 10);
 		if (Number.isNaN(num)) {
@@ -22,9 +22,9 @@ export const quoteIdSchema = z.object({
 	}),
 });
 
-export type QuoteSlect = typeof quotes.$inferSelect;
-export type QuoteCreate = typeof quotes.$inferInsert;
-export type QuoteUpdate = Partial<typeof quotes.$inferSelect>;
+export type TodoSelect = typeof todos.$inferSelect;
+export type TodoCreate = typeof todos.$inferInsert;
+export type TodoUpdate = Partial<typeof todos.$inferSelect>;
 
 // Better Auth 用户类型
 export type AuthUser = typeof user.$inferSelect;

@@ -4,8 +4,8 @@ export const headerNav = [
 		href: "/",
 	},
 	{
-		label: "留言",
-		href: "/quotes",
+		label: "待办",
+		href: "/todos",
 	},
 	{
 		label: "文章",

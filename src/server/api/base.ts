@@ -124,11 +124,11 @@ export const baseRouter = new Hono<BaseContext>()
 			endpoints: {
 				auth: "/api/auth/*",
 				posts: "/api/posts",
-				quotes: "/api/quotes",
+				todos: "/api/todos",
 				gallery: "/api/gallery",
 				kitchen: "/api/kitchen",
 				health: "/health",
 			},
 			timestamp: new Date().toISOString(),
 		});
-	})
+	});

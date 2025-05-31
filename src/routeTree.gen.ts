@@ -14,9 +14,9 @@ import { Route as rootRoute } from './routes/__root'
 import { Route as KitchenImport } from './routes/kitchen'
 import { Route as GalleryImport } from './routes/gallery'
 import { Route as IndexImport } from './routes/index'
-import { Route as QuotesIndexImport } from './routes/quotes/index'
+import { Route as TodosIndexImport } from './routes/todos/index'
 import { Route as PostsIndexImport } from './routes/posts/index'
-import { Route as QuotesIdImport } from './routes/quotes/$id'
+import { Route as TodosIdImport } from './routes/todos/$id'
 import { Route as PostsIdImport } from './routes/posts/$id'
 import { Route as AuthProfileImport } from './routes/_auth/profile'
 import { Route as AuthLoginImport } from './routes/_auth/login'
@@ -41,9 +41,9 @@ const IndexRoute = IndexImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
-const QuotesIndexRoute = QuotesIndexImport.update({
-  id: '/quotes/',
-  path: '/quotes/',
+const TodosIndexRoute = TodosIndexImport.update({
+  id: '/todos/',
+  path: '/todos/',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -53,9 +53,9 @@ const PostsIndexRoute = PostsIndexImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
-const QuotesIdRoute = QuotesIdImport.update({
-  id: '/quotes/$id',
-  path: '/quotes/$id',
+const TodosIdRoute = TodosIdImport.update({
+  id: '/todos/$id',
+  path: '/todos/$id',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -123,11 +123,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PostsIdImport
       parentRoute: typeof rootRoute
     }
-    '/quotes/$id': {
-      id: '/quotes/$id'
-      path: '/quotes/$id'
-      fullPath: '/quotes/$id'
-      preLoaderRoute: typeof QuotesIdImport
+    '/todos/$id': {
+      id: '/todos/$id'
+      path: '/todos/$id'
+      fullPath: '/todos/$id'
+      preLoaderRoute: typeof TodosIdImport
       parentRoute: typeof rootRoute
     }
     '/posts/': {
@@ -137,11 +137,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PostsIndexImport
       parentRoute: typeof rootRoute
     }
-    '/quotes/': {
-      id: '/quotes/'
-      path: '/quotes'
-      fullPath: '/quotes'
-      preLoaderRoute: typeof QuotesIndexImport
+    '/todos/': {
+      id: '/todos/'
+      path: '/todos'
+      fullPath: '/todos'
+      preLoaderRoute: typeof TodosIndexImport
       parentRoute: typeof rootRoute
     }
   }
@@ -156,9 +156,9 @@ export interface FileRoutesByFullPath {
   '/login': typeof AuthLoginRoute
   '/profile': typeof AuthProfileRoute
   '/posts/$id': typeof PostsIdRoute
-  '/quotes/$id': typeof QuotesIdRoute
+  '/todos/$id': typeof TodosIdRoute
   '/posts': typeof PostsIndexRoute
-  '/quotes': typeof QuotesIndexRoute
+  '/todos': typeof TodosIndexRoute
 }
 
 export interface FileRoutesByTo {
@@ -168,9 +168,9 @@ export interface FileRoutesByTo {
   '/login': typeof AuthLoginRoute
   '/profile': typeof AuthProfileRoute
   '/posts/$id': typeof PostsIdRoute
-  '/quotes/$id': typeof QuotesIdRoute
+  '/todos/$id': typeof TodosIdRoute
   '/posts': typeof PostsIndexRoute
-  '/quotes': typeof QuotesIndexRoute
+  '/todos': typeof TodosIndexRoute
 }
 
 export interface FileRoutesById {
@@ -181,9 +181,9 @@ export interface FileRoutesById {
   '/_auth/login': typeof AuthLoginRoute
   '/_auth/profile': typeof AuthProfileRoute
   '/posts/$id': typeof PostsIdRoute
-  '/quotes/$id': typeof QuotesIdRoute
+  '/todos/$id': typeof TodosIdRoute
   '/posts/': typeof PostsIndexRoute
-  '/quotes/': typeof QuotesIndexRoute
+  '/todos/': typeof TodosIndexRoute
 }
 
 export interface FileRouteTypes {
@@ -195,9 +195,9 @@ export interface FileRouteTypes {
     | '/login'
     | '/profile'
     | '/posts/$id'
-    | '/quotes/$id'
+    | '/todos/$id'
     | '/posts'
-    | '/quotes'
+    | '/todos'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -206,9 +206,9 @@ export interface FileRouteTypes {
     | '/login'
     | '/profile'
     | '/posts/$id'
-    | '/quotes/$id'
+    | '/todos/$id'
     | '/posts'
-    | '/quotes'
+    | '/todos'
   id:
     | '__root__'
     | '/'
@@ -217,9 +217,9 @@ export interface FileRouteTypes {
     | '/_auth/login'
     | '/_auth/profile'
     | '/posts/$id'
-    | '/quotes/$id'
+    | '/todos/$id'
     | '/posts/'
-    | '/quotes/'
+    | '/todos/'
   fileRoutesById: FileRoutesById
 }
 
@@ -230,9 +230,9 @@ export interface RootRouteChildren {
   AuthLoginRoute: typeof AuthLoginRoute
   AuthProfileRoute: typeof AuthProfileRoute
   PostsIdRoute: typeof PostsIdRoute
-  QuotesIdRoute: typeof QuotesIdRoute
+  TodosIdRoute: typeof TodosIdRoute
   PostsIndexRoute: typeof PostsIndexRoute
-  QuotesIndexRoute: typeof QuotesIndexRoute
+  TodosIndexRoute: typeof TodosIndexRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
@@ -242,9 +242,9 @@ const rootRouteChildren: RootRouteChildren = {
   AuthLoginRoute: AuthLoginRoute,
   AuthProfileRoute: AuthProfileRoute,
   PostsIdRoute: PostsIdRoute,
-  QuotesIdRoute: QuotesIdRoute,
+  TodosIdRoute: TodosIdRoute,
   PostsIndexRoute: PostsIndexRoute,
-  QuotesIndexRoute: QuotesIndexRoute,
+  TodosIndexRoute: TodosIndexRoute,
 }
 
 export const routeTree = rootRoute
@@ -263,9 +263,9 @@ export const routeTree = rootRoute
         "/_auth/login",
         "/_auth/profile",
         "/posts/$id",
-        "/quotes/$id",
+        "/todos/$id",
         "/posts/",
-        "/quotes/"
+        "/todos/"
       ]
     },
     "/": {
@@ -286,14 +286,14 @@ export const routeTree = rootRoute
     "/posts/$id": {
       "filePath": "posts/$id.tsx"
     },
-    "/quotes/$id": {
-      "filePath": "quotes/$id.tsx"
+    "/todos/$id": {
+      "filePath": "todos/$id.tsx"
     },
     "/posts/": {
       "filePath": "posts/index.tsx"
     },
-    "/quotes/": {
-      "filePath": "quotes/index.tsx"
+    "/todos/": {
+      "filePath": "todos/index.tsx"
     }
   }
 }

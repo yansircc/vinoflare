@@ -62,10 +62,14 @@ export const jwks = sqliteTable("jwks", {
 });
 
 // 现有的业务表
-export const quotes = sqliteTable("quotes", {
+export const todos = sqliteTable("todos", {
 	id: integer("id").primaryKey({ autoIncrement: true }),
-	name: text("name").notNull(),
-	email: text("email").notNull(),
-	message: text("message").notNull(),
+	title: text("title").notNull(),
+	description: text("description"),
+	completed: integer("completed", { mode: "boolean" }).notNull().default(false),
+	priority: text("priority", { enum: ["low", "medium", "high"] })
+		.notNull()
+		.default("medium"),
 	createdAt: text("created_at").$defaultFn(() => new Date().toISOString()),
+	updatedAt: text("updated_at").$defaultFn(() => new Date().toISOString()),
 });

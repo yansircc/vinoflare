@@ -15,6 +15,13 @@ CREATE TABLE `account` (
 	FOREIGN KEY (`userId`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE no action
 );
 --> statement-breakpoint
+CREATE TABLE `jwks` (
+	`id` text PRIMARY KEY NOT NULL,
+	`publicKey` text NOT NULL,
+	`privateKey` text NOT NULL,
+	`createdAt` integer NOT NULL
+);
+--> statement-breakpoint
 CREATE TABLE `session` (
 	`id` text PRIMARY KEY NOT NULL,
 	`expiresAt` integer NOT NULL,
@@ -28,6 +35,16 @@ CREATE TABLE `session` (
 );
 --> statement-breakpoint
 CREATE UNIQUE INDEX `session_token_unique` ON `session` (`token`);--> statement-breakpoint
+CREATE TABLE `todos` (
+	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
+	`title` text NOT NULL,
+	`description` text,
+	`completed` integer DEFAULT false NOT NULL,
+	`priority` text DEFAULT 'medium' NOT NULL,
+	`created_at` text,
+	`updated_at` text
+);
+--> statement-breakpoint
 CREATE TABLE `user` (
 	`id` text PRIMARY KEY NOT NULL,
 	`name` text NOT NULL,

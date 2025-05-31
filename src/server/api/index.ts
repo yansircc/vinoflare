@@ -3,7 +3,7 @@ import { hc } from "hono/client";
 import { galleryRouter } from "../routers/gallery";
 import { kitchenRouter } from "../routers/kitchen";
 import { postsRouter } from "../routers/posts";
-import { quotesRouter } from "../routers/quotes";
+import { todosRouter } from "../routers/todos";
 import type { BaseContext } from "../types/context";
 import authRouter from "./auth";
 import { baseRouter } from "./base";
@@ -14,7 +14,7 @@ const app = new Hono<BaseContext>()
 	.route("/api/auth", authRouter)
 
 	// 业务路由器
-	.route("/api", quotesRouter)
+	.route("/api", todosRouter)
 	.route("/api", postsRouter)
 	.route("/api", kitchenRouter)
 	.route("/api", galleryRouter)

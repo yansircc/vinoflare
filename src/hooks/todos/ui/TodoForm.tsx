@@ -1,17 +1,17 @@
-import type { QuoteSlect } from "@/server/db/types";
+import type { TodoSelect } from "@/server/db/types";
 import { type AnyFieldApi, useForm } from "@tanstack/react-form";
 import { useState } from "react";
-import { useCreateQuote, useUpdateQuote } from "../api";
+import { useCreateTodo, useUpdateTodo } from "../api";
 import {
-	type QuoteFormData,
-	defaultQuoteFormValues,
-	quoteFormSchema,
+	type TodoFormData,
+	defaultTodoFormValues,
+	todoFormSchema,
 } from "../types";
 
-interface QuoteFormProps {
+interface TodoFormProps {
 	onSuccess?: () => void;
 	onCancel?: () => void;
-	initialData?: QuoteSlect; // 用于编辑模式
+	initialData?: TodoSelect; // 用于编辑模式
 }
 
 // 错误提示组件
@@ -30,35 +30,39 @@ function FieldInfo({ field }: { field: AnyFieldApi }) {
 	);
 }
 
-export function QuoteForm({
-	onSuccess,
-	onCancel,
-	initialData,
-}: QuoteFormProps) {
+// 优先级选项
+const priorityOptions = [
+	{ value: "low", label: "低", color: "bg-green-100 text-green-800" },
+	{ value: "medium", label: "中", color: "bg-yellow-100 text-yellow-800" },
+	{ value: "high", label: "高", color: "bg-red-100 text-red-800" },
+] as const;
+
+export function TodoForm({ onSuccess, onCancel, initialData }: TodoFormProps) {
 	const [isSubmitting, setIsSubmitting] = useState(false);
-	const createQuoteMutation = useCreateQuote();
-	const updateQuoteMutation = useUpdateQuote();
+	const createTodoMutation = useCreateTodo();
+	const updateTodoMutation = useUpdateTodo();
 
 	const isEdit = !!initialData;
 
 	const form = useForm({
 		defaultValues: initialData
 			? {
-					name: initialData.name,
-					email: initialData.email,
-					message: initialData.message,
+					title: initialData.title,
+					description: initialData.description || "",
+					completed: initialData.completed,
+					priority: initialData.priority,
 				}
-			: defaultQuoteFormValues,
-		onSubmit: async ({ value }: { value: QuoteFormData }) => {
+			: defaultTodoFormValues,
+		onSubmit: async ({ value }: { value: TodoFormData }) => {
 			setIsSubmitting(true);
 			try {
 				if (isEdit && initialData) {
-					await updateQuoteMutation.mutateAsync({
+					await updateTodoMutation.mutateAsync({
 						id: initialData.id,
 						data: value,
 					});
 				} else {
-					await createQuoteMutation.mutateAsync(value);
+					await createTodoMutation.mutateAsync(value);
 				}
 				form.reset();
 				onSuccess?.();
@@ -79,11 +83,11 @@ export function QuoteForm({
 				}}
 				className="space-y-6"
 			>
-				{/* 姓名字段 */}
+				{/* 标题字段 */}
 				<form.Field
-					name="name"
+					name="title"
 					validators={{
-						onBlur: quoteFormSchema.shape.name,
+						onBlur: todoFormSchema.shape.title,
 					}}
 				>
 					{(field) => (
@@ -92,7 +96,7 @@ export function QuoteForm({
 								htmlFor={field.name}
 								className="mb-2 block font-medium text-gray-700 text-sm"
 							>
-								姓名 *
+								标题 *
 							</label>
 							<input
 								id={field.name}
@@ -101,7 +105,7 @@ export function QuoteForm({
 								value={field.state.value}
 								onChange={(e) => field.handleChange(e.target.value)}
 								onBlur={field.handleBlur}
-								placeholder="请输入您的姓名"
+								placeholder="请输入待办事项标题"
 								className="w-full border-0 border-gray-200 border-b bg-transparent px-0 py-2 text-gray-900 placeholder-gray-400 focus:border-gray-900 focus:outline-none focus:ring-0"
 							/>
 							<FieldInfo field={field} />
@@ -109,11 +113,11 @@ export function QuoteForm({
 					)}
 				</form.Field>
 
-				{/* 邮箱字段 */}
+				{/* 描述字段 */}
 				<form.Field
-					name="email"
+					name="description"
 					validators={{
-						onBlur: quoteFormSchema.shape.email,
+						onBlur: todoFormSchema.shape.description,
 					}}
 				>
 					{(field) => (
@@ -122,55 +126,88 @@ export function QuoteForm({
 								htmlFor={field.name}
 								className="mb-2 block font-medium text-gray-700 text-sm"
 							>
-								邮箱 *
-							</label>
-							<input
-								id={field.name}
-								name={field.name}
-								type="email"
-								value={field.state.value}
-								onChange={(e) => field.handleChange(e.target.value)}
-								onBlur={field.handleBlur}
-								placeholder="请输入您的邮箱地址"
-								className="w-full border-0 border-gray-200 border-b bg-transparent px-0 py-2 text-gray-900 placeholder-gray-400 focus:border-gray-900 focus:outline-none focus:ring-0"
-							/>
-							<FieldInfo field={field} />
-						</div>
-					)}
-				</form.Field>
-
-				{/* 留言内容字段 */}
-				<form.Field
-					name="message"
-					validators={{
-						onBlur: quoteFormSchema.shape.message,
-					}}
-				>
-					{(field) => (
-						<div>
-							<label
-								htmlFor={field.name}
-								className="mb-2 block font-medium text-gray-700 text-sm"
-							>
-								留言内容 *
+								描述
 							</label>
 							<textarea
 								id={field.name}
 								name={field.name}
-								value={field.state.value}
+								value={field.state.value || ""}
 								onChange={(e) => field.handleChange(e.target.value)}
 								onBlur={field.handleBlur}
-								placeholder="请输入您的留言内容（至少10个字符）"
-								rows={4}
+								placeholder="请输入待办事项描述（可选）"
+								rows={3}
 								className="w-full resize-none border-0 border-gray-200 border-b bg-transparent px-0 py-2 text-gray-900 placeholder-gray-400 focus:border-gray-900 focus:outline-none focus:ring-0"
 							/>
 							<FieldInfo field={field} />
 							<div className="mt-1 text-gray-400 text-xs">
-								{field.state.value.length}/500
+								{(field.state.value || "").length}/500
 							</div>
 						</div>
 					)}
 				</form.Field>
+
+				{/* 优先级字段 */}
+				<form.Field name="priority">
+					{(field) => (
+						<div>
+							<label
+								htmlFor={field.name}
+								className="mb-2 block font-medium text-gray-700 text-sm"
+							>
+								优先级
+							</label>
+							<div className="flex gap-2">
+								{priorityOptions.map((option) => (
+									<label
+										key={option.value}
+										className={`cursor-pointer rounded-full px-3 py-1 text-sm transition-all ${
+											field.state.value === option.value
+												? option.color
+												: "bg-gray-100 text-gray-600 hover:bg-gray-200"
+										}`}
+									>
+										<input
+											type="radio"
+											name={field.name}
+											value={option.value}
+											checked={field.state.value === option.value}
+											onChange={(e) =>
+												field.handleChange(
+													e.target.value as "low" | "medium" | "high",
+												)
+											}
+											className="sr-only"
+										/>
+										{option.label}
+									</label>
+								))}
+							</div>
+							<FieldInfo field={field} />
+						</div>
+					)}
+				</form.Field>
+
+				{/* 完成状态字段（仅编辑时显示） */}
+				{isEdit && (
+					<form.Field name="completed">
+						{(field) => (
+							<div>
+								<label className="flex cursor-pointer items-center gap-2">
+									<input
+										type="checkbox"
+										checked={field.state.value}
+										onChange={(e) => field.handleChange(e.target.checked)}
+										className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+									/>
+									<span className="font-medium text-gray-700 text-sm">
+										已完成
+									</span>
+								</label>
+								<FieldInfo field={field} />
+							</div>
+						)}
+					</form.Field>
+				)}
 
 				{/* 表单级别错误 */}
 				<form.Subscribe selector={(state) => state.errors}>
@@ -210,10 +247,10 @@ export function QuoteForm({
 								{isSubmitting || isFormSubmitting
 									? isEdit
 										? "更新中..."
-										: "提交中..."
+										: "创建中..."
 									: isEdit
-										? "更新留言"
-										: "提交留言"}
+										? "更新待办事项"
+										: "创建待办事项"}
 							</button>
 						)}
 					</form.Subscribe>
