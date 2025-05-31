@@ -1,6 +1,6 @@
 import { QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import { RouterProvider, createRouter } from "@tanstack/react-router";
+import { RouterProvider } from "@tanstack/react-router";
 import React, { StrictMode, useState } from "react";
 import { createRoot } from "react-dom/client";
 
@@ -10,11 +10,11 @@ import "./app.css";
 import { Toaster } from "sonner";
 import { isDev } from "./lib/env";
 import { createQueryClient } from "./lib/query-client";
-// 导入生成的路由树
-import { routeTree } from "./routeTree.gen";
+// 导入创建路由器的函数
+import { createRouter } from "./router";
 
-// 创建新的路由器实例
-const router = createRouter({ routeTree });
+// 创建新的路由器实例，使用我们的配置
+const router = createRouter();
 
 // 注册路由器实例以确保类型安全
 declare module "@tanstack/react-router" {

@@ -15,11 +15,11 @@ export const Route = createRootRoute({
 				content: "width=device-width, initial-scale=1",
 			},
 			{
-				title: "留言板系统",
+				title: "Vinoflare 全栈开发模板",
 			},
 			{
 				name: "description",
-				content: "基于 Hono + TanStack + Cloudflare 构建的现代留言板系统",
+				content: "基于 Hono + TanStack + Cloudflare 构建的现代全栈开发模板",
 			},
 		],
 	}),
