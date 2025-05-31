@@ -1,7 +1,6 @@
-import { client } from "@/api/client";
+import { client } from "@/server/api";
 
 import { createQueryKeys } from "@/lib/query-factory";
-import type { GalleryRouterType } from "@/server/routers/gallery";
 import { catchError } from "@/utils/catchError";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";

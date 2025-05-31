@@ -1,3 +1,5 @@
+import { Explanation } from "@/components/Explanation";
+import { PageHeader } from "@/components/PageHeader";
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -11,10 +13,8 @@ import {
 } from "../hooks/kitchen/api";
 import {
 	AllIngredientsSection,
-	KitchenHeader,
 	RandomIngredientsSection,
 	TaskQueueSection,
-	WorkflowExplanation,
 } from "../hooks/kitchen/ui";
 
 export const Route = createFileRoute("/kitchen")({
@@ -62,7 +62,18 @@ function KitchenPage() {
 
 	return (
 		<div className="mx-auto max-w-6xl space-y-12">
-			<KitchenHeader />
+			<PageHeader
+				title="🍳 智能厨房"
+				description={
+					<>
+						<p>
+							体验 Cloudflare Queues 的<span className="font-bold">生产者</span>
+							和<span className="font-bold">消费者</span>模式
+						</p>
+						<p>每种食材都有不同的加工时长和失败率，失败后会自动重试</p>
+					</>
+				}
+			/>
 
 			<div className="grid gap-8 lg:grid-cols-2">
 				{/* 左侧：食材选择 */}
@@ -95,7 +106,26 @@ function KitchenPage() {
 				</div>
 			</div>
 
-			<WorkflowExplanation />
+			<Explanation
+				title="💡 工作原理"
+				items={[
+					{
+						title: "生产者",
+						description: "用户选择食材，API 将任务发送到队列",
+						color: "bg-blue-500",
+					},
+					{
+						title: "队列处理",
+						description: "Cloudflare Queues 异步处理任务",
+						color: "bg-green-500",
+					},
+					{
+						title: "消费者",
+						description: "Worker 消费队列，更新进度和状态",
+						color: "bg-purple-500",
+					},
+				]}
+			/>
 		</div>
 	);
 }

@@ -1,11 +1,12 @@
 import { Hono } from "hono";
+import { hc } from "hono/client";
 import { galleryRouter } from "../routers/gallery";
 import { kitchenRouter } from "../routers/kitchen";
 import { postsRouter } from "../routers/posts";
 import { quotesRouter } from "../routers/quotes";
 import type { BaseContext } from "../types/context";
-import { baseRouter } from "./base";
 import authRouter from "./auth";
+import { baseRouter } from "./base";
 
 // 按照 Hono RPC 模式创建主 API 应用
 const app = new Hono<BaseContext>()
@@ -37,3 +38,4 @@ const app = new Hono<BaseContext>()
 // 导出 API 及其类型以供 RPC 使用
 export const api = app;
 export type ApiType = typeof app;
+export const client = hc<ApiType>("/").api;

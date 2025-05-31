@@ -1,4 +1,4 @@
-import { client } from "@/api/client";
+import { client } from "@/server/api";
 
 import { createQueryKeys } from "@/lib/query-factory";
 import { catchError } from "@/utils/catchError";

@@ -2,7 +2,7 @@ import { type AnyFieldApi, useForm } from "@tanstack/react-form";
 import { useState } from "react";
 import { useUploadGalleryImage } from "../api";
 import { type FilePreview, galleryUploadFormSchema } from "../types";
-// import { client } from "@/api/client";
+// import { client } from "@/server/api";
 //
 
 interface GalleryUploadFormProps {

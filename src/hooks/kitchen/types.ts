@@ -1,4 +1,4 @@
-import type { client } from "@/api/client";
+import type { client } from "@/server/api";
 import type { InferRequestType, InferResponseType } from "hono/client";
 
 // 定义 API 类型
