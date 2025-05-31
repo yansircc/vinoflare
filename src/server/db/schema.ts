@@ -1,4 +1,5 @@
 import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { index } from "drizzle-orm/sqlite-core";
 
 // Better Auth 需要的表
 export const user = sqliteTable("user", {
@@ -62,14 +63,27 @@ export const jwks = sqliteTable("jwks", {
 });
 
 // 现有的业务表
-export const todos = sqliteTable("todos", {
-	id: integer("id").primaryKey({ autoIncrement: true }),
-	title: text("title").notNull(),
-	description: text("description"),
-	completed: integer("completed", { mode: "boolean" }).notNull().default(false),
-	priority: text("priority", { enum: ["low", "medium", "high"] })
-		.notNull()
-		.default("medium"),
-	createdAt: text("created_at").$defaultFn(() => new Date().toISOString()),
-	updatedAt: text("updated_at").$defaultFn(() => new Date().toISOString()),
-});
+export const todos = sqliteTable(
+	"todos",
+	{
+		id: integer("id").primaryKey({ autoIncrement: true }),
+		title: text("title").notNull(),
+		description: text("description"),
+		completed: integer("completed", { mode: "boolean" })
+			.notNull()
+			.default(false),
+		priority: text("priority", { enum: ["low", "medium", "high"] })
+			.notNull()
+			.default("medium"),
+		createdAt: text("created_at").$defaultFn(() => new Date().toISOString()),
+		updatedAt: text("updated_at").$defaultFn(() => new Date().toISOString()),
+	},
+	(table) => [
+		// 添加索引以优化查询性能
+		index("todos_completed_idx").on(table.completed),
+		index("todos_priority_idx").on(table.priority),
+		index("todos_created_at_idx").on(table.createdAt),
+		// 复合索引，用于状态和优先级的联合查询
+		index("todos_completed_priority_idx").on(table.completed, table.priority),
+	],
+);

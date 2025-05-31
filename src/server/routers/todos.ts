@@ -1,5 +1,5 @@
 import { zValidator } from "@hono/zod-validator";
-import { asc, count, desc, eq } from "drizzle-orm";
+import { asc, count, desc, eq, gt } from "drizzle-orm";
 import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
 import { createDb, schema, types } from "../db";
@@ -234,33 +234,70 @@ const app = new Hono<BaseContext>()
 		try {
 			const db = createDb(c.env.DB);
 
-			// 获取总数
-			const [{ totalCount }] = await db
-				.select({ totalCount: count() })
-				.from(schema.todos);
-
-			// 获取最近的待办事项用于统计
-			const allTodos = await db.select().from(schema.todos);
-
+			// 使用 SQL 进行高效统计，避免拉取所有数据
 			const now = new Date();
 			const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
 			const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
 
-			const stats = {
-				total: totalCount,
-				completed: allTodos.filter((t) => t.completed).length,
-				pending: allTodos.filter((t) => !t.completed).length,
-				lastDay: allTodos.filter((t) => {
-					return t.createdAt && new Date(t.createdAt) > oneDayAgo;
-				}).length,
-				lastWeek: allTodos.filter((t) => {
-					return t.createdAt && new Date(t.createdAt) > oneWeekAgo;
-				}).length,
-				byPriority: {
-					high: allTodos.filter((t) => t.priority === "high").length,
-					medium: allTodos.filter((t) => t.priority === "medium").length,
-					low: allTodos.filter((t) => t.priority === "low").length,
+			// 使用并行查询，一次性获取所有统计数据
+			const [
+				totalResult,
+				completedResult,
+				pendingResult,
+				lastDayResult,
+				lastWeekResult,
+				priorityStats,
+			] = await Promise.all([
+				// 总数
+				db
+					.select({ count: count() })
+					.from(schema.todos),
+				// 已完成数量
+				db
+					.select({ count: count() })
+					.from(schema.todos)
+					.where(eq(schema.todos.completed, true)),
+				// 未完成数量
+				db
+					.select({ count: count() })
+					.from(schema.todos)
+					.where(eq(schema.todos.completed, false)),
+				// 最近一天创建的数量
+				db
+					.select({ count: count() })
+					.from(schema.todos)
+					.where(gt(schema.todos.createdAt, oneDayAgo.toISOString())),
+				// 最近一周创建的数量
+				db
+					.select({ count: count() })
+					.from(schema.todos)
+					.where(gt(schema.todos.createdAt, oneWeekAgo.toISOString())),
+				// 按优先级统计
+				db
+					.select({
+						priority: schema.todos.priority,
+						count: count(),
+					})
+					.from(schema.todos)
+					.groupBy(schema.todos.priority),
+			]);
+
+			// 处理优先级统计结果
+			const priorityMap = priorityStats.reduce(
+				(acc, item) => {
+					acc[item.priority] = item.count;
+					return acc;
 				},
+				{ high: 0, medium: 0, low: 0 } as Record<string, number>,
+			);
+
+			const stats = {
+				total: totalResult[0]?.count || 0,
+				completed: completedResult[0]?.count || 0,
+				pending: pendingResult[0]?.count || 0,
+				lastDay: lastDayResult[0]?.count || 0,
+				lastWeek: lastWeekResult[0]?.count || 0,
+				byPriority: priorityMap,
 			};
 
 			return c.json({

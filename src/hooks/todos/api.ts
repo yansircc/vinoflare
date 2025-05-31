@@ -118,3 +118,37 @@ export const useToggleTodo = () => {
 		},
 	});
 };
+
+// 批处理示例：同时执行多个操作
+export const useBatchTodos = () => {
+	return useMutation({
+		mutationFn: async (
+			operations: Array<{ type: "create" | "update" | "delete"; data: any }>,
+		) => {
+			const statements = operations.map((op) => {
+				switch (op.type) {
+					case "create":
+						return client.todos.$post({ json: op.data });
+					case "update":
+						return client.todos[":id"].$put({
+							param: { id: op.data.id.toString() },
+							json: op.data,
+						});
+					case "delete":
+						return client.todos[":id"].$delete({
+							param: { id: op.data.id.toString() },
+						});
+					default:
+						throw new Error("Unknown operation type");
+				}
+			});
+
+			// 使用 Promise.all 并行执行
+			return Promise.all(statements);
+		},
+		meta: {
+			customSuccessMessage: "批量操作完成",
+			customErrorMessage: "批量操作失败",
+		},
+	});
+};
