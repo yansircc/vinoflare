@@ -260,26 +260,44 @@ const app = new Hono<BaseContext>()
 // 创建重定向路由（不在 /links 路径下）
 const redirectsApp = new Hono<BaseContext>()
 	// GET /s/:shortCode - 短链接重定向
-	.get("/s/:shortCode", async (c) => {
+	.get("/:shortCode", async (c) => {
 		try {
 			const shortCode = c.req.param("shortCode");
 
 			if (!shortCode) {
-				return c.text("无效的短码", 400);
+				return c.json(
+					{
+						success: false,
+						message: "无效的短码",
+					},
+					400,
+				);
 			}
 
 			const store = new RedirectssKVStore(c.env.KV);
 			const originalUrl = await store.visitRedirects(shortCode);
 
 			if (!originalUrl) {
-				return c.text("短链接不存在", 404);
+				return c.json(
+					{
+						success: false,
+						message: "短链接不存在",
+					},
+					404,
+				);
 			}
 
 			// 302重定向到原始URL
 			return c.redirect(originalUrl, 302);
 		} catch (error) {
 			console.error("重定向失败:", error);
-			return c.text("服务器错误", 500);
+			return c.json(
+				{
+					success: false,
+					message: "服务器错误",
+				},
+				500,
+			);
 		}
 	});
 

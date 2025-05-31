@@ -20,7 +20,7 @@ const app = new Hono<BaseContext>()
 	.route("/api", galleryRouter)
 
 	// 短链接重定向路由（放在最后以避免冲突）
-	.route("/", redirectsRouter)
+	.route("/s", redirectsRouter)
 
 	// 404 处理
 	.notFound((c) => {
