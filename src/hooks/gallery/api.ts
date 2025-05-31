@@ -1,9 +1,8 @@
 import { client } from "@/server/api";
 
 import { createQueryKeys } from "@/lib/query-factory";
-import { catchError } from "@/utils/catchError";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
+import { apiWrapperWithJson } from "@/utils/api-wrapper";
+import { useMutation, useQuery } from "@tanstack/react-query";
 
 import type {
 	DeleteGalleryImageResponse,
@@ -23,15 +22,10 @@ const galleryKeys = createQueryKeys("gallery");
 export const useGalleryImages = () => {
 	return useQuery({
 		queryKey: galleryKeys.all,
-		queryFn: async (): Promise<GetGalleryImagesResponse> => {
-			const { data: result, error } = await catchError(async () => {
-				return await client.gallery.$get();
-			});
-
-			if (error || !result) {
-				throw new Error("获取图片列表失败");
-			}
-			return result.json();
+		queryFn: async () => {
+			return apiWrapperWithJson<GetGalleryImagesResponse>(() =>
+				client.gallery.$get(),
+			);
 		},
 	});
 };
@@ -40,16 +34,12 @@ export const useGalleryImages = () => {
 export const useGalleryImage = (fileName: string) => {
 	return useQuery({
 		queryKey: galleryKeys.detail(fileName),
-		queryFn: async (): Promise<GetGalleryImageResponse> => {
-			const { data: result, error } = await catchError(async () => {
-				return await client.gallery[":id"].$get({
+		queryFn: async () => {
+			return apiWrapperWithJson<GetGalleryImageResponse>(() =>
+				client.gallery[":id"].$get({
 					param: { id: fileName },
-				});
-			});
-			if (error || !result) {
-				throw new Error("获取图片信息失败");
-			}
-			return result.json();
+				}),
+			);
 		},
 		enabled: !!fileName,
 	});
@@ -59,102 +49,60 @@ export const useGalleryImage = (fileName: string) => {
 export const useGalleryStats = () => {
 	return useQuery({
 		queryKey: [...galleryKeys.all, "stats"],
-		queryFn: async (): Promise<GetGalleryStatsResponse> => {
-			const { data: result, error } = await catchError(async () => {
-				return await client.gallery.stats.$get();
-			});
-
-			if (error || !result) {
-				throw new Error("获取图库统计失败");
-			}
-			return result.json();
+		queryFn: async () => {
+			return apiWrapperWithJson<GetGalleryStatsResponse>(() =>
+				client.gallery.stats.$get(),
+			);
 		},
 	});
 };
 
 // 上传图片
 export const useUploadGalleryImage = () => {
-	const queryClient = useQueryClient();
-
 	return useMutation<
 		UploadGalleryImageResponse,
 		Error,
 		UploadGalleryImageRequest
 	>({
-		mutationFn: async (request) => {
-			const { data: result, error } = await catchError(async () => {
-				const file = new File(
-					[request.file],
-					request.title || request.file.name,
-					{
-						type: request.file.type,
-					},
-				);
-				const response = await client.gallery.$post({
-					form: {
-						file,
-						title: request.title,
-						description: request.description,
-					},
-				});
-
-				if (!response.ok) {
-					const errorText = await response.text();
-					throw new Error(`HTTP ${response.status}: ${errorText}`);
-				}
-
-				return response.json() as Promise<UploadGalleryImageResponse>;
-			});
-
-			if (error || !result) {
-				throw new Error("上传图片失败");
-			}
-
-			return result;
+		mutationFn: async (formData) => {
+			return apiWrapperWithJson<UploadGalleryImageResponse>(() =>
+				client.gallery.$post({
+					form: formData,
+				}),
+			);
 		},
-		onSuccess: (data) => {
-			queryClient.invalidateQueries({ queryKey: galleryKeys.all });
-			toast.success("图片上传成功！", {
-				description: data.message,
-			});
-		},
-		onError: (error) => {
-			toast.error(error.message || "图片上传失败");
+		meta: {
+			customSuccessMessage: "图片上传成功",
+			customErrorMessage: "图片上传失败",
+			invalidateQueries: {
+				queryKey: galleryKeys.all.map((key) => key.toString()),
+			},
 		},
 	});
 };
 
 // 删除图片
 export const useDeleteGalleryImage = () => {
-	const queryClient = useQueryClient();
-
 	return useMutation<DeleteGalleryImageResponse, Error, string>({
 		mutationFn: async (fileName) => {
-			const { data: result, error } = await catchError(async () => {
-				const res = await client.gallery[":id"].$delete({
+			return apiWrapperWithJson<DeleteGalleryImageResponse>(() =>
+				client.gallery[":id"].$delete({
 					param: { id: fileName },
-				});
-				return res.json();
-			});
-			if (error || !result) {
-				throw new Error("删除图片失败");
-			}
-			return result;
+				}),
+			);
 		},
-		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: galleryKeys.all });
-			toast.success("图片删除成功！");
-		},
-		onError: (error) => {
-			toast.error(error.message);
+		meta: {
+			customSuccessMessage: "图片删除成功",
+			customErrorMessage: "删除图片失败",
+			invalidateQueries: {
+				queryKey: galleryKeys.all.map((key) => key.toString()),
+			},
 		},
 	});
 };
 
 // 批量上传图片
 export const useBatchUploadGalleryImages = () => {
-	const queryClient = useQueryClient();
-
 	return useMutation<
 		UploadGalleryImageResponse[],
 		Error,
@@ -162,28 +110,21 @@ export const useBatchUploadGalleryImages = () => {
 	>({
 		mutationFn: async (formDataArray) => {
 			const uploadPromises = formDataArray.map(async (formData) => {
-				const { data: result, error } = await catchError(async () => {
-					const res = await client.gallery.$post({
+				return apiWrapperWithJson<UploadGalleryImageResponse>(() =>
+					client.gallery.$post({
 						form: formData,
-					});
-					return res.json();
-				});
-				if (error || !result) {
-					throw new Error("上传文件失败");
-				}
-				return result;
+					}),
+				);
 			});
 
 			return await Promise.all(uploadPromises);
 		},
-		onSuccess: (results) => {
-			queryClient.invalidateQueries({ queryKey: galleryKeys.all });
-			toast.success("批量上传成功！", {
-				description: `共上传 ${results.length} 张图片`,
-			});
-		},
-		onError: (error) => {
-			toast.error(error.message);
+		meta: {
+			customSuccessMessage: "批量上传成功",
+			customErrorMessage: "批量上传失败",
+			invalidateQueries: {
+				queryKey: galleryKeys.all.map((key) => key.toString()),
+			},
 		},
 	});
 };

@@ -1,9 +1,8 @@
 import { client } from "@/server/api";
 
 import { createQueryKeys } from "@/lib/query-factory";
-import { catchError } from "@/utils/catchError";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
+import { apiWrapperWithJson } from "@/utils/api-wrapper";
+import { useMutation, useQuery } from "@tanstack/react-query";
 
 import type {
 	CreateRedirectRequest,
@@ -31,20 +30,16 @@ export const useRedirects = (
 
 	return useQuery({
 		queryKey: RedirectsKeys.list({ page, limit, sort }),
-		queryFn: async (): Promise<GetRedirectsResponse> => {
-			const { data: result, error } = await catchError(async () => {
-				return await client.links.$get({
+		queryFn: async () => {
+			return apiWrapperWithJson<GetRedirectsResponse>(() =>
+				client.links.$get({
 					query: {
 						page: page.toString(),
 						limit: limit.toString(),
 						sort: sort as "newest" | "oldest" | "visits",
 					},
-				});
-			});
-			if (error || !result) {
-				throw new Error("获取短链接列表失败");
-			}
-			return result.json();
+				}),
+			);
 		},
 	});
 };
@@ -53,16 +48,12 @@ export const useRedirects = (
 export const useRedirect = (id: string) => {
 	return useQuery({
 		queryKey: RedirectsKeys.detail(id),
-		queryFn: async (): Promise<GetRedirectResponse> => {
-			const { data: result, error } = await catchError(async () => {
-				return await client.links[":id"].$get({
+		queryFn: async () => {
+			return apiWrapperWithJson<GetRedirectResponse>(() =>
+				client.links[":id"].$get({
 					param: { id },
-				});
-			});
-			if (error || !result) {
-				throw new Error("获取短链接失败");
-			}
-			return result.json();
+				}),
+			);
 		},
 		enabled: !!id,
 	});
@@ -72,104 +63,73 @@ export const useRedirect = (id: string) => {
 export const useRedirectStats = () => {
 	return useQuery({
 		queryKey: RedirectsKeys.list({ type: "stats" }),
-		queryFn: async (): Promise<GetStatsResponse> => {
-			const { data: result, error } = await catchError(async () => {
-				return await client.links.stats.$get();
-			});
-			if (error || !result) {
-				throw new Error("获取统计信息失败");
-			}
-			return result.json();
+		queryFn: async () => {
+			return apiWrapperWithJson<GetStatsResponse>(() =>
+				client.links.stats.$get(),
+			);
 		},
 	});
 };
 
 // 创建短链接
 export const useCreateRedirect = () => {
-	const queryClient = useQueryClient();
-
 	return useMutation<CreateRedirectResponse, Error, CreateRedirectRequest>({
 		mutationFn: async (newRedirect) => {
-			const { data: result, error } = await catchError(async () => {
-				return await client.links.$post({ json: newRedirect });
-			});
-			if (error || !result) {
-				throw new Error("创建短链接失败");
-			}
-			return result.json();
+			return apiWrapperWithJson<CreateRedirectResponse>(() =>
+				client.links.$post({ json: newRedirect }),
+			);
 		},
-		onSuccess: (data: CreateRedirectResponse) => {
-			queryClient.invalidateQueries({ queryKey: RedirectsKeys.all });
-			toast.success("短链接创建成功！", {
-				description: data.message,
-			});
-		},
-		onError: (error) => {
-			toast.error(error.message);
+		meta: {
+			customSuccessMessage: "短链接创建成功",
+			customErrorMessage: "创建短链接失败",
+			invalidateQueries: {
+				queryKey: RedirectsKeys.all.map((key) => key.toString()),
+			},
 		},
 	});
 };
 
 // 更新短链接
 export const useUpdateRedirect = () => {
-	const queryClient = useQueryClient();
-
 	return useMutation<
 		UpdateRedirectResponse,
 		Error,
 		{ id: string; data: UpdateRedirectRequest }
 	>({
-		mutationFn: async ({ id, data }): Promise<UpdateRedirectResponse> => {
-			const { data: result, error } = await catchError(async () => {
-				return await client.links[":id"].$put({
+		mutationFn: async ({ id, data }) => {
+			return apiWrapperWithJson<UpdateRedirectResponse>(() =>
+				client.links[":id"].$put({
 					param: { id },
 					json: data,
-				});
-			});
-			if (error || !result) {
-				throw new Error("更新短链接失败");
-			}
-			return result.json();
+				}),
+			);
 		},
-		onSuccess: (data: UpdateRedirectResponse, variables) => {
-			queryClient.invalidateQueries({ queryKey: RedirectsKeys.all });
-			queryClient.invalidateQueries({
-				queryKey: RedirectsKeys.detail(variables.id),
-			});
-			toast.success("短链接更新成功！", {
-				description: data.message,
-			});
-		},
-		onError: (error) => {
-			toast.error(error.message);
+		meta: {
+			customSuccessMessage: "短链接更新成功",
+			customErrorMessage: "更新短链接失败",
+			invalidateQueries: {
+				queryKey: RedirectsKeys.all.map((key) => key.toString()),
+			},
 		},
 	});
 };
 
 // 删除短链接
 export const useDeleteRedirect = () => {
-	const queryClient = useQueryClient();
-
 	return useMutation<DeleteRedirectResponse, Error, string>({
-		mutationFn: async (id: string): Promise<DeleteRedirectResponse> => {
-			const { data: result, error } = await catchError(async () => {
-				return await client.links[":id"].$delete({
+		mutationFn: async (id) => {
+			return apiWrapperWithJson<DeleteRedirectResponse>(() =>
+				client.links[":id"].$delete({
 					param: { id },
-				});
-			});
-			if (error || !result) {
-				throw new Error("删除短链接失败");
-			}
-			return result.json();
+				}),
+			);
 		},
-		onSuccess: (data: DeleteRedirectResponse) => {
-			queryClient.invalidateQueries({ queryKey: RedirectsKeys.all });
-			toast.success("短链接删除成功！", {
-				description: data.message,
-			});
-		},
-		onError: (error) => {
-			toast.error(error.message);
+		meta: {
+			customSuccessMessage: "短链接删除成功",
+			customErrorMessage: "删除短链接失败",
+			invalidateQueries: {
+				queryKey: RedirectsKeys.all.map((key) => key.toString()),
+			},
 		},
 	});
 };
