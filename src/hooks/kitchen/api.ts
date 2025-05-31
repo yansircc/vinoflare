@@ -1,7 +1,7 @@
 import { client } from "@/server/api";
 
 import { createQueryKeys } from "@/lib/query-factory";
-import { apiWrapperWithJson } from "@/utils/api-wrapper";
+import { catchError } from "@/utils/catchError";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { calculateVirtualProgress } from "./helper";
 
@@ -13,11 +13,6 @@ import type {
 } from "@/server/routers/kitchen";
 
 import type {
-	ClearTasksResponse,
-	GetIngredientsResponse,
-	GetRandomIngredientsResponse,
-	GetTaskResponse,
-	GetTasksResponse,
 	ProcessIngredientsRequest,
 	ProcessIngredientsResponse,
 } from "./types";
@@ -30,25 +25,15 @@ export const useIngredients = () => {
 	return useQuery({
 		queryKey: kitchenKeys.all,
 		queryFn: async () => {
-			return apiWrapperWithJson<GetIngredientsResponse>(() =>
-				client.kitchen.ingredients.$get(),
-			);
+			const { data: result, error } = await catchError(async () => {
+				const response = await client.kitchen.ingredients.$get();
+				return response.json();
+			});
+			if (error || !result) {
+				throw error;
+			}
+			return result;
 		},
-	});
-};
-
-// 获取随机食材
-export const useRandomIngredients = (count?: number) => {
-	return useQuery({
-		queryKey: kitchenKeys.list({ type: "randomIngredients", count }),
-		queryFn: async () => {
-			return apiWrapperWithJson<GetRandomIngredientsResponse>(() =>
-				client.kitchen.randomIngredients.$get({
-					query: count ? { count: count.toString() } : {},
-				}),
-			);
-		},
-		enabled: false, // 手动触发
 	});
 };
 
@@ -57,9 +42,14 @@ export const useKitchenTasks = () => {
 	return useQuery({
 		queryKey: kitchenKeys.lists(),
 		queryFn: async () => {
-			return apiWrapperWithJson<GetTasksResponse>(() =>
-				client.kitchen.tasks.$get(),
-			);
+			const { data: result, error } = await catchError(async () => {
+				const response = await client.kitchen.tasks.$get();
+				return response.json();
+			});
+			if (error || !result) {
+				throw error;
+			}
+			return result;
 		},
 	});
 };
@@ -69,17 +59,59 @@ export const useKitchenTask = (taskId: string) => {
 	return useQuery({
 		queryKey: kitchenKeys.detail(taskId),
 		queryFn: async () => {
-			return apiWrapperWithJson<GetTaskResponse>(() =>
-				client.kitchen.tasks[":taskId"].$get({
+			const { data: result, error } = await catchError(async () => {
+				const response = await client.kitchen.tasks[":taskId"].$get({
 					param: { taskId },
-				}),
-			);
+				});
+				return response.json();
+			});
+			if (error || !result) {
+				throw error;
+			}
+			return result;
 		},
 		enabled: !!taskId,
 	});
 };
 
-// 处理食材（发送到队列）
+// 清除所有任务
+export const useClearAllTasks = () => {
+	return useMutation({
+		mutationFn: async () => {
+			await client.kitchen.tasks.$delete();
+		},
+		meta: {
+			customSuccessMessage: "清除任务成功",
+			customErrorMessage: "清除任务失败",
+			optimisticUpdate: {
+				queryKey: kitchenKeys.lists(),
+				type: "delete",
+			},
+		},
+	});
+};
+
+// 特殊操作：获取随机食材（保持原有逻辑）
+export const useRandomIngredients = (count?: number) => {
+	return useQuery({
+		queryKey: kitchenKeys.list({ type: "randomIngredients", count }),
+		queryFn: async () => {
+			const { data: result, error } = await catchError(async () => {
+				const response = await client.kitchen.randomIngredients.$get({
+					query: count ? { count: count.toString() } : {},
+				});
+				return response.json();
+			});
+			if (error || !result) {
+				throw error;
+			}
+			return result;
+		},
+		enabled: false, // 手动触发
+	});
+};
+
+// 特殊操作：处理食材（发送到队列）
 export const useProcessIngredients = () => {
 	return useMutation<
 		ProcessIngredientsResponse,
@@ -87,11 +119,16 @@ export const useProcessIngredients = () => {
 		ProcessIngredientsRequest
 	>({
 		mutationFn: async (data) => {
-			return apiWrapperWithJson<ProcessIngredientsResponse>(() =>
-				client.kitchen.process.$post({
+			const { data: result, error } = await catchError(async () => {
+				const response = await client.kitchen.process.$post({
 					json: { ingredientIds: data.ingredientIds },
-				}),
-			);
+				});
+				return response.json();
+			});
+			if (error || !result) {
+				throw error;
+			}
+			return result;
 		},
 		meta: {
 			customSuccessMessage: "提交加工任务成功",
@@ -109,25 +146,28 @@ export const useKitchenTasksPolling = (enabled = true, interval = 2000) => {
 	const queryResult = useQuery({
 		queryKey: kitchenKeys.lists(),
 		queryFn: async () => {
-			const response = await apiWrapperWithJson<GetTasksResponse>(() =>
-				client.kitchen.tasks.$get(),
-			);
+			const { data: response, error } = await catchError(async () => {
+				const result = await client.kitchen.tasks.$get();
+				return result.json();
+			});
 
-			// 为 processing 状态的任务计算虚拟进度
-			if (response.data) {
-				response.data = response.data.map((task) =>
-					calculateVirtualProgress(task),
-				);
+			if (error || !response) {
+				throw error;
 			}
 
-			return response;
+			// 为 processing 状态的任务计算虚拟进度
+			const processedTasks = response.map((task) =>
+				calculateVirtualProgress(task),
+			);
+
+			return processedTasks;
 		},
 		refetchInterval: (query) => {
 			if (!enabled) return false;
 
 			// 检查是否有进行中的任务
 			const data = query.state.data;
-			const hasActiveTasks = data?.data?.some(
+			const hasActiveTasks = data?.some(
 				(task) => task.status === "processing" || task.status === "pending",
 			);
 
@@ -137,7 +177,7 @@ export const useKitchenTasksPolling = (enabled = true, interval = 2000) => {
 			}
 
 			// 检查是否有刚完成的任务（需要显示100%状态）
-			const hasRecentlyCompleted = data?.data?.some((task) => {
+			const hasRecentlyCompleted = data?.some((task) => {
 				if (
 					(task.status === "completed" || task.status === "failed") &&
 					task.endTime
@@ -167,11 +207,16 @@ export const useRefreshRandomIngredients = () => {
 
 	return useMutation({
 		mutationFn: async (count?: number) => {
-			return apiWrapperWithJson<GetRandomIngredientsResponse>(() =>
-				client.kitchen.randomIngredients.$get({
+			const { data: result, error } = await catchError(async () => {
+				const response = await client.kitchen.randomIngredients.$get({
 					query: count ? { count: count.toString() } : {},
-				}),
-			);
+				});
+				return response.json();
+			});
+			if (error || !result) {
+				throw error;
+			}
+			return result;
 		},
 		onMutate: async (count) => {
 			const queryKey = kitchenKeys.list({ type: "randomIngredients", count });
@@ -190,22 +235,17 @@ export const useRefreshRandomIngredients = () => {
 					id: `placeholder-${Date.now()}-${index}`,
 					name: "获取中...",
 					description: "正在获取随机食材",
-					difficulty: "easy" as const,
 					processingTime: 1000,
 					failureRate: 0,
 					emoji: "⏳",
 				}),
 			);
 
-			queryClient.setQueryData(queryKey, {
-				success: true,
-				data: placeholderIngredients,
-				message: "正在获取随机食材...",
-			});
+			queryClient.setQueryData(queryKey, placeholderIngredients);
 
 			return { previousData, queryKey };
 		},
-		onError: (error, count, context) => {
+		onError: (_error, _count, context) => {
 			// 回滚到之前的数据
 			if (context?.previousData && context?.queryKey) {
 				queryClient.setQueryData(context.queryKey, context.previousData);
@@ -218,25 +258,6 @@ export const useRefreshRandomIngredients = () => {
 		},
 		meta: {
 			customErrorMessage: "获取随机食材失败",
-		},
-	});
-};
-
-// 清除所有任务
-export const useClearAllTasks = () => {
-	return useMutation({
-		mutationFn: async () => {
-			return apiWrapperWithJson<ClearTasksResponse>(() =>
-				client.kitchen.tasks.$delete(),
-			);
-		},
-		meta: {
-			customSuccessMessage: "清除任务成功",
-			customErrorMessage: "清除任务失败",
-			optimisticUpdate: {
-				queryKey: kitchenKeys.lists(),
-				type: "delete",
-			},
 		},
 	});
 };

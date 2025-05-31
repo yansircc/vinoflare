@@ -100,6 +100,20 @@ const queryClient: QueryClient = new QueryClient({
 									createdAt: new Date().toISOString(),
 									updatedAt: new Date().toISOString(),
 								};
+
+						// 支持分页数据结构
+						if (oldData?.data && Array.isArray(oldData.data)) {
+							return {
+								...oldData,
+								data: [...oldData.data, optimisticItem],
+								pagination: {
+									...oldData.pagination,
+									totalCount: oldData.pagination.totalCount + 1,
+								},
+							};
+						}
+
+						// 兼容原数组格式
 						return Array.isArray(oldData)
 							? [...oldData, optimisticItem]
 							: oldData;
@@ -109,6 +123,25 @@ const queryClient: QueryClient = new QueryClient({
 						if (!getId) return oldData;
 						const id = getId(variables);
 
+						// 支持分页数据结构
+						if (oldData?.data && Array.isArray(oldData.data)) {
+							return {
+								...oldData,
+								data: oldData.data.map((item: any) =>
+									item.id?.toString() === id.toString()
+										? {
+												...item,
+												...(typeof variables === "object" && variables !== null
+													? variables
+													: {}),
+												updatedAt: new Date().toISOString(),
+											}
+										: item,
+								),
+							};
+						}
+
+						// 兼容原格式
 						if (Array.isArray(oldData)) {
 							return oldData.map((item: any) =>
 								item.id?.toString() === id.toString()
@@ -135,6 +168,21 @@ const queryClient: QueryClient = new QueryClient({
 						if (!getId) return oldData;
 						const id = getId(variables);
 
+						// 支持分页数据结构
+						if (oldData?.data && Array.isArray(oldData.data)) {
+							return {
+								...oldData,
+								data: oldData.data.filter(
+									(item: any) => item.id?.toString() !== id.toString(),
+								),
+								pagination: {
+									...oldData.pagination,
+									totalCount: Math.max(0, oldData.pagination.totalCount - 1),
+								},
+							};
+						}
+
+						// 兼容原数组格式
 						if (Array.isArray(oldData)) {
 							return oldData.filter(
 								(item: any) => item.id?.toString() !== id.toString(),
@@ -147,6 +195,25 @@ const queryClient: QueryClient = new QueryClient({
 						if (!getId) return oldData;
 						const id = getId(variables);
 
+						// 支持分页数据结构
+						if (oldData?.data && Array.isArray(oldData.data)) {
+							return {
+								...oldData,
+								data: oldData.data.map((item: any) =>
+									item.id?.toString() === id.toString()
+										? {
+												...item,
+												...(typeof variables === "object" && variables !== null
+													? variables
+													: {}),
+												updatedAt: new Date().toISOString(),
+											}
+										: item,
+								),
+							};
+						}
+
+						// 兼容原格式
 						if (Array.isArray(oldData)) {
 							return oldData.map((item: any) =>
 								item.id?.toString() === id.toString()

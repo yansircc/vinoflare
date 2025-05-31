@@ -23,3 +23,8 @@ export type ProcessIngredientsResponse = InferResponseType<
 export type ClearTasksResponse = InferResponseType<
 	typeof client.kitchen.tasks.$delete
 >;
+
+// 从响应中提取数据类型
+export type Ingredient = GetIngredientsResponse[0];
+export type ProcessingTask = GetTasksResponse[0];
+export type ProcessingTaskList = GetTasksResponse;

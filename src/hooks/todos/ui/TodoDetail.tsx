@@ -48,7 +48,7 @@ export function TodoDetail({ id }: TodoDetailProps) {
 	}
 
 	const { title, description, completed, priority, createdAt, updatedAt } =
-		todo.data;
+		todo;
 
 	return (
 		<div className="mx-auto max-w-4xl">

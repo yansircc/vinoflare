@@ -1,15 +1,16 @@
 import { client } from "@/server/api";
 
-import { createQueryKeys } from "@/lib/query-factory";
-import { apiWrapperWithJson } from "@/utils/api-wrapper";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import {
+	type PaginatedResponse,
+	createCrudHooks,
+	createQueryKeys,
+} from "@/lib/query-factory";
+import { catchError } from "@/utils/catchError";
+import { useMutation } from "@tanstack/react-query";
 
 import type {
 	CreateTodoRequest,
-	CreateTodoResponse,
-	DeleteTodoResponse,
-	GetTodoResponse,
-	GetTodosResponse,
+	Todo,
 	UpdateTodoRequest,
 	UpdateTodoResponse,
 } from "./types";
@@ -17,114 +18,77 @@ import type {
 // 创建 Query Keys
 const todosKeys = createQueryKeys("todos");
 
-// 获取所有待办事项
-export const useTodos = () => {
-	return useQuery({
-		queryKey: todosKeys.all,
-		queryFn: async () => {
-			return apiWrapperWithJson<GetTodosResponse>(() =>
-				client.todos.$get({ query: {} }),
-			);
-		},
-	});
-};
-
-// 获取单个待办事项
-export const useTodo = (id: string | number) => {
-	return useQuery({
-		queryKey: todosKeys.detail(id),
-		queryFn: async () => {
-			return apiWrapperWithJson<GetTodoResponse>(() =>
-				client.todos[":id"].$get({
-					param: { id: id.toString() },
-				}),
-			);
-		},
-		enabled: !!id,
-	});
-};
-
-// 创建待办事项
-export const useCreateTodo = () => {
-	return useMutation<CreateTodoResponse, Error, CreateTodoRequest>({
-		mutationFn: async (newTodo) => {
-			return apiWrapperWithJson<CreateTodoResponse>(() =>
-				client.todos.$post({ json: newTodo }),
-			);
-		},
-		meta: {
-			customSuccessMessage: "待办事项创建成功",
-			customErrorMessage: "创建待办事项失败",
-			optimisticUpdate: {
-				queryKey: todosKeys.all,
-				type: "add",
+// 定义 API 接口
+const todosApi = {
+	getAll: async (filters?: {
+		page?: number;
+		limit?: number;
+		sort?: "newest" | "oldest";
+	}): Promise<PaginatedResponse<Todo>> => {
+		const { page = 1, limit = 10, sort = "newest" } = filters || {};
+		const response = await client.todos.$get({
+			query: {
+				page: page.toString(),
+				limit: limit.toString(),
+				sort: sort as "newest" | "oldest",
 			},
-		},
-	});
+		});
+		return response.json();
+	},
+
+	getById: async (id: string | number) => {
+		const response = await client.todos[":id"].$get({
+			param: { id: id.toString() },
+		});
+		return response.json();
+	},
+
+	create: async (data: CreateTodoRequest) => {
+		const response = await client.todos.$post({ json: data });
+		return response.json();
+	},
+
+	update: async (params: {
+		id: string | number;
+		data: UpdateTodoRequest;
+	}) => {
+		const response = await client.todos[":id"].$put({
+			param: { id: params.id.toString() },
+			json: params.data,
+		});
+		return response.json();
+	},
+
+	delete: async (id: string | number) => {
+		await client.todos[":id"].$delete({
+			param: { id: id.toString() },
+		});
+	},
 };
 
-// 更新待办事项
-export const useUpdateTodo = () => {
-	return useMutation<
-		UpdateTodoResponse,
-		Error,
-		{ id: string | number; data: UpdateTodoRequest }
-	>({
-		mutationFn: async ({ id, data }) => {
-			return apiWrapperWithJson<UpdateTodoResponse>(() =>
-				client.todos[":id"].$put({
-					param: { id: id.toString() },
-					json: data,
-				}),
-			);
-		},
-		meta: {
-			customSuccessMessage: "待办事项更新成功",
-			customErrorMessage: "更新待办事项失败",
-			optimisticUpdate: {
-				queryKey: todosKeys.all,
-				type: "update",
-				getId: (variables) => variables.id,
-				updater: (oldData, variables) => {
-					if (!Array.isArray(oldData)) return oldData;
-					return oldData.map((todo) =>
-						todo.id.toString() === variables.id.toString()
-							? {
-									...todo,
-									...variables.data,
-									updatedAt: new Date().toISOString(),
-								}
-							: todo,
-					);
-				},
-			},
-		},
-	});
-};
+// 使用 createCrudHooks 生成标准 CRUD 操作
+const todosCrud = createCrudHooks({
+	resource: "todos",
+	api: todosApi,
+	getId: (item: Todo) => item.id,
+	messages: {
+		createSuccess: "待办事项创建成功",
+		createError: "创建待办事项失败",
+		updateSuccess: "待办事项更新成功",
+		updateError: "更新待办事项失败",
+		deleteSuccess: "待办事项删除成功",
+		deleteError: "删除待办事项失败",
+	},
+});
 
-// 删除待办事项
-export const useDeleteTodo = () => {
-	return useMutation<DeleteTodoResponse, Error, string | number>({
-		mutationFn: async (id) => {
-			return apiWrapperWithJson<DeleteTodoResponse>(() =>
-				client.todos[":id"].$delete({
-					param: { id: id.toString() },
-				}),
-			);
-		},
-		meta: {
-			customSuccessMessage: "待办事项删除成功",
-			customErrorMessage: "删除待办事项失败",
-			optimisticUpdate: {
-				queryKey: todosKeys.all,
-				type: "delete",
-				getId: (variables) => variables,
-			},
-		},
-	});
-};
+// 导出标准 CRUD 操作
+export const useTodos = todosCrud.useList;
+export const useTodo = todosCrud.useItem;
+export const useCreateTodo = todosCrud.useCreate;
+export const useUpdateTodo = todosCrud.useUpdate;
+export const useDeleteTodo = todosCrud.useDelete;
 
-// 切换完成状态
+// 特殊操作：切换完成状态（保持原有逻辑）
 export const useToggleTodo = () => {
 	return useMutation<
 		UpdateTodoResponse,
@@ -132,12 +96,17 @@ export const useToggleTodo = () => {
 		{ id: string | number; completed: boolean }
 	>({
 		mutationFn: async ({ id, completed }) => {
-			return apiWrapperWithJson<UpdateTodoResponse>(() =>
-				client.todos[":id"].$put({
+			const { data: result, error } = await catchError(async () => {
+				const response = await client.todos[":id"].$put({
 					param: { id: id.toString() },
 					json: { completed },
-				}),
-			);
+				});
+				return response.json();
+			});
+			if (error || !result) {
+				throw error;
+			}
+			return result;
 		},
 		meta: {
 			customErrorMessage: "更新待办事项状态失败",

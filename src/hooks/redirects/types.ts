@@ -48,3 +48,6 @@ export type UpdateRedirectResponse = InferResponseType<
 export type DeleteRedirectResponse = InferResponseType<
 	(typeof client.links)[":id"]["$delete"]
 >;
+
+// 从响应中提取数据类型
+export type Redirect = GetRedirectResponse;

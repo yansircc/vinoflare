@@ -36,8 +36,8 @@ function KitchenPage() {
 		const count = Math.floor(Math.random() * 5) + 1;
 		refreshRandomIngredients.mutate(count, {
 			onSuccess: (data) => {
-				setRandomIngredients(data.data || []);
-				setSelectedIngredients(data.data?.map((ing) => ing.id) || []);
+				setRandomIngredients(data || []);
+				setSelectedIngredients(data?.map((ing) => ing.id) || []);
 			},
 		});
 	};
@@ -89,7 +89,7 @@ function KitchenPage() {
 					/>
 
 					<AllIngredientsSection
-						ingredients={allIngredients?.data || []}
+						ingredients={allIngredients || []}
 						selectedIngredients={selectedIngredients}
 						onToggleIngredient={toggleIngredient}
 					/>
@@ -98,8 +98,7 @@ function KitchenPage() {
 				{/* 右侧：任务队列 */}
 				<div className="space-y-6">
 					<TaskQueueSection
-						tasks={tasks?.data || []}
-						meta={tasks?.meta}
+						tasks={tasks || []}
 						onClearAllTasks={() => clearAllTasks.mutate()}
 						isClearPending={clearAllTasks.isPending}
 					/>

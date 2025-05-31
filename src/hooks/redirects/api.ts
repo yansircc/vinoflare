@@ -1,152 +1,98 @@
 import { client } from "@/server/api";
 
-import { createQueryKeys } from "@/lib/query-factory";
-import { apiWrapperWithJson } from "@/utils/api-wrapper";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import {
+	type PaginatedResponse,
+	createCrudHooks,
+	createQueryKeys,
+} from "@/lib/query-factory";
+import { useQuery } from "@tanstack/react-query";
 
 import type {
 	CreateRedirectRequest,
-	CreateRedirectResponse,
-	DeleteRedirectResponse,
-	GetRedirectResponse,
-	GetRedirectsResponse,
-	GetStatsResponse,
+	Redirect,
 	UpdateRedirectRequest,
-	UpdateRedirectResponse,
 } from "./types";
 
 // 创建 Query Keys
-const RedirectsKeys = createQueryKeys("Redirects");
+const RedirectsKeys = createQueryKeys("redirects");
 
-// 获取短链接列表
-export const useRedirects = (
-	params: {
+// 定义 API 接口
+const redirectsApi = {
+	getAll: async (filters?: {
 		page?: number;
 		limit?: number;
 		sort?: "newest" | "oldest" | "visits";
-	} = {},
-) => {
-	const { page = 1, limit = 10, sort = "newest" } = params;
+	}): Promise<PaginatedResponse<Redirect>> => {
+		const { page = 1, limit = 10, sort = "newest" } = filters || {};
+		const response = await client.links.$get({
+			query: {
+				page: page.toString(),
+				limit: limit.toString(),
+				sort: sort as "newest" | "oldest" | "visits",
+			},
+		});
+		return response.json();
+	},
 
-	return useQuery({
-		queryKey: RedirectsKeys.list({ page, limit, sort }),
-		queryFn: async () => {
-			return apiWrapperWithJson<GetRedirectsResponse>(() =>
-				client.links.$get({
-					query: {
-						page: page.toString(),
-						limit: limit.toString(),
-						sort: sort as "newest" | "oldest" | "visits",
-					},
-				}),
-			);
-		},
-	});
+	getById: async (id: string | number): Promise<Redirect> => {
+		const response = await client.links[":id"].$get({
+			param: { id: id.toString() },
+		});
+		return response.json();
+	},
+
+	create: async (data: CreateRedirectRequest): Promise<Redirect> => {
+		const response = await client.links.$post({ json: data });
+		return response.json();
+	},
+
+	update: async (params: {
+		id: string | number;
+		data: UpdateRedirectRequest;
+	}): Promise<Redirect> => {
+		const response = await client.links[":id"].$put({
+			param: { id: params.id.toString() },
+			json: params.data,
+		});
+		return response.json();
+	},
+
+	delete: async (id: string | number): Promise<void> => {
+		await client.links[":id"].$delete({
+			param: { id: id.toString() },
+		});
+	},
 };
 
-// 获取单个短链接
-export const useRedirect = (id: string) => {
-	return useQuery({
-		queryKey: RedirectsKeys.detail(id),
-		queryFn: async () => {
-			return apiWrapperWithJson<GetRedirectResponse>(() =>
-				client.links[":id"].$get({
-					param: { id },
-				}),
-			);
-		},
-		enabled: !!id,
-	});
-};
+// 使用 createCrudHooks 生成标准 CRUD 操作
+const redirectsCrud = createCrudHooks({
+	resource: "redirects",
+	api: redirectsApi,
+	getId: (item: Redirect) => item.id,
+	messages: {
+		createSuccess: "短链接创建成功",
+		createError: "创建短链接失败",
+		updateSuccess: "短链接更新成功",
+		updateError: "更新短链接失败",
+		deleteSuccess: "短链接删除成功",
+		deleteError: "删除短链接失败",
+	},
+});
 
-// 获取统计信息
+// 导出标准 CRUD 操作
+export const useRedirects = redirectsCrud.useList;
+export const useRedirect = redirectsCrud.useItem;
+export const useCreateRedirect = redirectsCrud.useCreate;
+export const useUpdateRedirect = redirectsCrud.useUpdate;
+export const useDeleteRedirect = redirectsCrud.useDelete;
+
+// 特殊操作：获取统计信息
 export const useRedirectStats = () => {
 	return useQuery({
 		queryKey: RedirectsKeys.list({ type: "stats" }),
 		queryFn: async () => {
-			return apiWrapperWithJson<GetStatsResponse>(() =>
-				client.links.stats.$get(),
-			);
-		},
-	});
-};
-
-// 创建短链接
-export const useCreateRedirect = () => {
-	return useMutation<CreateRedirectResponse, Error, CreateRedirectRequest>({
-		mutationFn: async (newRedirect) => {
-			return apiWrapperWithJson<CreateRedirectResponse>(() =>
-				client.links.$post({ json: newRedirect }),
-			);
-		},
-		meta: {
-			customSuccessMessage: "短链接创建成功",
-			customErrorMessage: "创建短链接失败",
-			optimisticUpdate: {
-				queryKey: RedirectsKeys.all,
-				type: "add",
-			},
-		},
-	});
-};
-
-// 更新短链接
-export const useUpdateRedirect = () => {
-	return useMutation<
-		UpdateRedirectResponse,
-		Error,
-		{ id: string; data: UpdateRedirectRequest }
-	>({
-		mutationFn: async ({ id, data }) => {
-			return apiWrapperWithJson<UpdateRedirectResponse>(() =>
-				client.links[":id"].$put({
-					param: { id },
-					json: data,
-				}),
-			);
-		},
-		meta: {
-			customSuccessMessage: "短链接更新成功",
-			customErrorMessage: "更新短链接失败",
-			optimisticUpdate: {
-				queryKey: RedirectsKeys.all,
-				type: "update",
-				getId: (variables) => variables.id,
-				updater: (oldData, variables) => {
-					if (!Array.isArray(oldData)) return oldData;
-					return oldData.map((redirect) =>
-						redirect.id.toString() === variables.id.toString()
-							? {
-									...redirect,
-									...variables.data,
-									updatedAt: new Date().toISOString(),
-								}
-							: redirect,
-					);
-				},
-			},
-		},
-	});
-};
-
-// 删除短链接
-export const useDeleteRedirect = () => {
-	return useMutation<DeleteRedirectResponse, Error, string>({
-		mutationFn: async (id) => {
-			return apiWrapperWithJson<DeleteRedirectResponse>(() =>
-				client.links[":id"].$delete({
-					param: { id },
-				}),
-			);
-		},
-		meta: {
-			customSuccessMessage: "短链接删除成功",
-			customErrorMessage: "删除短链接失败",
-			optimisticUpdate: {
-				queryKey: RedirectsKeys.all,
-				type: "delete",
-				getId: (variables) => variables,
-			},
+			const response = await client.links.stats.$get();
+			return response.json();
 		},
 	});
 };

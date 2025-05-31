@@ -9,6 +9,7 @@ import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
 import {
 	galleryIdSchema,
+	galleryQuerySchema,
 	galleryUploadSchema,
 	generateFileName,
 	getContentType,
@@ -17,50 +18,77 @@ import {
 // 创建 Gallery 路由器
 const app = new Hono<BaseContext>()
 	.basePath("/gallery")
-	// GET /gallery - 获取所有图片
-	.get("/", optionalAuthMiddleware, loggingMiddleware, async (c) => {
-		try {
-			// 从 R2 获取所有图片文件
-			const list = await c.env.IMG_BUCKET.list();
+	// GET /gallery - 获取所有图片（支持分页）
+	.get(
+		"/",
+		optionalAuthMiddleware,
+		zValidator("query", galleryQuerySchema),
+		loggingMiddleware,
+		async (c) => {
+			try {
+				const { page, limit, sort } = c.req.valid("query");
+				const offset = (page - 1) * limit;
 
-			// 对每个对象获取完整的 metadata
-			const images = await Promise.all(
-				list.objects.map(async (object) => {
-					// 使用 head() 获取完整的 metadata
-					const objectWithMeta = await c.env.IMG_BUCKET.head(object.key);
-					return {
-						fileName: object.key,
-						size: object.size,
-						uploaded: object.uploaded,
-						// 从 head() 获取的完整 metadata
-						title: objectWithMeta?.customMetadata?.title || object.key,
-						description: objectWithMeta?.customMetadata?.description || "",
-						uploadedBy: objectWithMeta?.customMetadata?.uploadedBy || "unknown",
-						imageUrl: `/api/gallery/${object.key}/image`,
-					};
-				}),
-			);
+				// 从 R2 获取所有图片文件
+				const list = await c.env.IMG_BUCKET.list();
 
-			// 按上传时间倒序排列
-			images.sort(
-				(a, b) =>
-					new Date(b.uploaded).getTime() - new Date(a.uploaded).getTime(),
-			);
+				// 对每个对象获取完整的 metadata
+				const allImages = await Promise.all(
+					list.objects.map(async (object) => {
+						// 使用 head() 获取完整的 metadata
+						const objectWithMeta = await c.env.IMG_BUCKET.head(object.key);
+						return {
+							fileName: object.key,
+							size: object.size,
+							uploaded: object.uploaded,
+							// 从 head() 获取的完整 metadata
+							title: objectWithMeta?.customMetadata?.title || object.key,
+							description: objectWithMeta?.customMetadata?.description || "",
+							uploadedBy:
+								objectWithMeta?.customMetadata?.uploadedBy || "unknown",
+							imageUrl: `/api/gallery/${object.key}/image`,
+						};
+					}),
+				);
 
-			return c.json({
-				success: true,
-				data: images,
-				count: images.length,
-				requestedBy: c.get("user")?.name || "anonymous",
-			});
-		} catch (error) {
-			console.error("获取图片列表失败:", error);
-			throw new HTTPException(500, {
-				message: "获取图片列表失败",
-				cause: error,
-			});
-		}
-	})
+				// 排序
+				allImages.sort((a, b) => {
+					if (sort === "oldest") {
+						return (
+							new Date(a.uploaded).getTime() - new Date(b.uploaded).getTime()
+						);
+					}
+					// 默认按上传时间倒序排列 (newest)
+					return (
+						new Date(b.uploaded).getTime() - new Date(a.uploaded).getTime()
+					);
+				});
+
+				// 分页
+				const totalCount = allImages.length;
+				const totalPages = Math.ceil(totalCount / limit);
+				const images = allImages.slice(offset, offset + limit);
+
+				return c.json({
+					data: images,
+					pagination: {
+						page,
+						limit,
+						totalCount,
+						totalPages,
+						hasNext: page < totalPages,
+						hasPrev: page > 1,
+					},
+				});
+			} catch (error) {
+				console.error("获取图片列表失败:", error);
+				throw new HTTPException(500, {
+					message: "获取图片列表失败",
+					cause: error,
+				});
+			}
+		},
+	)
 
 	// GET /gallery/stats - 获取图库统计（必须在 :id 路由之前！）
 	.get("/stats", optionalAuthMiddleware, loggingMiddleware, async (c) => {
@@ -91,12 +119,7 @@ const app = new Hono<BaseContext>()
 						: 0,
 			};
 
-			return c.json({
-				success: true,
-				data: stats,
-				generatedAt: now.toISOString(),
-				requestedBy: c.get("user")?.name || "anonymous",
-			});
+			return c.json(stats);
 		} catch (error) {
 			console.error("获取图库统计失败:", error);
 			throw new HTTPException(500, {
@@ -135,10 +158,7 @@ const app = new Hono<BaseContext>()
 					imageUrl: `/api/gallery/${id}/image`,
 				};
 
-				return c.json({
-					success: true,
-					data: imageInfo,
-				});
+				return c.json(imageInfo);
 			} catch (error) {
 				console.error("获取图片失败:", error);
 				if (error instanceof HTTPException) {
@@ -224,23 +244,18 @@ const app = new Hono<BaseContext>()
 
 				const imageInfo = {
 					fileName,
+					size: file.size,
+					uploaded: new Date().toISOString(),
 					title: title || file.name,
 					description: description || "",
 					uploadedBy: user?.name || "anonymous",
+					imageUrl: `/api/gallery/${fileName}/image`,
 					originalName: file.name,
 					fileSize: file.size,
 					mimeType: file.type,
-					imageUrl: `/api/gallery/${fileName}/image`,
 				};
 
-				return c.json(
-					{
-						success: true,
-						data: imageInfo,
-						message: `图片"${title || file.name}"由 ${user?.name || "anonymous"} 成功上传`,
-					},
-					201,
-				);
+				return c.json(imageInfo, 201);
 			} catch (error) {
 				console.error("上传图片失败:", error);
 				if (error instanceof HTTPException) {
@@ -284,11 +299,7 @@ const app = new Hono<BaseContext>()
 					});
 				}
 
-				return c.json({
-					success: true,
-					message: `图片"${object.customMetadata?.title || id}"由 ${user?.name} 成功删除`,
-					deletedFileName: id,
-				});
+				return c.json({});
 			} catch (error) {
 				console.error("删除图片失败:", error);
 				if (error instanceof HTTPException) {

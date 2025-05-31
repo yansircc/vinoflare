@@ -49,3 +49,7 @@ export type UpdateTodoResponse = InferResponseType<
 export type DeleteTodoResponse = InferResponseType<
 	(typeof client.todos)[":id"]["$delete"]
 >;
+
+// 从响应中提取数据类型
+export type Todo = GetTodoResponse;
+export type TodoList = GetTodosResponse;

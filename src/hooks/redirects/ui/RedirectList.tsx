@@ -24,7 +24,7 @@ export function RedirectsList({
 
 	// 使用 TanStack Query hooks
 	const {
-		data: RedirectsData,
+		data: redirectsResponse,
 		isLoading,
 		isError,
 		error,
@@ -36,8 +36,8 @@ export function RedirectsList({
 	const { data: stats } = useRedirectStats();
 	const deleteRedirectMutation = useDeleteRedirect();
 
-	const Redirects = RedirectsData?.data || [];
-	const pagination = RedirectsData?.pagination;
+	const redirects = redirectsResponse?.data || [];
+	const pagination = redirectsResponse?.pagination;
 
 	const handleDeleteRedirect = async (id: string, shortCode: string) => {
 		if (!confirm(`确定要删除短链接 ${shortCode} 吗？`)) return;
@@ -95,10 +95,8 @@ export function RedirectsList({
 					<h1 className="font-light text-2xl text-gray-900">短链接</h1>
 					{stats && (
 						<p className="mt-1 text-gray-500 text-sm">
-							共 {stats.data.totalLinks} 个链接，总访问量{" "}
-							{stats.data.totalVisits} 次
-							{stats.data.todayVisits > 0 &&
-								`，今日 ${stats.data.todayVisits} 次`}
+							共 {stats.totalLinks} 个链接，总访问量 {stats.totalVisits} 次
+							{stats.todayVisits > 0 && `，今日 ${stats.todayVisits} 次`}
 						</p>
 					)}
 				</div>
@@ -128,11 +126,11 @@ export function RedirectsList({
 			</div>
 
 			{/* 统计信息 */}
-			{stats && stats.data.topLinks.length > 0 && (
+			{stats && stats.topLinks.length > 0 && (
 				<div className="mb-8 rounded-lg border border-gray-200 bg-gray-50 p-4">
 					<h3 className="mb-3 font-medium text-gray-900 text-sm">热门链接</h3>
 					<div className="space-y-2">
-						{stats.data.topLinks.slice(0, 3).map(
+						{stats.topLinks.slice(0, 3).map(
 							(link: {
 								shortCode: string;
 								originalUrl: string;
@@ -170,7 +168,7 @@ export function RedirectsList({
 			)}
 
 			{/* 短链接列表 */}
-			{Redirects.length === 0 ? (
+			{redirects.length === 0 ? (
 				<div className="py-16 text-center">
 					<div className="text-gray-400 text-lg">暂无短链接</div>
 					<p className="mt-2 text-gray-500 text-sm">创建你的第一个短链接吧</p>
@@ -184,7 +182,7 @@ export function RedirectsList({
 				</div>
 			) : (
 				<div className="space-y-6">
-					{Redirects.map((Redirect: any) => (
+					{redirects.map((Redirect: any) => (
 						<div
 							key={Redirect.id}
 							className="group border-gray-100 border-b pb-6 last:border-b-0"
@@ -259,57 +257,60 @@ export function RedirectsList({
 				</div>
 			)}
 
-			{/* 分页控制 */}
+			{/* 分页控件 */}
 			{pagination && pagination.totalPages > 1 && (
-				<div className="mt-12 flex items-center justify-center gap-6">
-					<div className="flex items-center gap-2">
-						<button
-							type="button"
-							onClick={() => handlePageChange(currentPage - 1)}
-							disabled={!pagination.hasPrev}
-							className="rounded-full border border-gray-300 px-3 py-1 text-gray-700 text-sm transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
-						>
-							← 上一页
-						</button>
-
-						<div className="flex items-center gap-1">
-							{Array.from(
-								{ length: pagination.totalPages },
-								(_, i) => i + 1,
-							).map((page) => (
-								<button
-									key={page}
-									type="button"
-									onClick={() => handlePageChange(page)}
-									className={`px-3 py-1 text-sm transition-colors ${
-										page === currentPage
-											? "rounded-full bg-gray-900 text-white"
-											: "rounded-full text-gray-700 hover:bg-gray-100"
-									}`}
-								>
-									{page}
-								</button>
-							))}
-						</div>
-
-						<button
-							type="button"
-							onClick={() => handlePageChange(currentPage + 1)}
-							disabled={!pagination.hasNext}
-							className="rounded-full border border-gray-300 px-3 py-1 text-gray-700 text-sm transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
-						>
-							下一页 →
-						</button>
-					</div>
-				</div>
-			)}
-
-			{/* 页面信息 */}
-			{pagination && (
-				<div className="mt-6 text-center">
+				<div className="mt-8 flex items-center justify-between">
 					<div className="text-gray-500 text-sm">
 						第 {pagination.page} 页，共 {pagination.totalPages} 页 • 总共{" "}
-						{pagination.totalCount} 个短链接
+						{pagination.totalCount} 条记录
+					</div>
+					<div className="flex gap-2">
+						<button
+							type="button"
+							onClick={() => handlePageChange(pagination.page - 1)}
+							disabled={!pagination.hasPrev}
+							className="rounded border border-gray-300 px-3 py-1 text-sm transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent"
+						>
+							上一页
+						</button>
+
+						{/* 页码按钮 */}
+						{Array.from(
+							{ length: Math.min(5, pagination.totalPages) },
+							(_, i) => {
+								const pageNum =
+									Math.max(
+										1,
+										Math.min(pagination.totalPages - 4, pagination.page - 2),
+									) + i;
+
+								if (pageNum > pagination.totalPages) return null;
+
+								return (
+									<button
+										key={pageNum}
+										type="button"
+										onClick={() => handlePageChange(pageNum)}
+										className={`rounded border px-3 py-1 text-sm transition-colors ${
+											pageNum === pagination.page
+												? "border-gray-900 bg-gray-900 text-white"
+												: "border-gray-300 hover:bg-gray-50"
+										}`}
+									>
+										{pageNum}
+									</button>
+								);
+							},
+						)}
+
+						<button
+							type="button"
+							onClick={() => handlePageChange(pagination.page + 1)}
+							disabled={!pagination.hasNext}
+							className="rounded border border-gray-300 px-3 py-1 text-sm transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent"
+						>
+							下一页
+						</button>
 					</div>
 				</div>
 			)}

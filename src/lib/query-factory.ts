@@ -12,6 +12,19 @@ export function createQueryKeys<T extends string>(resource: T) {
 	};
 }
 
+// 分页响应接口
+export interface PaginatedResponse<T> {
+	data: T[];
+	pagination: {
+		page: number;
+		limit: number;
+		totalCount: number;
+		totalPages: number;
+		hasNext: boolean;
+		hasPrev: boolean;
+	};
+}
+
 // 通用的 CRUD hooks 工厂
 export function createCrudHooks<
 	TItem,
@@ -21,7 +34,7 @@ export function createCrudHooks<
 >(config: {
 	resource: string;
 	api: {
-		getAll: (filters?: TListFilters) => Promise<TItem[]>;
+		getAll: (filters?: TListFilters) => Promise<PaginatedResponse<TItem>>;
 		getById: (id: string | number) => Promise<TItem>;
 		create: (data: TCreateData) => Promise<TItem>;
 		update: (params: {
@@ -43,7 +56,7 @@ export function createCrudHooks<
 }) {
 	const queryKeys = createQueryKeys(config.resource);
 
-	// 获取列表
+	// 获取列表（支持分页）
 	const useList = (filters?: TListFilters) => {
 		return useQuery({
 			queryKey: queryKeys.list(filters),
@@ -95,19 +108,22 @@ export function createCrudHooks<
 						variables.id,
 					// 自定义更新逻辑
 					updater: (
-						oldData: TItem[],
+						oldData: PaginatedResponse<TItem>,
 						variables: { id: string | number; data: TUpdateData },
 					) => {
-						if (!Array.isArray(oldData)) return oldData;
-						return oldData.map((item: TItem) =>
-							config.getId(item).toString() === variables.id.toString()
-								? {
-										...item,
-										...variables.data,
-										updatedAt: new Date().toISOString(),
-									}
-								: item,
-						);
+						if (!oldData?.data || !Array.isArray(oldData.data)) return oldData;
+						return {
+							...oldData,
+							data: oldData.data.map((item: TItem) =>
+								config.getId(item).toString() === variables.id.toString()
+									? {
+											...item,
+											...variables.data,
+											updatedAt: new Date().toISOString(),
+										}
+									: item,
+							),
+						};
 					},
 				},
 			},

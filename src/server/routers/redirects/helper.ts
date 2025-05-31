@@ -1,4 +1,4 @@
-import type { Redirects } from "./types";
+import type { Redirect, Redirects } from "./types";
 
 // KV 存储的辅助函数
 export class RedirectssKVStore {
@@ -68,12 +68,12 @@ export class RedirectssKVStore {
 		originalUrl: string,
 		customCode?: string,
 		createdBy?: string,
-	): Promise<Redirects> {
+	): Promise<Redirect> {
 		const id = this.generateId();
 		const shortCode = await this.generateUniqueShortCode(customCode);
 		const now = new Date().toISOString();
 
-		const redirects: Redirects = {
+		const redirects: Redirect = {
 			id,
 			shortCode,
 			originalUrl,
@@ -100,20 +100,20 @@ export class RedirectssKVStore {
 	}
 
 	// 通过短码获取短链接（用于重定向）
-	async getRedirectsByCode(shortCode: string): Promise<Redirects | null> {
+	async getRedirectsByCode(shortCode: string): Promise<Redirect | null> {
 		const redirectsData = (await this.kv.get(
 			`short:${shortCode}`,
 			"json",
-		)) as Redirects | null;
+		)) as Redirect | null;
 		return redirectsData;
 	}
 
 	// 通过ID获取短链接（用于管理）
-	async getRedirects(id: string): Promise<Redirects | null> {
+	async getRedirects(id: string): Promise<Redirect | null> {
 		const redirectsData = (await this.kv.get(
 			`redirects:${id}`,
 			"json",
-		)) as Redirects | null;
+		)) as Redirect | null;
 		return redirectsData;
 	}
 
@@ -139,7 +139,7 @@ export class RedirectssKVStore {
 		limit = 10,
 		sort: "newest" | "oldest" | "visits" = "newest",
 	): Promise<{
-		redirectss: Redirects[];
+		redirectss: Redirect[];
 		totalCount: number;
 		totalPages: number;
 		hasNext: boolean;
@@ -152,7 +152,7 @@ export class RedirectssKVStore {
 		const offset = (page - 1) * limit;
 
 		// 获取短链接数据用于排序
-		const redirectssForSort: Redirects[] = [];
+		const redirectssForSort: Redirect[] = [];
 		for (const id of redirectsIds) {
 			const redirects = await this.getRedirects(id);
 			if (redirects) redirectssForSort.push(redirects);
@@ -189,12 +189,12 @@ export class RedirectssKVStore {
 	// 更新短链接
 	async updateRedirects(
 		id: string,
-		updates: Partial<Pick<Redirects, "originalUrl">>,
-	): Promise<Redirects | null> {
+		updates: Partial<Pick<Redirect, "originalUrl">>,
+	): Promise<Redirect | null> {
 		const existingRedirects = await this.getRedirects(id);
 		if (!existingRedirects) return null;
 
-		const updatedRedirects: Redirects = {
+		const updatedRedirects: Redirect = {
 			...existingRedirects,
 			...updates,
 			updatedAt: new Date().toISOString(),
@@ -246,7 +246,7 @@ export class RedirectssKVStore {
 		topLinks: Array<{ shortCode: string; originalUrl: string; visits: number }>;
 	}> {
 		const redirectsIds = await this.getAllRedirectsIds();
-		const allRedirectss: Redirects[] = [];
+		const allRedirectss: Redirect[] = [];
 
 		for (const id of redirectsIds) {
 			const redirects = await this.getRedirects(id);

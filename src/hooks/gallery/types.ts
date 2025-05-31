@@ -79,6 +79,9 @@ export type GetGalleryStatsResponse = InferResponseType<
 	(typeof client.gallery.stats)["$get"]
 >;
 
+// 从响应中提取数据类型
+export type GalleryImageItem = GetGalleryImageResponse;
+
 // 文件预览类型
 export interface FilePreview {
 	file: File;

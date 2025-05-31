@@ -12,6 +12,7 @@ export {
 // Types
 export type {
 	GalleryImage,
+	GalleryImageItem,
 	GalleryStats as GalleryStatsType,
 	GalleryUploadFormData,
 	FilePreview,
@@ -33,4 +34,6 @@ export {
 	GalleryUploadForm,
 	GalleryGrid,
 	GalleryStats,
+	ImageModal,
+	GalleryPagination,
 } from "./ui";

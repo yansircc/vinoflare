@@ -67,7 +67,7 @@ export function TodosList() {
 
 	// 筛选待办事项
 	const filteredTodos =
-		todos?.data.filter((todo) => {
+		todos?.data?.filter((todo) => {
 			if (filter === "pending") return !todo.completed;
 			if (filter === "completed") return todo.completed;
 			return true;

@@ -37,12 +37,14 @@ export function IngredientCard({
 			}}
 		>
 			<div className="flex items-center gap-3">
-				<span className={sizeClasses}>{ingredient.emoji}</span>
+				<span className={sizeClasses}>{ingredient?.emoji || "🍽️"}</span>
 				<div className="flex-1">
-					<div className={textSizeClasses}>{ingredient.name}</div>
+					<div className={textSizeClasses}>
+						{ingredient?.name || "未知食材"}
+					</div>
 					<div className="text-gray-500 text-xs">
-						{ingredient.processingTime}秒 | 失败率{" "}
-						{(ingredient.failureRate * 100).toFixed(1)}%
+						{ingredient?.processingTime || 0}秒 | 失败率{" "}
+						{((ingredient?.failureRate || 0) * 100).toFixed(1)}%
 					</div>
 				</div>
 			</div>

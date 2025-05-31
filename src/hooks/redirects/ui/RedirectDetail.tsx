@@ -47,7 +47,7 @@ export function RedirectsDetail({ id }: RedirectsDetailProps) {
 		);
 	}
 
-	if (!redirectResponse?.data) {
+	if (!redirectResponse) {
 		return (
 			<div className="flex min-h-screen items-center justify-center">
 				<div className="text-center">
@@ -73,7 +73,7 @@ export function RedirectsDetail({ id }: RedirectsDetailProps) {
 		lastVisitedAt,
 		createdBy,
 		shortUrl,
-	} = redirectResponse.data;
+	} = redirectResponse;
 
 	return (
 		<div className="mx-auto max-w-4xl space-y-8">

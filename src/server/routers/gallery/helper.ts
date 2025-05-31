@@ -11,6 +11,21 @@ export const galleryIdSchema = z.object({
 	id: z.string().min(1),
 });
 
+// 查询参数 schema
+export const galleryQuerySchema = z.object({
+	page: z
+		.string()
+		.optional()
+		.transform((val) => Number.parseInt(val || "1") || 1)
+		.pipe(z.number().min(1).max(100)),
+	limit: z
+		.string()
+		.optional()
+		.transform((val) => Number.parseInt(val || "12") || 12)
+		.pipe(z.number().min(1).max(50)),
+	sort: z.enum(["newest", "oldest"]).default("newest"),
+});
+
 // 辅助函数：生成唯一的文件名
 export function generateFileName(originalName: string): string {
 	const timestamp = Date.now();

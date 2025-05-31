@@ -3,7 +3,7 @@ import { useGalleryStats } from "../api";
 export function GalleryStats() {
 	const { data: response, isLoading, error } = useGalleryStats();
 
-	const stats = response?.data;
+	const stats = response;
 
 	if (isLoading) {
 		return (

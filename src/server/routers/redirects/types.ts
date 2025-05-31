@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const redirectsCreateSchema = z.object({
+export const redirectCreateSchema = z.object({
 	originalUrl: z.string().url("请输入有效的URL地址").min(1, "URL不能为空"),
 	customCode: z
 		.string()
@@ -15,7 +15,7 @@ export const redirectsCreateSchema = z.object({
 		),
 });
 
-export const redirectsUpdateSchema = z.object({
+export const redirectUpdateSchema = z.object({
 	originalUrl: z.string().url("请输入有效的URL地址").optional(),
 });
 
@@ -26,7 +26,7 @@ export const querySchema = z.object({
 });
 
 // Redirects 类型定义
-export interface Redirects {
+export interface Redirect {
 	id: string;
 	shortCode: string;
 	originalUrl: string;
@@ -35,4 +35,11 @@ export interface Redirects {
 	updatedAt?: string;
 	lastVisitedAt?: string;
 	createdBy?: string;
+}
+
+export interface Redirects extends Array<Redirect> {
+	totalPages: number;
+	totalCount: number;
+	hasNext: boolean;
+	hasPrev: boolean;
 }

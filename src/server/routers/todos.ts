@@ -21,17 +21,8 @@ const app = new Hono<BaseContext>()
 		async (c) => {
 			try {
 				const db = createDb(c.env.DB);
-				const { page, limit, sort, search } = c.req.valid("query");
+				const { page, limit, sort } = c.req.valid("query");
 				const offset = (page - 1) * limit;
-
-				// 构建查询条件
-				const query = db.select().from(schema.todos);
-
-				// 搜索功能（如果提供搜索词）
-				if (search) {
-					// 注意：这里需要根据你的数据库支持调整搜索逻辑
-					// SQLite 可能需要使用 LIKE 操作符
-				}
 
 				// 获取总数
 				const [{ totalCount }] = await db
@@ -53,7 +44,6 @@ const app = new Hono<BaseContext>()
 				const totalPages = Math.ceil(totalCount / limit);
 
 				return c.json({
-					success: true,
 					data: todos,
 					pagination: {
 						page,
@@ -62,11 +52,6 @@ const app = new Hono<BaseContext>()
 						totalPages,
 						hasNext: page < totalPages,
 						hasPrev: page > 1,
-					},
-					meta: {
-						sort,
-						search,
-						requestedBy: c.get("user")?.name || "anonymous",
 					},
 				});
 			} catch (error) {
@@ -102,10 +87,7 @@ const app = new Hono<BaseContext>()
 					});
 				}
 
-				return c.json({
-					success: true,
-					data: todo,
-				});
+				return c.json(todo);
 			} catch (error) {
 				console.error("获取待办事项失败:", error);
 				throw new HTTPException(500, {
@@ -138,14 +120,7 @@ const app = new Hono<BaseContext>()
 					})
 					.returning();
 
-				return c.json(
-					{
-						success: true,
-						data: newTodo,
-						message: `待办事项由 ${user?.name} 成功创建`,
-					},
-					201,
-				);
+				return c.json(newTodo, 201);
 			} catch (error) {
 				console.error("创建待办事项失败:", error);
 				throw new HTTPException(500, {
@@ -191,13 +166,9 @@ const app = new Hono<BaseContext>()
 				);
 
 				if (Object.keys(filteredUpdateData).length === 0) {
-					return c.json(
-						{
-							success: false,
-							error: "没有需要更新的字段",
-						},
-						400,
-					);
+					throw new HTTPException(400, {
+						message: "没有需要更新的字段",
+					});
 				}
 
 				// 添加更新时间
@@ -209,11 +180,7 @@ const app = new Hono<BaseContext>()
 					.where(eq(schema.todos.id, id))
 					.returning();
 
-				return c.json({
-					success: true,
-					data: updatedTodo,
-					message: `待办事项由 ${user?.name} 成功更新`,
-				});
+				return c.json(updatedTodo);
 			} catch (error) {
 				console.error("更新待办事项失败:", error);
 				throw new HTTPException(500, {
@@ -251,11 +218,7 @@ const app = new Hono<BaseContext>()
 
 				await db.delete(schema.todos).where(eq(schema.todos.id, id));
 
-				return c.json({
-					success: true,
-					message: `待办事项《${existingTodo.title}》由 ${user?.name} 成功删除`,
-					deletedId: id,
-				});
+				return c.json(existingTodo);
 			} catch (error) {
 				console.error("删除待办事项失败:", error);
 				throw new HTTPException(500, {

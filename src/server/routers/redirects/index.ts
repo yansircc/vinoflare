@@ -10,8 +10,8 @@ import { HTTPException } from "hono/http-exception";
 import { RedirectssKVStore } from "./helper";
 import {
 	querySchema,
-	redirectsCreateSchema,
-	redirectsUpdateSchema,
+	redirectCreateSchema,
+	redirectUpdateSchema,
 } from "./types";
 
 const app = new Hono<BaseContext>()
@@ -21,7 +21,7 @@ const app = new Hono<BaseContext>()
 	.post(
 		"/",
 		authMiddleware,
-		zValidator("json", redirectsCreateSchema),
+		zValidator("json", redirectCreateSchema),
 		loggingMiddleware,
 		async (c) => {
 			try {
@@ -41,12 +41,8 @@ const app = new Hono<BaseContext>()
 
 				return c.json(
 					{
-						success: true,
-						data: {
-							...newRedirects,
-							shortUrl,
-						},
-						message: `短链接由 ${user?.name} 成功创建`,
+						...newRedirects,
+						shortUrl,
 					},
 					201,
 				);
@@ -81,7 +77,6 @@ const app = new Hono<BaseContext>()
 				}));
 
 				return c.json({
-					success: true,
 					data: redirectssWithUrls,
 					pagination: {
 						page,
@@ -90,10 +85,6 @@ const app = new Hono<BaseContext>()
 						totalPages: result.totalPages,
 						hasNext: result.hasNext,
 						hasPrev: result.hasPrev,
-					},
-					meta: {
-						sort,
-						requestedBy: c.get("user")?.name || "anonymous",
 					},
 				});
 			} catch (error) {
@@ -112,11 +103,7 @@ const app = new Hono<BaseContext>()
 			const store = new RedirectssKVStore(c.env.KV);
 			const stats = await store.getStats();
 
-			return c.json({
-				success: true,
-				data: stats,
-				message: "统计信息获取成功",
-			});
+			return c.json(stats);
 		} catch (error) {
 			console.error("获取统计信息失败:", error);
 			throw new HTTPException(500, {
@@ -151,11 +138,8 @@ const app = new Hono<BaseContext>()
 			const shortUrl = `${baseUrl}/s/${redirects.shortCode}`;
 
 			return c.json({
-				success: true,
-				data: {
-					...redirects,
-					shortUrl,
-				},
+				...redirects,
+				shortUrl,
 			});
 		} catch (error) {
 			console.error("获取短链接失败:", error);
@@ -170,7 +154,7 @@ const app = new Hono<BaseContext>()
 	.put(
 		"/:id",
 		authMiddleware,
-		zValidator("json", redirectsUpdateSchema),
+		zValidator("json", redirectUpdateSchema),
 		loggingMiddleware,
 		async (c) => {
 			try {
@@ -198,12 +182,8 @@ const app = new Hono<BaseContext>()
 				const shortUrl = `${baseUrl}/s/${updatedRedirects.shortCode}`;
 
 				return c.json({
-					success: true,
-					data: {
-						...updatedRedirects,
-						shortUrl,
-					},
-					message: `短链接由 ${user?.name} 成功更新`,
+					...updatedRedirects,
+					shortUrl,
 				});
 			} catch (error) {
 				console.error("更新短链接失败:", error);
@@ -244,10 +224,7 @@ const app = new Hono<BaseContext>()
 				});
 			}
 
-			return c.json({
-				success: true,
-				message: `短链接 ${existingRedirects.shortCode} 由 ${user?.name} 成功删除`,
-			});
+			return c.json({});
 		} catch (error) {
 			console.error("删除短链接失败:", error);
 			throw new HTTPException(500, {

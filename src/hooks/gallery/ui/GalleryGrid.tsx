@@ -14,13 +14,19 @@ const formatFileSize = (bytes: number): string => {
 interface GalleryGridProps {
 	onImageSelect?: (image: GalleryImage) => void;
 	showActions?: boolean;
+	filters?: {
+		page?: number;
+		limit?: number;
+		sort?: "newest" | "oldest";
+	};
 }
 
 export function GalleryGrid({
 	onImageSelect,
 	showActions = true,
+	filters,
 }: GalleryGridProps) {
-	const { data: response, isLoading, error } = useGalleryImages();
+	const { data: response, isLoading, error } = useGalleryImages(filters);
 	const deleteMutation = useDeleteGalleryImage();
 	const [deletingId, setDeletingId] = useState<string | null>(null);
 	const [hoveredImage, setHoveredImage] = useState<string | null>(null);
