@@ -1,5 +1,5 @@
 import { client } from "@/api/client";
-import { authenticatedClient } from "@/lib/auth";
+
 import { createQueryKeys } from "@/lib/query-factory";
 import { catchError } from "@/utils/catchError";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -89,7 +89,7 @@ export const useCreatePost = () => {
 	return useMutation({
 		mutationFn: async (newPost: { title: string; content: string }) => {
 			const { data: result, error } = await catchError(async () => {
-				return await authenticatedClient.posts.$post({ json: newPost });
+				return await client.posts.$post({ json: newPost });
 			});
 			if (error || !result) {
 				throw new Error("创建文章失败");
@@ -121,7 +121,7 @@ export const useUpdatePost = () => {
 			data: { title?: string; content?: string };
 		}): Promise<UpdatePostResponse> => {
 			const { data: result, error } = await catchError(async () => {
-				return await authenticatedClient.posts[":id"].$put({
+				return await client.posts[":id"].$put({
 					param: { id },
 					json: data,
 				});
@@ -153,7 +153,7 @@ export const useDeletePost = () => {
 	return useMutation({
 		mutationFn: async (id: string): Promise<DeletePostResponse> => {
 			const { data: result, error } = await catchError(async () => {
-				return await authenticatedClient.posts[":id"].$delete({
+				return await client.posts[":id"].$delete({
 					param: { id },
 				});
 			});

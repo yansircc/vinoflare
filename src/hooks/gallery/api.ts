@@ -1,5 +1,5 @@
 import { client } from "@/api/client";
-import { authenticatedClient } from "@/lib/auth";
+
 import { createQueryKeys } from "@/lib/query-factory";
 import type { GalleryRouterType } from "@/server/routers/gallery";
 import { catchError } from "@/utils/catchError";
@@ -83,19 +83,20 @@ export const useUploadGalleryImage = () => {
 		UploadGalleryImageRequest
 	>({
 		mutationFn: async (request) => {
-			// 创建 FormData
-			const formData = new FormData();
-			formData.append("file", request.file);
-			if (request.title) formData.append("title", request.title);
-			if (request.description)
-				formData.append("description", request.description);
-
 			const { data: result, error } = await catchError(async () => {
-				// 直接使用 fetch，因为 Hono RPC 目前不支持文件上传
-				const response = await fetch("/api/gallery", {
-					method: "POST",
-					body: formData,
-					credentials: "include", // 保持 Better Auth 认证
+				const file = new File(
+					[request.file],
+					request.title || request.file.name,
+					{
+						type: request.file.type,
+					},
+				);
+				const response = await client.gallery.$post({
+					form: {
+						file,
+						title: request.title,
+						description: request.description,
+					},
 				});
 
 				if (!response.ok) {
@@ -131,7 +132,7 @@ export const useDeleteGalleryImage = () => {
 	return useMutation<DeleteGalleryImageResponse, Error, string>({
 		mutationFn: async (fileName) => {
 			const { data: result, error } = await catchError(async () => {
-				const res = await authenticatedClient.gallery[":id"].$delete({
+				const res = await client.gallery[":id"].$delete({
 					param: { id: fileName },
 				});
 				return res.json();
@@ -163,7 +164,7 @@ export const useBatchUploadGalleryImages = () => {
 		mutationFn: async (formDataArray) => {
 			const uploadPromises = formDataArray.map(async (formData) => {
 				const { data: result, error } = await catchError(async () => {
-					const res = await authenticatedClient.gallery.$post({
+					const res = await client.gallery.$post({
 						form: formData,
 					});
 					return res.json();

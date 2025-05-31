@@ -12,9 +12,10 @@ import { PREDEFINED_INGREDIENTS } from "./mock-data";
 import type { Ingredient, ProcessingStatus, ProcessingTask } from "./types";
 
 const app = new Hono<BaseContext>()
+	.basePath("/kitchen")
 	// GET /kitchen/ingredients - 获取所有可用食材
 	.get(
-		"/kitchen/ingredients",
+		"/ingredients",
 		optionalAuthMiddleware,
 		loggingMiddleware,
 		async (c) => {
@@ -36,7 +37,7 @@ const app = new Hono<BaseContext>()
 
 	// GET /kitchen/randomIngredients - 获取随机食材
 	.get(
-		"/kitchen/randomIngredients",
+		"/randomIngredients",
 		optionalAuthMiddleware,
 		loggingMiddleware,
 		async (c) => {
@@ -63,7 +64,7 @@ const app = new Hono<BaseContext>()
 
 	// POST /kitchen/process - 处理食材（发送到队列）
 	.post(
-		"/kitchen/process",
+		"/process",
 		authMiddleware,
 		zValidator("json", processIngredientsSchema),
 		loggingMiddleware,
@@ -98,7 +99,7 @@ const app = new Hono<BaseContext>()
 	)
 
 	// GET /kitchen/tasks - 获取用户的所有任务
-	.get("/kitchen/tasks", authMiddleware, loggingMiddleware, async (c) => {
+	.get("/tasks", authMiddleware, loggingMiddleware, async (c) => {
 		try {
 			const user = c.get("user");
 
@@ -132,7 +133,7 @@ const app = new Hono<BaseContext>()
 
 	// GET /kitchen/tasks/:taskId - 获取特定任务详情
 	.get(
-		"/kitchen/tasks/:taskId",
+		"/tasks/:taskId",
 		authMiddleware,
 		loggingMiddleware,
 		async (c) => {
@@ -181,7 +182,7 @@ const app = new Hono<BaseContext>()
 	)
 
 	// DELETE /kitchen/tasks - 清除用户的所有任务
-	.delete("/kitchen/tasks", authMiddleware, loggingMiddleware, async (c) => {
+	.delete("/tasks", authMiddleware, loggingMiddleware, async (c) => {
 		try {
 			const user = c.get("user");
 
@@ -207,7 +208,7 @@ const app = new Hono<BaseContext>()
 
 	// 强制重置所有处理中的任务状态（调试用）
 	.post(
-		"/kitchen/tasks/reset-processing",
+		"/tasks/reset-processing",
 		authMiddleware,
 		loggingMiddleware,
 		async (c) => {

@@ -1,5 +1,5 @@
 import { client } from "@/api/client";
-import { authenticatedClient } from "@/lib/auth";
+
 import { createQueryKeys } from "@/lib/query-factory";
 import { catchError } from "@/utils/catchError";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -66,7 +66,7 @@ export const useKitchenTasks = () => {
 		queryKey: kitchenKeys.lists(),
 		queryFn: async (): Promise<GetTasksResponse> => {
 			const { data: result, error } = await catchError(async () => {
-				return await authenticatedClient.kitchen.tasks.$get();
+				return await client.kitchen.tasks.$get();
 			});
 			if (error || !result) {
 				throw new Error("获取任务列表失败");
@@ -82,7 +82,7 @@ export const useKitchenTask = (taskId: string) => {
 		queryKey: kitchenKeys.detail(taskId),
 		queryFn: async (): Promise<GetTaskResponse> => {
 			const { data: result, error } = await catchError(async () => {
-				return await authenticatedClient.kitchen.tasks[":taskId"].$get({
+				return await client.kitchen.tasks[":taskId"].$get({
 					param: { taskId },
 				});
 			});
@@ -106,7 +106,7 @@ export const useProcessIngredients = () => {
 	>({
 		mutationFn: async (data) => {
 			const { data: result, error } = await catchError(async () => {
-				return await authenticatedClient.kitchen.process.$post({
+				return await client.kitchen.process.$post({
 					json: { ingredientIds: data.ingredientIds },
 				});
 			});
@@ -141,7 +141,7 @@ export const useKitchenTasksPolling = (enabled = true, interval = 2000) => {
 		queryKey: kitchenKeys.lists(),
 		queryFn: async (): Promise<GetTasksResponse> => {
 			const { data: result, error } = await catchError(async () => {
-				return await authenticatedClient.kitchen.tasks.$get();
+				return await client.kitchen.tasks.$get();
 			});
 			if (error || !result) {
 				throw new Error("获取任务列表失败");
@@ -311,7 +311,7 @@ export const useClearAllTasks = () => {
 	return useMutation({
 		mutationFn: async (): Promise<ClearTasksResponse> => {
 			const { data: result, error } = await catchError(async () => {
-				return await authenticatedClient.kitchen.tasks.$delete();
+				return await client.kitchen.tasks.$delete();
 			});
 
 			if (error || !result) {

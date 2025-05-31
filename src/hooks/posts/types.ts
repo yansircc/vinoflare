@@ -1,5 +1,4 @@
 import type { client } from "@/api/client";
-import type { authenticatedClient } from "@/lib/auth";
 import type { InferResponseType } from "hono/client";
 import { z } from "zod";
 
@@ -34,12 +33,10 @@ export type GetPostResponse = InferResponseType<
 export type GetLatestPostResponse = InferResponseType<
 	typeof client.posts.latest.$get
 >;
-export type CreatePostResponse = InferResponseType<
-	typeof authenticatedClient.posts.$post
->;
+export type CreatePostResponse = InferResponseType<typeof client.posts.$post>;
 export type UpdatePostResponse = InferResponseType<
-	(typeof authenticatedClient.posts)[":id"]["$put"]
+	(typeof client.posts)[":id"]["$put"]
 >;
 export type DeletePostResponse = InferResponseType<
-	(typeof authenticatedClient.posts)[":id"]["$delete"]
+	(typeof client.posts)[":id"]["$delete"]
 >;

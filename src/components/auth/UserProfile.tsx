@@ -1,4 +1,4 @@
-import { apiHelpers, useSession } from "@/lib/auth";
+import { signOut, useSession } from "@/lib/auth";
 
 export function UserProfile() {
 	const { data: session, isPending } = useSession();
@@ -40,7 +40,7 @@ export function UserProfile() {
 
 	const handleSignOut = async () => {
 		try {
-			await apiHelpers.handleSignOut();
+			await signOut();
 			window.location.href = "/";
 		} catch (error) {
 			console.error("Logout error:", error);
@@ -67,7 +67,13 @@ export function UserProfile() {
 					{/* 头像和基本信息 */}
 					<div className="flex items-center gap-4">
 						<div className="flex h-16 w-16 items-center justify-center rounded-full bg-gray-900 font-medium text-white text-xl">
-							{session.user.name?.charAt(0).toUpperCase()}
+							{session.user.image
+								? <img
+									src={session.user.image}
+									alt="User avatar"
+									className="h-16 w-16 rounded-full"
+								/>
+								: session.user.name?.charAt(0).toUpperCase()}
 						</div>
 						<div className="flex-1">
 							<h2 className="font-medium text-gray-900 text-lg">

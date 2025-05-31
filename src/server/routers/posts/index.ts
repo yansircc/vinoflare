@@ -11,8 +11,9 @@ import { PostsKVStore } from "./helper";
 import { postCreateSchema, postUpdateSchema, querySchema } from "./types";
 
 const app = new Hono<BaseContext>()
+	.basePath("/posts")
 	.post(
-		"/posts",
+		"/",
 		authMiddleware,
 		zValidator("json", postCreateSchema),
 		loggingMiddleware,
@@ -44,7 +45,7 @@ const app = new Hono<BaseContext>()
 
 	// GET /posts - 获取文章列表（支持分页和排序）
 	.get(
-		"/posts",
+		"/",
 		optionalAuthMiddleware,
 		zValidator("query", querySchema),
 		loggingMiddleware,
@@ -83,7 +84,7 @@ const app = new Hono<BaseContext>()
 
 	// GET /posts/latest - 获取最新文章
 	.get(
-		"/posts/latest",
+		"/latest",
 		optionalAuthMiddleware,
 		loggingMiddleware,
 		async (c) => {
@@ -107,7 +108,7 @@ const app = new Hono<BaseContext>()
 	)
 
 	// GET /posts/:id - 获取特定文章
-	.get("/posts/:id", optionalAuthMiddleware, loggingMiddleware, async (c) => {
+	.get("/:id", optionalAuthMiddleware, loggingMiddleware, async (c) => {
 		try {
 			const id = c.req.param("id");
 
@@ -141,7 +142,7 @@ const app = new Hono<BaseContext>()
 
 	// PUT /posts/:id - 更新文章（需要认证）
 	.put(
-		"/posts/:id",
+		"/:id",
 		authMiddleware,
 		zValidator("json", postUpdateSchema),
 		loggingMiddleware,
@@ -182,7 +183,7 @@ const app = new Hono<BaseContext>()
 	)
 
 	// DELETE /posts/:id - 删除文章（需要认证）
-	.delete("/posts/:id", authMiddleware, loggingMiddleware, async (c) => {
+	.delete("/:id", authMiddleware, loggingMiddleware, async (c) => {
 		try {
 			const user = c.get("user");
 			const id = c.req.param("id");

@@ -1,4 +1,4 @@
-import { authClient } from "@/lib/auth";
+import { signIn } from "@/lib/auth";
 import { useState } from "react";
 
 export function LoginForm() {
@@ -10,7 +10,7 @@ export function LoginForm() {
 		setError("");
 
 		try {
-			await authClient.signIn.social({
+			await signIn.social({
 				provider: "discord",
 				callbackURL: "/", // 登录成功后重定向到首页
 			});

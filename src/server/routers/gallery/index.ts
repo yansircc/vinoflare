@@ -16,8 +16,9 @@ import {
 
 // 创建 Gallery 路由器
 const app = new Hono<BaseContext>()
+	.basePath("/gallery")
 	// GET /gallery - 获取所有图片
-	.get("/gallery", optionalAuthMiddleware, loggingMiddleware, async (c) => {
+	.get("/", optionalAuthMiddleware, loggingMiddleware, async (c) => {
 		try {
 			// 从 R2 获取所有图片文件
 			const list = await c.env.IMG_BUCKET.list();
@@ -63,7 +64,7 @@ const app = new Hono<BaseContext>()
 
 	// GET /gallery/stats - 获取图库统计（必须在 :id 路由之前！）
 	.get(
-		"/gallery/stats",
+		"/stats",
 		optionalAuthMiddleware,
 		loggingMiddleware,
 		async (c) => {
@@ -112,7 +113,7 @@ const app = new Hono<BaseContext>()
 
 	// GET /gallery/:id - 获取单个图片信息
 	.get(
-		"/gallery/:id",
+		"/:id",
 		optionalAuthMiddleware,
 		zValidator("param", galleryIdSchema),
 		loggingMiddleware,
@@ -158,7 +159,7 @@ const app = new Hono<BaseContext>()
 
 	// POST /gallery - 上传新图片（需要认证）
 	.post(
-		"/gallery",
+		"/",
 		authMiddleware,
 		zValidator("form", galleryUploadSchema),
 		loggingMiddleware,
@@ -166,7 +167,12 @@ const app = new Hono<BaseContext>()
 			try {
 				const user = c.get("user");
 
-				const { file, title, description } = c.req.valid("form");
+				const formData = await c.req.parseBody();
+				const file = formData.file as File;
+				const title = formData.title as string;
+				const description = formData.description as string;
+
+				console.log(`file size: ${file.size}`);
 
 				// 验证文件是否存在
 				if (!file || !(file instanceof File)) {
@@ -255,7 +261,7 @@ const app = new Hono<BaseContext>()
 
 	// DELETE /gallery/:id - 删除图片（需要认证）
 	.delete(
-		"/gallery/:id",
+		"/:id",
 		authMiddleware,
 		zValidator("param", galleryIdSchema),
 		loggingMiddleware,
@@ -303,7 +309,7 @@ const app = new Hono<BaseContext>()
 
 	// GET /gallery/:id/image - 直接从 R2 获取图片文件
 	.get(
-		"/gallery/:id/image",
+		"/:id/image",
 		zValidator("param", galleryIdSchema),
 		async (c) => {
 			try {

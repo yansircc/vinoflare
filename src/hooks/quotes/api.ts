@@ -1,5 +1,5 @@
 import { client } from "@/api/client";
-import { authenticatedClient } from "@/lib/auth";
+
 import { createQueryKeys } from "@/lib/query-factory";
 import { catchError } from "@/utils/catchError";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -43,7 +43,7 @@ export const useQuote = (id: string | number) => {
 		queryKey: quotesKeys.detail(id),
 		queryFn: async (): Promise<GetQuoteResponse> => {
 			const { data: result, error } = await catchError(async () => {
-				return await authenticatedClient.quotes[":id"].$get({
+				return await client.quotes[":id"].$get({
 					param: { id: id.toString() },
 				});
 			});
@@ -63,7 +63,7 @@ export const useCreateQuote = () => {
 	return useMutation<CreateQuoteResponse, Error, CreateQuoteRequest>({
 		mutationFn: async (newQuote) => {
 			const { data: result, error } = await catchError(async () => {
-				const res = await authenticatedClient.quotes.$post({ json: newQuote });
+				const res = await client.quotes.$post({ json: newQuote });
 				return res.json();
 			});
 			if (error || !result) {
@@ -93,7 +93,7 @@ export const useUpdateQuote = () => {
 	>({
 		mutationFn: async ({ id, data }) => {
 			const { data: result, error } = await catchError(async () => {
-				const res = await authenticatedClient.quotes[":id"].$put({
+				const res = await client.quotes[":id"].$put({
 					param: { id: id.toString() },
 					json: data,
 				});
@@ -126,7 +126,7 @@ export const useDeleteQuote = () => {
 	return useMutation<DeleteQuoteResponse, Error, string | number>({
 		mutationFn: async (id) => {
 			const { data: result, error } = await catchError(async () => {
-				const res = await authenticatedClient.quotes[":id"].$delete({
+				const res = await client.quotes[":id"].$delete({
 					param: { id: id.toString() },
 				});
 				return res.json();

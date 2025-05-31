@@ -12,8 +12,9 @@ import type { BaseContext } from "../types/context";
 
 // 按照 Hono RPC 模式创建留言路由器
 const app = new Hono<BaseContext>()
+	.basePath("/quotes")
 	.get(
-		"/quotes",
+		"/",
 		optionalAuthMiddleware,
 		zValidator("query", types.querySchema),
 		loggingMiddleware,
@@ -80,7 +81,7 @@ const app = new Hono<BaseContext>()
 
 	// GET /quotes/:id - 获取单条留言
 	.get(
-		"/quotes/:id",
+		"/:id",
 		optionalAuthMiddleware,
 		zValidator("param", types.quoteIdSchema),
 		loggingMiddleware,
@@ -117,7 +118,7 @@ const app = new Hono<BaseContext>()
 
 	// POST /quotes - 创建新留言（需要认证）
 	.post(
-		"/quotes",
+		"/",
 		authMiddleware,
 		zValidator("json", types.quoteCreateSchema),
 		loggingMiddleware,
@@ -165,7 +166,7 @@ const app = new Hono<BaseContext>()
 
 	// PUT /quotes/:id - 更新留言（需要认证）
 	.put(
-		"/quotes/:id",
+		"/:id",
 		authMiddleware,
 		zValidator("param", types.quoteIdSchema),
 		zValidator("json", types.quoteUpdateSchema),
@@ -230,7 +231,7 @@ const app = new Hono<BaseContext>()
 
 	// DELETE /quotes/:id - 删除留言（需要认证）
 	.delete(
-		"/quotes/:id",
+		"/:id",
 		authMiddleware,
 		zValidator("param", types.quoteIdSchema),
 		loggingMiddleware,
@@ -272,7 +273,7 @@ const app = new Hono<BaseContext>()
 
 	// GET /quotes/stats - 获取留言统计
 	.get(
-		"/quotes/stats",
+		"/stats",
 		optionalAuthMiddleware,
 		loggingMiddleware,
 		async (c) => {

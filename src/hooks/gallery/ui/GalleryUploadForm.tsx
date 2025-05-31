@@ -2,6 +2,8 @@ import { type AnyFieldApi, useForm } from "@tanstack/react-form";
 import { useState } from "react";
 import { useUploadGalleryImage } from "../api";
 import { type FilePreview, galleryUploadFormSchema } from "../types";
+// import { client } from "@/api/client";
+//
 
 interface GalleryUploadFormProps {
 	onSuccess?: () => void;
@@ -50,6 +52,16 @@ export function GalleryUploadForm({
 					title: value.title,
 					description: value.description,
 				});
+				// const res = await client.gallery.$post({
+				// 	form: {
+				// 		file: new File([value.file], value.file.name, {
+				// 			type: value.file.type,
+				// 		}),
+				// 		title: value.title,
+				// 		description: value.description,
+				// 	},
+				// });
+				// console.log(`res: ${JSON.stringify(res)}`);
 				form.reset();
 				setFilePreviews([]);
 				onSuccess?.();
@@ -102,6 +114,7 @@ export function GalleryUploadForm({
 						<div className="rounded-lg border-2 border-gray-300 border-dashed p-8 text-center">
 							<input
 								id="file-input"
+								name="file"
 								type="file"
 								accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
 								onChange={handleFileChange}

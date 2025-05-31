@@ -7,8 +7,6 @@ export const Route = createFileRoute("/")({
 function HomePage() {
 	return (
 		<div className="mx-auto max-w-4xl space-y-16">
-			<div className="space-y-6">
-				{/* 主标题 */}
 				<div className="text-center">
 					<h1 className="mb-4 font-bold text-4xl text-gray-900">
 						VinoFlare 全栈开发模板
@@ -19,38 +17,6 @@ function HomePage() {
 						<span className="font-bold">flare</span>，一个完整的全栈开发解决方案
 					</p>
 				</div>
-
-				{/* 进入按钮 */}
-				<div className="flex items-center justify-center gap-4">
-					<Link
-						to="/quotes"
-						className="inline-block rounded-full bg-gray-900 px-8 py-3 font-medium text-white transition-all hover:scale-105 hover:bg-gray-700"
-					>
-						进入留言板
-					</Link>
-
-					<Link
-						to="/posts"
-						className="inline-block rounded-full border border-gray-300 px-8 py-3 font-medium text-gray-700 transition-colors hover:scale-105 hover:bg-gray-50"
-					>
-						查看文章
-					</Link>
-
-					<Link
-						to="/gallery"
-						className="inline-block rounded-full bg-green-600 px-8 py-3 font-medium text-white transition-all hover:scale-105 hover:bg-green-700"
-					>
-						🖼️ 图片画廊
-					</Link>
-
-					<Link
-						to="/kitchen"
-						className="inline-block rounded-full bg-blue-600 px-8 py-3 font-medium text-white transition-all hover:scale-105 hover:bg-blue-700"
-					>
-						🍳 智能厨房
-					</Link>
-				</div>
-			</div>
 
 			{/* 技术栈展示 */}
 			<div className="grid gap-8 md:grid-cols-2">
