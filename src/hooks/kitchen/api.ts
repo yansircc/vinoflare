@@ -2,7 +2,7 @@ import { client } from "@/server/api";
 
 import { createQueryKeys } from "@/lib/query-factory";
 import { apiWrapperWithJson } from "@/utils/api-wrapper";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { calculateVirtualProgress } from "./helper";
 
 // 导入类型
@@ -96,8 +96,9 @@ export const useProcessIngredients = () => {
 		meta: {
 			customSuccessMessage: "提交加工任务成功",
 			customErrorMessage: "提交加工任务失败",
-			invalidateQueries: {
-				queryKey: kitchenKeys.lists().map((key) => key.toString()),
+			optimisticUpdate: {
+				queryKey: kitchenKeys.lists(),
+				type: "add",
 			},
 		},
 	});
@@ -162,6 +163,8 @@ export const useKitchenTasksPolling = (enabled = true, interval = 2000) => {
 
 // 手动刷新随机食材
 export const useRefreshRandomIngredients = () => {
+	const queryClient = useQueryClient();
+
 	return useMutation({
 		mutationFn: async (count?: number) => {
 			return apiWrapperWithJson<GetRandomIngredientsResponse>(() =>
@@ -170,13 +173,51 @@ export const useRefreshRandomIngredients = () => {
 				}),
 			);
 		},
+		onMutate: async (count) => {
+			const queryKey = kitchenKeys.list({ type: "randomIngredients", count });
+
+			// 取消进行中的查询
+			await queryClient.cancelQueries({ queryKey });
+
+			// 快照当前数据
+			const previousData = queryClient.getQueryData(queryKey);
+
+			// 乐观更新：显示加载占位符
+			const placeholderCount = count || Math.floor(Math.random() * 5) + 1;
+			const placeholderIngredients = Array.from(
+				{ length: placeholderCount },
+				(_, index) => ({
+					id: `placeholder-${Date.now()}-${index}`,
+					name: "获取中...",
+					description: "正在获取随机食材",
+					difficulty: "easy" as const,
+					processingTime: 1000,
+					failureRate: 0,
+					emoji: "⏳",
+				}),
+			);
+
+			queryClient.setQueryData(queryKey, {
+				success: true,
+				data: placeholderIngredients,
+				message: "正在获取随机食材...",
+			});
+
+			return { previousData, queryKey };
+		},
+		onError: (error, count, context) => {
+			// 回滚到之前的数据
+			if (context?.previousData && context?.queryKey) {
+				queryClient.setQueryData(context.queryKey, context.previousData);
+			}
+		},
+		onSuccess: (data, count) => {
+			// 成功后，更新对应的 queryKey
+			const queryKey = kitchenKeys.list({ type: "randomIngredients", count });
+			queryClient.setQueryData(queryKey, data);
+		},
 		meta: {
 			customErrorMessage: "获取随机食材失败",
-			invalidateQueries: {
-				queryKey: kitchenKeys
-					.list({ type: "randomIngredients" })
-					.map((key) => key.toString()),
-			},
 		},
 	});
 };
@@ -192,8 +233,9 @@ export const useClearAllTasks = () => {
 		meta: {
 			customSuccessMessage: "清除任务成功",
 			customErrorMessage: "清除任务失败",
-			invalidateQueries: {
-				queryKey: kitchenKeys.lists().map((key) => key.toString()),
+			optimisticUpdate: {
+				queryKey: kitchenKeys.lists(),
+				type: "delete",
 			},
 		},
 	});

@@ -82,8 +82,9 @@ export const useCreateRedirect = () => {
 		meta: {
 			customSuccessMessage: "短链接创建成功",
 			customErrorMessage: "创建短链接失败",
-			invalidateQueries: {
-				queryKey: RedirectsKeys.all.map((key) => key.toString()),
+			optimisticUpdate: {
+				queryKey: RedirectsKeys.all,
+				type: "add",
 			},
 		},
 	});
@@ -107,8 +108,22 @@ export const useUpdateRedirect = () => {
 		meta: {
 			customSuccessMessage: "短链接更新成功",
 			customErrorMessage: "更新短链接失败",
-			invalidateQueries: {
-				queryKey: RedirectsKeys.all.map((key) => key.toString()),
+			optimisticUpdate: {
+				queryKey: RedirectsKeys.all,
+				type: "update",
+				getId: (variables) => variables.id,
+				updater: (oldData, variables) => {
+					if (!Array.isArray(oldData)) return oldData;
+					return oldData.map((redirect) =>
+						redirect.id.toString() === variables.id.toString()
+							? {
+									...redirect,
+									...variables.data,
+									updatedAt: new Date().toISOString(),
+								}
+							: redirect,
+					);
+				},
 			},
 		},
 	});
@@ -127,8 +142,10 @@ export const useDeleteRedirect = () => {
 		meta: {
 			customSuccessMessage: "短链接删除成功",
 			customErrorMessage: "删除短链接失败",
-			invalidateQueries: {
-				queryKey: RedirectsKeys.all.map((key) => key.toString()),
+			optimisticUpdate: {
+				queryKey: RedirectsKeys.all,
+				type: "delete",
+				getId: (variables) => variables,
 			},
 		},
 	});

@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 
 // Query Key 工厂
 export function createQueryKeys<T extends string>(resource: T) {
@@ -31,6 +31,15 @@ export function createCrudHooks<
 		delete: (id: string | number) => Promise<void>;
 	};
 	getId: (item: TItem) => string | number;
+	// 可选：自定义消息
+	messages?: {
+		createSuccess?: string;
+		createError?: string;
+		updateSuccess?: string;
+		updateError?: string;
+		deleteSuccess?: string;
+		deleteError?: string;
+	};
 }) {
 	const queryKeys = createQueryKeys(config.resource);
 
@@ -53,41 +62,73 @@ export function createCrudHooks<
 
 	// 创建项目
 	const useCreate = () => {
-		const queryClient = useQueryClient();
-
 		return useMutation({
 			mutationFn: config.api.create,
-			onSuccess: () => {
-				// 使列表失效，触发重新获取
-				queryClient.invalidateQueries({ queryKey: queryKeys.lists() });
+			meta: {
+				customSuccessMessage:
+					config.messages?.createSuccess || `${config.resource}创建成功`,
+				customErrorMessage:
+					config.messages?.createError || `${config.resource}创建失败`,
+				// 使用全局乐观更新配置
+				optimisticUpdate: {
+					queryKey: queryKeys.lists(),
+					type: "add" as const,
+				},
 			},
 		});
 	};
 
 	// 更新项目
 	const useUpdate = () => {
-		const queryClient = useQueryClient();
-
 		return useMutation({
 			mutationFn: config.api.update,
-			onSuccess: (data) => {
-				// 更新缓存中的列表
-				queryClient.invalidateQueries({ queryKey: queryKeys.lists() });
-				// 更新单个项目的缓存
-				queryClient.setQueryData(queryKeys.detail(config.getId(data)), data);
+			meta: {
+				customSuccessMessage:
+					config.messages?.updateSuccess || `${config.resource}更新成功`,
+				customErrorMessage:
+					config.messages?.updateError || `${config.resource}更新失败`,
+				// 使用全局乐观更新配置
+				optimisticUpdate: {
+					queryKey: queryKeys.lists(),
+					type: "update" as const,
+					getId: (variables: { id: string | number; data: TUpdateData }) =>
+						variables.id,
+					// 自定义更新逻辑
+					updater: (
+						oldData: TItem[],
+						variables: { id: string | number; data: TUpdateData },
+					) => {
+						if (!Array.isArray(oldData)) return oldData;
+						return oldData.map((item: TItem) =>
+							config.getId(item).toString() === variables.id.toString()
+								? {
+										...item,
+										...variables.data,
+										updatedAt: new Date().toISOString(),
+									}
+								: item,
+						);
+					},
+				},
 			},
 		});
 	};
 
 	// 删除项目
 	const useDelete = () => {
-		const queryClient = useQueryClient();
-
 		return useMutation({
 			mutationFn: config.api.delete,
-			onSuccess: () => {
-				// 使列表失效，触发重新获取
-				queryClient.invalidateQueries({ queryKey: queryKeys.lists() });
+			meta: {
+				customSuccessMessage:
+					config.messages?.deleteSuccess || `${config.resource}删除成功`,
+				customErrorMessage:
+					config.messages?.deleteError || `${config.resource}删除失败`,
+				// 使用全局乐观更新配置
+				optimisticUpdate: {
+					queryKey: queryKeys.lists(),
+					type: "delete" as const,
+					getId: (variables: string | number) => variables,
+				},
 			},
 		});
 	};

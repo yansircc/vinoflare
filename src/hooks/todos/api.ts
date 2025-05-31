@@ -17,8 +17,6 @@ import type {
 // 创建 Query Keys
 const todosKeys = createQueryKeys("todos");
 
-// Hooks
-
 // 获取所有待办事项
 export const useTodos = () => {
 	return useQuery({
@@ -57,8 +55,9 @@ export const useCreateTodo = () => {
 		meta: {
 			customSuccessMessage: "待办事项创建成功",
 			customErrorMessage: "创建待办事项失败",
-			invalidateQueries: {
-				queryKey: todosKeys.all.map((key) => key.toString()),
+			optimisticUpdate: {
+				queryKey: todosKeys.all,
+				type: "add",
 			},
 		},
 	});
@@ -82,8 +81,22 @@ export const useUpdateTodo = () => {
 		meta: {
 			customSuccessMessage: "待办事项更新成功",
 			customErrorMessage: "更新待办事项失败",
-			invalidateQueries: {
-				queryKey: todosKeys.all.map((key) => key.toString()),
+			optimisticUpdate: {
+				queryKey: todosKeys.all,
+				type: "update",
+				getId: (variables) => variables.id,
+				updater: (oldData, variables) => {
+					if (!Array.isArray(oldData)) return oldData;
+					return oldData.map((todo) =>
+						todo.id.toString() === variables.id.toString()
+							? {
+									...todo,
+									...variables.data,
+									updatedAt: new Date().toISOString(),
+								}
+							: todo,
+					);
+				},
 			},
 		},
 	});
@@ -102,8 +115,10 @@ export const useDeleteTodo = () => {
 		meta: {
 			customSuccessMessage: "待办事项删除成功",
 			customErrorMessage: "删除待办事项失败",
-			invalidateQueries: {
-				queryKey: todosKeys.all.map((key) => key.toString()),
+			optimisticUpdate: {
+				queryKey: todosKeys.all,
+				type: "delete",
+				getId: (variables) => variables,
 			},
 		},
 	});
@@ -126,8 +141,10 @@ export const useToggleTodo = () => {
 		},
 		meta: {
 			customErrorMessage: "更新待办事项状态失败",
-			invalidateQueries: {
-				queryKey: todosKeys.all.map((key) => key.toString()),
+			optimisticUpdate: {
+				queryKey: todosKeys.all,
+				type: "toggle",
+				getId: (variables) => variables.id,
 			},
 		},
 	});

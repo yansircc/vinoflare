@@ -74,8 +74,9 @@ export const useUploadGalleryImage = () => {
 		meta: {
 			customSuccessMessage: "图片上传成功",
 			customErrorMessage: "图片上传失败",
-			invalidateQueries: {
-				queryKey: galleryKeys.all.map((key) => key.toString()),
+			optimisticUpdate: {
+				queryKey: galleryKeys.all,
+				type: "add",
 			},
 		},
 	});
@@ -94,8 +95,9 @@ export const useDeleteGalleryImage = () => {
 		meta: {
 			customSuccessMessage: "图片删除成功",
 			customErrorMessage: "删除图片失败",
-			invalidateQueries: {
-				queryKey: galleryKeys.all.map((key) => key.toString()),
+			optimisticUpdate: {
+				queryKey: galleryKeys.all,
+				type: "delete",
 			},
 		},
 	});
@@ -122,8 +124,9 @@ export const useBatchUploadGalleryImages = () => {
 		meta: {
 			customSuccessMessage: "批量上传成功",
 			customErrorMessage: "批量上传失败",
-			invalidateQueries: {
-				queryKey: galleryKeys.all.map((key) => key.toString()),
+			optimisticUpdate: {
+				queryKey: galleryKeys.all,
+				type: "add",
 			},
 		},
 	});
