@@ -5,26 +5,25 @@ import { TaskStatsGrid } from "./TaskStatsGrid";
 
 interface TaskQueueSectionProps {
 	tasks: ProcessingTask[];
+	meta?: {
+		totalCount: number;
+		processingCount: number;
+		completedCount: number;
+		failedCount: number;
+	};
 	onClearAllTasks: () => void;
 	isClearPending: boolean;
 }
 
 export function TaskQueueSection({
 	tasks,
+	meta,
 	onClearAllTasks,
 	isClearPending,
 }: TaskQueueSectionProps) {
 	const hasActiveTasks = tasks.some(
 		(task) => task.status === "processing" || task.status === "pending",
 	);
-
-	// Calculate meta information from tasks array
-	const meta = {
-		totalCount: tasks.length,
-		processingCount: tasks.filter((t) => t.status === "processing").length,
-		completedCount: tasks.filter((t) => t.status === "completed").length,
-		failedCount: tasks.filter((t) => t.status === "failed").length,
-	};
 
 	return (
 		<div className="rounded-lg border border-gray-200 p-6">
@@ -80,7 +79,7 @@ export function TaskQueueSection({
 				</div>
 			)}
 
-			{tasks.length > 0 && <TaskStatsGrid meta={meta} />}
+			{meta && <TaskStatsGrid meta={meta} />}
 		</div>
 	);
 }

@@ -41,10 +41,10 @@ export function TaskCard({ task }: TaskCardProps) {
 		<div className="rounded-lg border border-gray-200 bg-white p-4 transition-all hover:border-gray-300">
 			<div className="mb-2 flex items-center justify-between">
 				<div className="flex items-center gap-3">
-					<span className="text-xl">{task.ingredient?.emoji || "🍽️"}</span>
+					<span className="text-xl">{task.ingredient.emoji}</span>
 					<div>
 						<div className="font-medium text-gray-900 text-sm">
-							{task.ingredient?.name || "未知食材"}
+							{task.ingredient.name}
 						</div>
 						<div className="text-gray-500 text-xs">
 							重试 {task.retryCount}/{task.maxRetries}

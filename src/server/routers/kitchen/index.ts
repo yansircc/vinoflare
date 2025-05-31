@@ -16,7 +16,11 @@ const app = new Hono<BaseContext>()
 	// GET /kitchen/ingredients - 获取所有可用食材
 	.get("/ingredients", optionalAuthMiddleware, loggingMiddleware, async (c) => {
 		try {
-			return c.json(PREDEFINED_INGREDIENTS);
+			return c.json({
+				success: true,
+				data: PREDEFINED_INGREDIENTS,
+				message: "食材列表获取成功",
+			});
 		} catch (error) {
 			console.error("获取食材列表失败:", error);
 			throw new HTTPException(500, {
@@ -38,7 +42,11 @@ const app = new Hono<BaseContext>()
 				const store = new KitchenKVStore(c.env.KV, c.env.QUEUES);
 				const randomIngredients = store.getRandomIngredients(count);
 
-				return c.json(randomIngredients);
+				return c.json({
+					success: true,
+					data: randomIngredients,
+					message: `随机获得 ${randomIngredients.length} 种食材`,
+				});
 			} catch (error) {
 				console.error("获取随机食材失败:", error);
 				throw new HTTPException(500, {
@@ -67,7 +75,14 @@ const app = new Hono<BaseContext>()
 				const store = new KitchenKVStore(c.env.KV, c.env.QUEUES);
 				const tasks = await store.createProcessingTasks(user.id, ingredientIds);
 
-				return c.json(tasks, 201);
+				return c.json(
+					{
+						success: true,
+						data: tasks,
+						message: `${user.name} 成功提交 ${tasks.length} 个食材加工任务`,
+					},
+					201,
+				);
 			} catch (error) {
 				console.error("创建加工任务失败:", error);
 				throw new HTTPException(500, {
@@ -90,7 +105,18 @@ const app = new Hono<BaseContext>()
 			const store = new KitchenKVStore(c.env.KV, c.env.QUEUES);
 			const tasks = await store.getUserTasks(user.id);
 
-			return c.json(tasks);
+			return c.json({
+				success: true,
+				data: tasks,
+				meta: {
+					totalCount: tasks.length,
+					completedCount: tasks.filter((t) => t.status === "completed").length,
+					processingCount: tasks.filter((t) => t.status === "processing")
+						.length,
+					failedCount: tasks.filter((t) => t.status === "failed").length,
+					requestedBy: user.name,
+				},
+			});
 		} catch (error) {
 			console.error("获取任务列表失败:", error);
 			throw new HTTPException(500, {
@@ -132,7 +158,10 @@ const app = new Hono<BaseContext>()
 				});
 			}
 
-			return c.json(task);
+			return c.json({
+				success: true,
+				data: task,
+			});
 		} catch (error) {
 			console.error("获取任务详情失败:", error);
 			throw new HTTPException(500, {
@@ -154,8 +183,10 @@ const app = new Hono<BaseContext>()
 			const store = new KitchenKVStore(c.env.KV, c.env.QUEUES);
 			await store.clearUserTasks(user.id);
 
-			// Return empty response for compatibility with createCrudHooks delete function
-			return c.json({}, 200);
+			return c.json({
+				success: true,
+				message: `已清除 ${user.name} 的所有任务`,
+			});
 		} catch (error) {
 			console.error("清除任务失败:", error);
 			throw new HTTPException(500, {
