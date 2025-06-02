@@ -28,7 +28,4 @@ app.get("/*", async (c) => {
 export type AppType = (typeof routes)[number];
 
 // 导出 Worker 处理器
-export default {
-	// Hono 处理 HTTP 请求
-	fetch: app.fetch,
-};
+export default app;
