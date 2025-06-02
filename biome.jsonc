@@ -5,20 +5,25 @@
 		"clientKind": "git",
 		"useIgnoreFile": true
 	},
-	"files": { "ignoreUnknown": false, "ignore": ["worker-configuration.d.ts"] },
-	"formatter": { "enabled": true },
+	"files": {
+		"ignoreUnknown": false,
+		"ignore": ["./worker-configuration.d.ts"]
+	},
+	"formatter": { "enabled": false },
 	"organizeImports": { "enabled": true },
 	"linter": {
 		"enabled": true,
 		"rules": {
 			"suspicious": {
 				"noArrayIndexKey": "off",
-				"noExplicitAny": "off"
+				"noExplicitAny": "off",
+				"noConfusingVoidType": "off"
 			},
 			"style": {
 				"noNonNullAssertion": "off",
 				"useTemplate": "off",
-				"noUselessElse": "off"
+				"noUselessElse": "off",
+				"noUnusedTemplateLiteral": "off"
 			},
 			"correctness": {
 				"useExhaustiveDependencies": {

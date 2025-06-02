@@ -11,29 +11,13 @@
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
-import { Route as KitchenImport } from './routes/kitchen'
-import { Route as GalleryImport } from './routes/gallery'
 import { Route as IndexImport } from './routes/index'
-import { Route as TodosIndexImport } from './routes/todos/index'
-import { Route as RedirectsIndexImport } from './routes/redirects/index'
-import { Route as TodosIdImport } from './routes/todos/$id'
-import { Route as RedirectsIdImport } from './routes/redirects/$id'
+import { Route as TasksIndexImport } from './routes/tasks/index'
+import { Route as TasksIdImport } from './routes/tasks/$id'
 import { Route as AuthProfileImport } from './routes/_auth/profile'
 import { Route as AuthLoginImport } from './routes/_auth/login'
 
 // Create/Update Routes
-
-const KitchenRoute = KitchenImport.update({
-  id: '/kitchen',
-  path: '/kitchen',
-  getParentRoute: () => rootRoute,
-} as any)
-
-const GalleryRoute = GalleryImport.update({
-  id: '/gallery',
-  path: '/gallery',
-  getParentRoute: () => rootRoute,
-} as any)
 
 const IndexRoute = IndexImport.update({
   id: '/',
@@ -41,27 +25,15 @@ const IndexRoute = IndexImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
-const TodosIndexRoute = TodosIndexImport.update({
-  id: '/todos/',
-  path: '/todos/',
+const TasksIndexRoute = TasksIndexImport.update({
+  id: '/tasks/',
+  path: '/tasks/',
   getParentRoute: () => rootRoute,
 } as any)
 
-const RedirectsIndexRoute = RedirectsIndexImport.update({
-  id: '/redirects/',
-  path: '/redirects/',
-  getParentRoute: () => rootRoute,
-} as any)
-
-const TodosIdRoute = TodosIdImport.update({
-  id: '/todos/$id',
-  path: '/todos/$id',
-  getParentRoute: () => rootRoute,
-} as any)
-
-const RedirectsIdRoute = RedirectsIdImport.update({
-  id: '/redirects/$id',
-  path: '/redirects/$id',
+const TasksIdRoute = TasksIdImport.update({
+  id: '/tasks/$id',
+  path: '/tasks/$id',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -88,20 +60,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexImport
       parentRoute: typeof rootRoute
     }
-    '/gallery': {
-      id: '/gallery'
-      path: '/gallery'
-      fullPath: '/gallery'
-      preLoaderRoute: typeof GalleryImport
-      parentRoute: typeof rootRoute
-    }
-    '/kitchen': {
-      id: '/kitchen'
-      path: '/kitchen'
-      fullPath: '/kitchen'
-      preLoaderRoute: typeof KitchenImport
-      parentRoute: typeof rootRoute
-    }
     '/_auth/login': {
       id: '/_auth/login'
       path: '/login'
@@ -116,32 +74,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthProfileImport
       parentRoute: typeof rootRoute
     }
-    '/redirects/$id': {
-      id: '/redirects/$id'
-      path: '/redirects/$id'
-      fullPath: '/redirects/$id'
-      preLoaderRoute: typeof RedirectsIdImport
+    '/tasks/$id': {
+      id: '/tasks/$id'
+      path: '/tasks/$id'
+      fullPath: '/tasks/$id'
+      preLoaderRoute: typeof TasksIdImport
       parentRoute: typeof rootRoute
     }
-    '/todos/$id': {
-      id: '/todos/$id'
-      path: '/todos/$id'
-      fullPath: '/todos/$id'
-      preLoaderRoute: typeof TodosIdImport
-      parentRoute: typeof rootRoute
-    }
-    '/redirects/': {
-      id: '/redirects/'
-      path: '/redirects'
-      fullPath: '/redirects'
-      preLoaderRoute: typeof RedirectsIndexImport
-      parentRoute: typeof rootRoute
-    }
-    '/todos/': {
-      id: '/todos/'
-      path: '/todos'
-      fullPath: '/todos'
-      preLoaderRoute: typeof TodosIndexImport
+    '/tasks/': {
+      id: '/tasks/'
+      path: '/tasks'
+      fullPath: '/tasks'
+      preLoaderRoute: typeof TasksIndexImport
       parentRoute: typeof rootRoute
     }
   }
@@ -151,100 +95,58 @@ declare module '@tanstack/react-router' {
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/gallery': typeof GalleryRoute
-  '/kitchen': typeof KitchenRoute
   '/login': typeof AuthLoginRoute
   '/profile': typeof AuthProfileRoute
-  '/redirects/$id': typeof RedirectsIdRoute
-  '/todos/$id': typeof TodosIdRoute
-  '/redirects': typeof RedirectsIndexRoute
-  '/todos': typeof TodosIndexRoute
+  '/tasks/$id': typeof TasksIdRoute
+  '/tasks': typeof TasksIndexRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/gallery': typeof GalleryRoute
-  '/kitchen': typeof KitchenRoute
   '/login': typeof AuthLoginRoute
   '/profile': typeof AuthProfileRoute
-  '/redirects/$id': typeof RedirectsIdRoute
-  '/todos/$id': typeof TodosIdRoute
-  '/redirects': typeof RedirectsIndexRoute
-  '/todos': typeof TodosIndexRoute
+  '/tasks/$id': typeof TasksIdRoute
+  '/tasks': typeof TasksIndexRoute
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
-  '/gallery': typeof GalleryRoute
-  '/kitchen': typeof KitchenRoute
   '/_auth/login': typeof AuthLoginRoute
   '/_auth/profile': typeof AuthProfileRoute
-  '/redirects/$id': typeof RedirectsIdRoute
-  '/todos/$id': typeof TodosIdRoute
-  '/redirects/': typeof RedirectsIndexRoute
-  '/todos/': typeof TodosIndexRoute
+  '/tasks/$id': typeof TasksIdRoute
+  '/tasks/': typeof TasksIndexRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths:
-    | '/'
-    | '/gallery'
-    | '/kitchen'
-    | '/login'
-    | '/profile'
-    | '/redirects/$id'
-    | '/todos/$id'
-    | '/redirects'
-    | '/todos'
+  fullPaths: '/' | '/login' | '/profile' | '/tasks/$id' | '/tasks'
   fileRoutesByTo: FileRoutesByTo
-  to:
-    | '/'
-    | '/gallery'
-    | '/kitchen'
-    | '/login'
-    | '/profile'
-    | '/redirects/$id'
-    | '/todos/$id'
-    | '/redirects'
-    | '/todos'
+  to: '/' | '/login' | '/profile' | '/tasks/$id' | '/tasks'
   id:
     | '__root__'
     | '/'
-    | '/gallery'
-    | '/kitchen'
     | '/_auth/login'
     | '/_auth/profile'
-    | '/redirects/$id'
-    | '/todos/$id'
-    | '/redirects/'
-    | '/todos/'
+    | '/tasks/$id'
+    | '/tasks/'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  GalleryRoute: typeof GalleryRoute
-  KitchenRoute: typeof KitchenRoute
   AuthLoginRoute: typeof AuthLoginRoute
   AuthProfileRoute: typeof AuthProfileRoute
-  RedirectsIdRoute: typeof RedirectsIdRoute
-  TodosIdRoute: typeof TodosIdRoute
-  RedirectsIndexRoute: typeof RedirectsIndexRoute
-  TodosIndexRoute: typeof TodosIndexRoute
+  TasksIdRoute: typeof TasksIdRoute
+  TasksIndexRoute: typeof TasksIndexRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  GalleryRoute: GalleryRoute,
-  KitchenRoute: KitchenRoute,
   AuthLoginRoute: AuthLoginRoute,
   AuthProfileRoute: AuthProfileRoute,
-  RedirectsIdRoute: RedirectsIdRoute,
-  TodosIdRoute: TodosIdRoute,
-  RedirectsIndexRoute: RedirectsIndexRoute,
-  TodosIndexRoute: TodosIndexRoute,
+  TasksIdRoute: TasksIdRoute,
+  TasksIndexRoute: TasksIndexRoute,
 }
 
 export const routeTree = rootRoute
@@ -258,24 +160,14 @@ export const routeTree = rootRoute
       "filePath": "__root.tsx",
       "children": [
         "/",
-        "/gallery",
-        "/kitchen",
         "/_auth/login",
         "/_auth/profile",
-        "/redirects/$id",
-        "/todos/$id",
-        "/redirects/",
-        "/todos/"
+        "/tasks/$id",
+        "/tasks/"
       ]
     },
     "/": {
       "filePath": "index.tsx"
-    },
-    "/gallery": {
-      "filePath": "gallery.tsx"
-    },
-    "/kitchen": {
-      "filePath": "kitchen.tsx"
     },
     "/_auth/login": {
       "filePath": "_auth/login.tsx"
@@ -283,17 +175,11 @@ export const routeTree = rootRoute
     "/_auth/profile": {
       "filePath": "_auth/profile.tsx"
     },
-    "/redirects/$id": {
-      "filePath": "redirects/$id.tsx"
+    "/tasks/$id": {
+      "filePath": "tasks/$id.tsx"
     },
-    "/todos/$id": {
-      "filePath": "todos/$id.tsx"
-    },
-    "/redirects/": {
-      "filePath": "redirects/index.tsx"
-    },
-    "/todos/": {
-      "filePath": "todos/index.tsx"
+    "/tasks/": {
+      "filePath": "tasks/index.tsx"
     }
   }
 }

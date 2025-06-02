@@ -13,7 +13,7 @@ enabled = true
 binding = "DB"
 database_name = "vinoflare"
 database_id = "8e27580b-773d-41d4-a134-1fc5b84d469a"
-migrations_dir = "drizzle/migrations"
+migrations_dir = "src/server/db/migrations"
 
 [[kv_namespaces]]
 binding = "KV"

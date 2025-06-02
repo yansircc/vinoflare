@@ -1,4 +1,4 @@
-import { Link, createFileRoute } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/")({
 	component: HomePage,
@@ -88,7 +88,65 @@ function HomePage() {
 			{/* 健康检查 */}
 			<div className="grid gap-4 sm:grid-cols-3">
 				<a
-					href="/health"
+					href="/reference"
+					target="_blank"
+					rel="noopener noreferrer"
+					className="flex flex-col items-center gap-2 rounded-lg border border-gray-200 p-4 text-center transition-colors hover:bg-gray-50"
+				>
+					<div className="flex h-8 w-8 items-center justify-center rounded-full bg-yellow-100">
+						<svg
+							className="h-4 w-4 text-yellow-600"
+							fill="none"
+							stroke="currentColor"
+							viewBox="0 0 24 24"
+						>
+							<title>Swagger UI</title>
+							<path
+								strokeLinecap="round"
+								strokeLinejoin="round"
+								strokeWidth={2}
+								d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+							/>
+						</svg>
+					</div>
+					<div>
+						<div className="font-medium text-gray-900 text-sm">Swagger UI</div>
+						<div className="text-gray-500 text-xs">/reference</div>
+					</div>
+				</a>
+
+				<a
+					href="/doc"
+					target="_blank"
+					rel="noopener noreferrer"
+					className="flex flex-col items-center gap-2 rounded-lg border border-gray-200 p-4 text-center transition-colors hover:bg-gray-50"
+				>
+					<div className="flex h-8 w-8 items-center justify-center rounded-full bg-red-100">
+						<svg
+							className="h-4 w-4 text-red-600"
+							fill="none"
+							stroke="currentColor"
+							viewBox="0 0 24 24"
+						>
+							<title>OpenAPI 文档</title>
+							<path
+								strokeLinecap="round"
+								strokeLinejoin="round"
+								strokeWidth={2}
+								d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+							/>
+						</svg>
+					</div>
+					<div>
+						<div className="font-medium text-gray-900 text-sm">
+							OpenAPI 文档
+						</div>
+						<div className="text-gray-500 text-xs">/doc</div>
+					</div>
+				</a>
+
+				<a
+					href="api/health"
 					target="_blank"
 					rel="noopener noreferrer"
 					className="flex flex-col items-center gap-2 rounded-lg border border-gray-200 p-4 text-center transition-colors hover:bg-gray-50"

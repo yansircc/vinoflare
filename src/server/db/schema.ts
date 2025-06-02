@@ -1,4 +1,5 @@
 import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { z } from "zod";
 
 // Better Auth 需要的表
 export const user = sqliteTable("user", {
@@ -61,15 +62,33 @@ export const jwks = sqliteTable("jwks", {
 	createdAt: integer("createdAt", { mode: "timestamp" }).notNull(),
 });
 
-// 现有的业务表
-export const todos = sqliteTable("todos", {
-	id: integer("id").primaryKey({ autoIncrement: true }),
-	title: text("title").notNull(),
-	description: text("description"),
-	completed: integer("completed", { mode: "boolean" }).notNull().default(false),
-	priority: text("priority", { enum: ["low", "medium", "high"] })
-		.notNull()
-		.default("medium"),
-	createdAt: text("created_at").$defaultFn(() => new Date().toISOString()),
-	updatedAt: text("updated_at").$defaultFn(() => new Date().toISOString()),
+export const tasks = sqliteTable("tasks", {
+	id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
+	name: text("name").notNull(),
+	done: integer("done", { mode: "boolean" }).notNull().default(false),
+	createdAt: integer("created_at", { mode: "timestamp" }).$defaultFn(
+		() => new Date(),
+	),
+	updatedAt: integer("updated_at", { mode: "timestamp" })
+		.$defaultFn(() => new Date())
+		.$onUpdate(() => new Date()),
 });
+
+export const insertTaskSchema = z.object({
+	name: z.string().min(1).max(255),
+	done: z.boolean().optional(),
+});
+
+export const selectTaskSchema = z.object({
+	id: z.number(),
+	name: z.string(),
+	done: z.boolean(),
+	createdAt: z.string().nullable(),
+	updatedAt: z.string().nullable(),
+});
+
+export const patchTaskSchema = insertTaskSchema.partial();
+export type Task = typeof tasks.$inferSelect;
+
+export type AuthUser = typeof user.$inferSelect;
+export type AuthSession = typeof session.$inferSelect;
