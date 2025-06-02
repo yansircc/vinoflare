@@ -7,7 +7,7 @@
 		"build:client": "vite build --mode client",
 		"preview": "$npm_execpath run build && vite preview",
 		"deploy": "$npm_execpath run build:client && wrangler deploy",
-		"cf-typegen": "wrangler types --env-interface CloudflareBindings",
+		"cf-typegen": "wrangler types --env-interface Env",
 		"apigen": "orval --config ./orval.config.ts",
 		"db:generate": "drizzle-kit generate",
 		"db:migrate": "drizzle-kit migrate",
@@ -19,7 +19,9 @@
 		"env:sync:remote": "wrangler secret bulk .prod.vars",
 		"find:deadcode": "ts-prune",
 		"typecheck": "tsc --noEmit",
-		"check:write": "biome check --write ."
+		"check:write": "biome check --write .",
+		"test": "vitest run",
+		"test:watch": "vitest"
 	},
 	"dependencies": {
 		"@hono/trpc-server": "^0.3.4",
@@ -50,6 +52,7 @@
 	},
 	"devDependencies": {
 		"@cloudflare/vite-plugin": "^1.3.0",
+		"@cloudflare/vitest-pool-workers": "^0.8.34",
 		"@tailwindcss/vite": "^4.1.8",
 		"@tanstack/form-core": "^1.12.0",
 		"@tanstack/react-form": "^1.12.0",
@@ -63,6 +66,7 @@
 		"@types/react": "^19.1.6",
 		"@types/react-dom": "^19.1.5",
 		"better-sqlite3": "^11.10.0",
+		"cloudflare": "^4.3.0",
 		"drizzle-kit": "^0.31.1",
 		"orval": "^7.9.0",
 		"tailwindcss": "^4.1.8",
@@ -71,6 +75,7 @@
 		"typescript": "^5.8.3",
 		"vite": "^6.3.5",
 		"vite-ssr-components": "^0.1.0",
+		"vitest": "^3.2.0",
 		"wrangler": "^4.17.0"
 	}
 }

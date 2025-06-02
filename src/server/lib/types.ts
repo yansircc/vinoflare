@@ -7,7 +7,7 @@ import type { OpenAPIHono, RouteConfig, RouteHandler } from "@hono/zod-openapi";
  * 基础上下文 - 只包含环境变量绑定
  */
 export interface BaseContext {
-	Bindings: CloudflareBindings;
+	Bindings: Env;
 }
 
 /**

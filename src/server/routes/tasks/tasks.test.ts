@@ -1,3 +1,4 @@
+/* @ts-ignore-next-line */
 import { env } from "cloudflare:test";
 import * as HttpStatusCodes from "stoker/http-status-codes";
 import * as HttpStatusPhrases from "stoker/http-status-phrases";

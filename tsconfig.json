@@ -16,6 +16,7 @@
 			"@/*": ["./src/*"]
 		}
 	},
+	"types": ["@cloudflare/vitest-pool-workers"],
 	"include": ["src/**/*", "worker-configuration.d.ts"],
 	"exclude": ["node_modules", "dist"]
 }
