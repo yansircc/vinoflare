@@ -3,7 +3,7 @@
 	"type": "module",
 	"scripts": {
 		"dev": "vite --port 5173",
-		"build": "bun cf-typegen && bun apigen && vite build --mode client",
+		"build": "vite build --mode client",
 		"preview": "$npm_execpath run build && vite preview",
 		"deploy": "$npm_execpath run build && wrangler deploy",
 		"cf-typegen": "wrangler types --env-interface CloudflareBindings",
