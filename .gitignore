@@ -18,6 +18,7 @@ node_modules/
 
 # env
 .env
+.env.local
 .env.production
 .dev.vars
 .prod.vars

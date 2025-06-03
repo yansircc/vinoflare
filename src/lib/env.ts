@@ -8,7 +8,7 @@ import { z } from "zod";
 // 环境变量验证 schema
 const envSchema = z.object({
 	APP_URL: z.string().url("APP_URL必须是有效的URL"),
-	NODE_ENV: z
+	ENVIRONMENT: z
 		.enum(["development", "production", "test"])
 		.default("development"),
 	DISCORD_CLIENT_ID: z.string().min(1, "DISCORD_CLIENT_ID不能为空"),
@@ -42,12 +42,12 @@ export function isDev(): boolean {
 		if (typeof import.meta !== "undefined" && import.meta.env) {
 			return (
 				import.meta.env.DEV === true ||
-				import.meta.env.NODE_ENV === "development"
+				import.meta.env.ENVIRONMENT === "development"
 			);
 		}
 
 		// 检查 process.env
-		const nodeEnv = getProcessEnv("NODE_ENV");
+		const nodeEnv = getProcessEnv("ENVIRONMENT");
 		return nodeEnv === "development";
 	} catch {
 		// 在 Cloudflare Workers 中，默认为生产环境
@@ -71,11 +71,11 @@ function generateSecretKey(): string {
  * 获取环境变量
  * 在 Cloudflare Workers 中，环境变量通过 env 对象传递
  */
-export function getEnv(workerEnv?: Env) {
+export function getEnv(workerEnv?: CloudflareBindings) {
 	// 在 Cloudflare Workers 中，环境变量通过 env 参数传递
 	const rawEnv = workerEnv || {
 		APP_URL: getProcessEnv("APP_URL") || "http://localhost:5173",
-		NODE_ENV: getProcessEnv("NODE_ENV") || "development",
+		ENVIRONMENT: getProcessEnv("ENVIRONMENT") || "development",
 	};
 
 	try {
@@ -101,7 +101,7 @@ export function getEnv(workerEnv?: Env) {
 		console.error("❌ 环境变量验证失败:", error);
 
 		// 在开发环境中提供默认值并警告
-		if (rawEnv.NODE_ENV === "development") {
+		if (rawEnv.ENVIRONMENT === "development") {
 			console.warn(
 				"⚠️ 使用开发环境默认配置。请在生产环境中设置正确的环境变量。",
 			);
@@ -111,7 +111,7 @@ export function getEnv(workerEnv?: Env) {
 
 			return {
 				APP_URL: rawEnv.APP_URL || "http://localhost:5173",
-				NODE_ENV: rawEnv.NODE_ENV || "development",
+				ENVIRONMENT: rawEnv.ENVIRONMENT || "development",
 			};
 		}
 
@@ -129,9 +129,9 @@ export const clientEnv = {
 			? (window as any).__ENV__?.APP_URL ||
 				(typeof import.meta !== "undefined" && import.meta.env?.APP_URL)
 			: getProcessEnv("APP_URL"),
-	NODE_ENV:
+	ENVIRONMENT:
 		typeof window !== "undefined"
-			? (window as any).__ENV__?.NODE_ENV ||
-				(typeof import.meta !== "undefined" && import.meta.env?.NODE_ENV)
-			: getProcessEnv("NODE_ENV"),
+			? (window as any).__ENV__?.ENVIRONMENT ||
+				(typeof import.meta !== "undefined" && import.meta.env?.ENVIRONMENT)
+			: getProcessEnv("ENVIRONMENT"),
 };

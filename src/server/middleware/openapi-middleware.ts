@@ -23,7 +23,7 @@ export const dynamicOpenAPIMiddleware = createMiddleware<BaseContext>(
 					{
 						url: c.env.APP_URL,
 						description:
-							c.env.NODE_ENV === "production" ? "生产环境" : "本地开发环境",
+							c.env.ENVIRONMENT === "production" ? "生产环境" : "本地开发环境",
 					},
 				];
 

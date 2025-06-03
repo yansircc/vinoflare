@@ -82,7 +82,7 @@ const router = createRouter()
 				status: "healthy",
 				timestamp: new Date().toISOString(),
 				version: "1.0.0",
-				environment: (c.env as any)?.NODE_ENV || "unknown",
+				environment: (c.env as any)?.ENVIRONMENT || "unknown",
 			});
 		},
 	);

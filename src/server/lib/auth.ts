@@ -3,8 +3,8 @@ import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { bearer, jwt } from "better-auth/plugins";
 
-export function createAuth(d1: D1Database, env: Env) {
-	const db = createDb(d1);
+export function createAuth(c: CloudflareBindings) {
+	const db = createDb(c.DB);
 
 	return betterAuth({
 		database: drizzleAdapter(db, {
@@ -12,8 +12,8 @@ export function createAuth(d1: D1Database, env: Env) {
 		}),
 
 		// 基础配置
-		baseURL: env.APP_URL,
-		secret: env.BETTER_AUTH_SECRET,
+		baseURL: c.APP_URL,
+		secret: c.BETTER_AUTH_SECRET,
 
 		// 禁用邮箱密码登录，只使用 Discord OAuth
 		emailAndPassword: {
@@ -23,8 +23,8 @@ export function createAuth(d1: D1Database, env: Env) {
 		// 社交登录配置
 		socialProviders: {
 			discord: {
-				clientId: env.DISCORD_CLIENT_ID,
-				clientSecret: env.DISCORD_CLIENT_SECRET,
+				clientId: c.DISCORD_CLIENT_ID,
+				clientSecret: c.DISCORD_CLIENT_SECRET,
 			},
 		},
 
@@ -44,7 +44,7 @@ export function createAuth(d1: D1Database, env: Env) {
 		// 安全配置
 		advanced: {
 			// 在生产环境使用安全cookies
-			useSecureCookies: env.NODE_ENV === "production",
+			useSecureCookies: c.ENVIRONMENT === "production",
 
 			// 配置IP地址获取（Cloudflare Workers）
 			ipAddress: {
@@ -57,7 +57,7 @@ export function createAuth(d1: D1Database, env: Env) {
 			cookiePrefix: "vinoflare-auth",
 			defaultCookieAttributes: {
 				httpOnly: true,
-				secure: env.NODE_ENV === "production",
+				secure: c.ENVIRONMENT === "production",
 				sameSite: "lax",
 			},
 
@@ -89,7 +89,7 @@ export function createAuth(d1: D1Database, env: Env) {
 
 		// 错误处理和日志
 		logger: {
-			level: env.NODE_ENV === "development" ? "debug" : "warn",
+			level: c.ENVIRONMENT === "development" ? "debug" : "warn",
 			disabled: false,
 		},
 	});

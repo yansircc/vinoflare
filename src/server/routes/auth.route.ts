@@ -6,7 +6,7 @@ const router = new Hono<BaseContext>();
 
 // Better Auth 路由处理器
 router.all("/*", (c) => {
-	const auth = createAuth(c.env.DB, c.env);
+	const auth = createAuth(c.env);
 	return auth.handler(c.req.raw);
 });
 

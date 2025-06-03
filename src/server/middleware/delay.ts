@@ -50,7 +50,7 @@ export const delayMiddleware = (options: DelayOptions = {}) => {
 	return createMiddleware<BaseContext>(async (c, next) => {
 		// 默认仅在非生产环境启用
 		const shouldDelay =
-			enabled !== undefined ? enabled : c.env.NODE_ENV === "development";
+			enabled !== undefined ? enabled : c.env.ENVIRONMENT === "development";
 
 		if (!shouldDelay) {
 			return next();
@@ -68,7 +68,7 @@ export const delayMiddleware = (options: DelayOptions = {}) => {
 		await new Promise((resolve) => setTimeout(resolve, delayTime));
 
 		// 在开发环境下可以在控制台输出延迟信息
-		if (c.env.NODE_ENV === "development") {
+		if (c.env.ENVIRONMENT === "development") {
 			console.log(
 				`🐌 Simulated delay: ${delayTime}ms for ${c.req.method} ${c.req.path}`,
 			);

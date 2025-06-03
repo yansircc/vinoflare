@@ -5,7 +5,7 @@ import assetsManifest from "./assets-manifest.json";
 
 export const renderer = jsxRenderer(({ children }, c) => {
 	// 在 Cloudflare Workers 中检测环境
-	const isDev = c?.env?.NODE_ENV === "development";
+	const isDev = c?.env?.ENVIRONMENT === "development";
 
 	return (
 		<html lang="zh-CN">

@@ -7,7 +7,7 @@
 		"build:client": "vite build --mode client",
 		"preview": "$npm_execpath run build && vite preview",
 		"deploy": "$npm_execpath run build:client && wrangler deploy",
-		"cf-typegen": "wrangler types --env-interface Env",
+		"cf-typegen": "wrangler types --env-interface CloudflareBindings",
 		"apigen": "orval --config ./orval.config.ts",
 		"db:generate": "drizzle-kit generate",
 		"db:migrate": "drizzle-kit migrate",
