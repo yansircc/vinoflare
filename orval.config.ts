@@ -17,9 +17,7 @@ export default defineConfig({
 					includeHttpResponseReturnType: false,
 				},
 			},
-			baseUrl: {
-				getBaseUrlFromSpecification: true,
-			},
+			baseUrl: "/",
 		},
 	},
 });

@@ -10,148 +10,148 @@
 
 // Import Routes
 
-import { Route as rootRoute } from "./routes/__root";
-import { Route as AuthLoginImport } from "./routes/_auth/login";
-import { Route as AuthProfileImport } from "./routes/_auth/profile";
-import { Route as IndexImport } from "./routes/index";
-import { Route as TasksIdImport } from "./routes/tasks/$id";
-import { Route as TasksIndexImport } from "./routes/tasks/index";
+import { Route as rootRoute } from './routes/__root'
+import { Route as IndexImport } from './routes/index'
+import { Route as TasksIndexImport } from './routes/tasks/index'
+import { Route as TasksIdImport } from './routes/tasks/$id'
+import { Route as AuthProfileImport } from './routes/_auth/profile'
+import { Route as AuthLoginImport } from './routes/_auth/login'
 
 // Create/Update Routes
 
 const IndexRoute = IndexImport.update({
-	id: "/",
-	path: "/",
-	getParentRoute: () => rootRoute,
-} as any);
+  id: '/',
+  path: '/',
+  getParentRoute: () => rootRoute,
+} as any)
 
 const TasksIndexRoute = TasksIndexImport.update({
-	id: "/tasks/",
-	path: "/tasks/",
-	getParentRoute: () => rootRoute,
-} as any);
+  id: '/tasks/',
+  path: '/tasks/',
+  getParentRoute: () => rootRoute,
+} as any)
 
 const TasksIdRoute = TasksIdImport.update({
-	id: "/tasks/$id",
-	path: "/tasks/$id",
-	getParentRoute: () => rootRoute,
-} as any);
+  id: '/tasks/$id',
+  path: '/tasks/$id',
+  getParentRoute: () => rootRoute,
+} as any)
 
 const AuthProfileRoute = AuthProfileImport.update({
-	id: "/_auth/profile",
-	path: "/profile",
-	getParentRoute: () => rootRoute,
-} as any);
+  id: '/_auth/profile',
+  path: '/profile',
+  getParentRoute: () => rootRoute,
+} as any)
 
 const AuthLoginRoute = AuthLoginImport.update({
-	id: "/_auth/login",
-	path: "/login",
-	getParentRoute: () => rootRoute,
-} as any);
+  id: '/_auth/login',
+  path: '/login',
+  getParentRoute: () => rootRoute,
+} as any)
 
 // Populate the FileRoutesByPath interface
 
-declare module "@tanstack/react-router" {
-	interface FileRoutesByPath {
-		"/": {
-			id: "/";
-			path: "/";
-			fullPath: "/";
-			preLoaderRoute: typeof IndexImport;
-			parentRoute: typeof rootRoute;
-		};
-		"/_auth/login": {
-			id: "/_auth/login";
-			path: "/login";
-			fullPath: "/login";
-			preLoaderRoute: typeof AuthLoginImport;
-			parentRoute: typeof rootRoute;
-		};
-		"/_auth/profile": {
-			id: "/_auth/profile";
-			path: "/profile";
-			fullPath: "/profile";
-			preLoaderRoute: typeof AuthProfileImport;
-			parentRoute: typeof rootRoute;
-		};
-		"/tasks/$id": {
-			id: "/tasks/$id";
-			path: "/tasks/$id";
-			fullPath: "/tasks/$id";
-			preLoaderRoute: typeof TasksIdImport;
-			parentRoute: typeof rootRoute;
-		};
-		"/tasks/": {
-			id: "/tasks/";
-			path: "/tasks";
-			fullPath: "/tasks";
-			preLoaderRoute: typeof TasksIndexImport;
-			parentRoute: typeof rootRoute;
-		};
-	}
+declare module '@tanstack/react-router' {
+  interface FileRoutesByPath {
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexImport
+      parentRoute: typeof rootRoute
+    }
+    '/_auth/login': {
+      id: '/_auth/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof AuthLoginImport
+      parentRoute: typeof rootRoute
+    }
+    '/_auth/profile': {
+      id: '/_auth/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof AuthProfileImport
+      parentRoute: typeof rootRoute
+    }
+    '/tasks/$id': {
+      id: '/tasks/$id'
+      path: '/tasks/$id'
+      fullPath: '/tasks/$id'
+      preLoaderRoute: typeof TasksIdImport
+      parentRoute: typeof rootRoute
+    }
+    '/tasks/': {
+      id: '/tasks/'
+      path: '/tasks'
+      fullPath: '/tasks'
+      preLoaderRoute: typeof TasksIndexImport
+      parentRoute: typeof rootRoute
+    }
+  }
 }
 
 // Create and export the route tree
 
 export interface FileRoutesByFullPath {
-	"/": typeof IndexRoute;
-	"/login": typeof AuthLoginRoute;
-	"/profile": typeof AuthProfileRoute;
-	"/tasks/$id": typeof TasksIdRoute;
-	"/tasks": typeof TasksIndexRoute;
+  '/': typeof IndexRoute
+  '/login': typeof AuthLoginRoute
+  '/profile': typeof AuthProfileRoute
+  '/tasks/$id': typeof TasksIdRoute
+  '/tasks': typeof TasksIndexRoute
 }
 
 export interface FileRoutesByTo {
-	"/": typeof IndexRoute;
-	"/login": typeof AuthLoginRoute;
-	"/profile": typeof AuthProfileRoute;
-	"/tasks/$id": typeof TasksIdRoute;
-	"/tasks": typeof TasksIndexRoute;
+  '/': typeof IndexRoute
+  '/login': typeof AuthLoginRoute
+  '/profile': typeof AuthProfileRoute
+  '/tasks/$id': typeof TasksIdRoute
+  '/tasks': typeof TasksIndexRoute
 }
 
 export interface FileRoutesById {
-	__root__: typeof rootRoute;
-	"/": typeof IndexRoute;
-	"/_auth/login": typeof AuthLoginRoute;
-	"/_auth/profile": typeof AuthProfileRoute;
-	"/tasks/$id": typeof TasksIdRoute;
-	"/tasks/": typeof TasksIndexRoute;
+  __root__: typeof rootRoute
+  '/': typeof IndexRoute
+  '/_auth/login': typeof AuthLoginRoute
+  '/_auth/profile': typeof AuthProfileRoute
+  '/tasks/$id': typeof TasksIdRoute
+  '/tasks/': typeof TasksIndexRoute
 }
 
 export interface FileRouteTypes {
-	fileRoutesByFullPath: FileRoutesByFullPath;
-	fullPaths: "/" | "/login" | "/profile" | "/tasks/$id" | "/tasks";
-	fileRoutesByTo: FileRoutesByTo;
-	to: "/" | "/login" | "/profile" | "/tasks/$id" | "/tasks";
-	id:
-		| "__root__"
-		| "/"
-		| "/_auth/login"
-		| "/_auth/profile"
-		| "/tasks/$id"
-		| "/tasks/";
-	fileRoutesById: FileRoutesById;
+  fileRoutesByFullPath: FileRoutesByFullPath
+  fullPaths: '/' | '/login' | '/profile' | '/tasks/$id' | '/tasks'
+  fileRoutesByTo: FileRoutesByTo
+  to: '/' | '/login' | '/profile' | '/tasks/$id' | '/tasks'
+  id:
+    | '__root__'
+    | '/'
+    | '/_auth/login'
+    | '/_auth/profile'
+    | '/tasks/$id'
+    | '/tasks/'
+  fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
-	IndexRoute: typeof IndexRoute;
-	AuthLoginRoute: typeof AuthLoginRoute;
-	AuthProfileRoute: typeof AuthProfileRoute;
-	TasksIdRoute: typeof TasksIdRoute;
-	TasksIndexRoute: typeof TasksIndexRoute;
+  IndexRoute: typeof IndexRoute
+  AuthLoginRoute: typeof AuthLoginRoute
+  AuthProfileRoute: typeof AuthProfileRoute
+  TasksIdRoute: typeof TasksIdRoute
+  TasksIndexRoute: typeof TasksIndexRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
-	IndexRoute: IndexRoute,
-	AuthLoginRoute: AuthLoginRoute,
-	AuthProfileRoute: AuthProfileRoute,
-	TasksIdRoute: TasksIdRoute,
-	TasksIndexRoute: TasksIndexRoute,
-};
+  IndexRoute: IndexRoute,
+  AuthLoginRoute: AuthLoginRoute,
+  AuthProfileRoute: AuthProfileRoute,
+  TasksIdRoute: TasksIdRoute,
+  TasksIndexRoute: TasksIndexRoute,
+}
 
 export const routeTree = rootRoute
-	._addFileChildren(rootRouteChildren)
-	._addFileTypes<FileRouteTypes>();
+  ._addFileChildren(rootRouteChildren)
+  ._addFileTypes<FileRouteTypes>()
 
 /* ROUTE_MANIFEST_START
 {

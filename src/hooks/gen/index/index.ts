@@ -25,7 +25,7 @@ import type { GetApi200 } from ".././model";
  * @summary API
  */
 export const getGetApiUrl = () => {
-	return `http://localhost:5173/api`;
+	return `/api`;
 };
 
 export const getApi = async (options?: RequestInit): Promise<GetApi200> => {
@@ -41,7 +41,7 @@ export const getApi = async (options?: RequestInit): Promise<GetApi200> => {
 };
 
 export const getGetApiQueryKey = () => {
-	return [`http://localhost:5173/api`] as const;
+	return [`/api`] as const;
 };
 
 export const getGetApiQueryOptions = <

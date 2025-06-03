@@ -1,5 +1,5 @@
 import { Scalar } from "@scalar/hono-api-reference";
-import { dynamicOpenAPIMiddleware } from "../middleware/procedures";
+import { dynamicOpenAPIMiddleware } from "../middleware";
 import type { AppOpenAPI } from "./types";
 
 /**

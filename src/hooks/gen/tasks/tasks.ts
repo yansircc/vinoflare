@@ -38,7 +38,7 @@ import type {
 } from ".././model";
 
 export const getGetApiTasksUrl = () => {
-	return `http://localhost:5173/api/tasks`;
+	return `/api/tasks`;
 };
 
 export const getApiTasks = async (
@@ -56,7 +56,7 @@ export const getApiTasks = async (
 };
 
 export const getGetApiTasksQueryKey = () => {
-	return [`http://localhost:5173/api/tasks`] as const;
+	return [`/api/tasks`] as const;
 };
 
 export const getGetApiTasksQueryOptions = <
@@ -174,7 +174,7 @@ export function useGetApiTasks<
 }
 
 export const getPostApiTasksUrl = () => {
-	return `http://localhost:5173/api/tasks`;
+	return `/api/tasks`;
 };
 
 export const postApiTasks = async (
@@ -260,7 +260,7 @@ export const usePostApiTasks = <TError = PostApiTasks422, TContext = unknown>(
 	return useMutation(mutationOptions, queryClient);
 };
 export const getGetApiTasksIdUrl = (id: number | null) => {
-	return `http://localhost:5173/api/tasks/${id}`;
+	return `/api/tasks/${id}`;
 };
 
 export const getApiTasksId = async (
@@ -279,7 +279,7 @@ export const getApiTasksId = async (
 };
 
 export const getGetApiTasksIdQueryKey = (id: number | null) => {
-	return [`http://localhost:5173/api/tasks/${id}`] as const;
+	return [`/api/tasks/${id}`] as const;
 };
 
 export const getGetApiTasksIdQueryOptions = <
@@ -409,7 +409,7 @@ export function useGetApiTasksId<
 }
 
 export const getPatchApiTasksIdUrl = (id: number | null) => {
-	return `http://localhost:5173/api/tasks/${id}`;
+	return `/api/tasks/${id}`;
 };
 
 export const patchApiTasksId = async (
@@ -501,7 +501,7 @@ export const usePatchApiTasksId = <
 	return useMutation(mutationOptions, queryClient);
 };
 export const getDeleteApiTasksIdUrl = (id: number | null) => {
-	return `http://localhost:5173/api/tasks/${id}`;
+	return `/api/tasks/${id}`;
 };
 
 export const deleteApiTasksId = async (

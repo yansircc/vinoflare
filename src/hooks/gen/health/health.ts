@@ -25,7 +25,7 @@ import type { GetApiHealth200 } from ".././model";
  * @summary Health
  */
 export const getGetApiHealthUrl = () => {
-	return `http://localhost:5173/api/health`;
+	return `/api/health`;
 };
 
 export const getApiHealth = async (
@@ -43,7 +43,7 @@ export const getApiHealth = async (
 };
 
 export const getGetApiHealthQueryKey = () => {
-	return [`http://localhost:5173/api/health`] as const;
+	return [`/api/health`] as const;
 };
 
 export const getGetApiHealthQueryOptions = <

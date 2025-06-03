@@ -5,6 +5,7 @@ import { trimTrailingSlash } from "hono/trailing-slash";
 import { notFound, onError, serveEmojiFavicon } from "stoker/middlewares";
 import { defaultHook } from "stoker/openapi";
 import { renderer } from "../../renderer";
+import { DelayPresets, delayMiddleware } from "../middleware";
 import type { AppOpenAPI, BaseContext } from "./types";
 
 export function createRouter() {
@@ -23,6 +24,7 @@ export default function createApp() {
 	app.notFound(notFound);
 	app.onError(onError);
 	app.use(trimTrailingSlash());
+	app.use(delayMiddleware(DelayPresets.slow));
 	return app;
 }
 
