@@ -9,7 +9,7 @@
 		"ignoreUnknown": false,
 		"ignore": ["./worker-configuration.d.ts"]
 	},
-	"formatter": { "enabled": false },
+	"formatter": { "enabled": true },
 	"organizeImports": { "enabled": true },
 	"linter": {
 		"enabled": true,

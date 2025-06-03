@@ -1,24 +1,23 @@
 import { Scalar } from "@scalar/hono-api-reference";
+import { dynamicOpenAPIMiddleware } from "../middleware/procedures";
 import type { AppOpenAPI } from "./types";
 
 /**
  * 配置 OpenAPI 文档和 API 参考
  */
 export default function configureOpenAPI(app: AppOpenAPI) {
+	// 应用动态配置中间件
+	app.use(dynamicOpenAPIMiddleware);
+
 	// 配置 OpenAPI 文档端点
 	app.doc("/doc", {
 		openapi: "3.0.0",
 		info: {
 			version: "1.0.0",
-			title: "Tasks API",
-			description: "基于 Hono 和 Cloudflare Workers 的任务管理 API",
+			title: "Vinoflare API",
+			description: "基于 Vite，Hono 和 Cloudflare Workers 的 API",
 		},
-		servers: [
-			{
-				url: "http://localhost:5173",
-				description: "本地开发环境",
-			},
-		],
+		servers: [], // 这次字段会被 dynamicOpenAPIMiddleware 覆盖
 	});
 
 	// 配置 Scalar API 参考界面

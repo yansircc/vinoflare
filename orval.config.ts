@@ -9,6 +9,7 @@ export default defineConfig({
 			mode: "tags-split",
 			target: "./src/hooks/gen",
 			schemas: "./src/hooks/gen/model",
+			biome: true,
 			client: "react-query",
 			httpClient: "fetch",
 			override: {

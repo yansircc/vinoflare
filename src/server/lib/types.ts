@@ -8,29 +8,9 @@ import type { OpenAPIHono, RouteConfig, RouteHandler } from "@hono/zod-openapi";
  */
 export interface BaseContext {
 	Bindings: Env;
-}
-
-/**
- * 认证上下文 - 包含用户和会话信息
- */
-export interface AuthContext extends BaseContext {
 	Variables: {
 		user?: AuthUser;
 		session?: AuthSession;
-	};
-}
-
-/**
- * Better Auth 特定上下文 - 用于认证端点
- */
-export interface BetterAuthContext {
-	Bindings: {
-		DB: D1Database;
-		DISCORD_CLIENT_ID: string;
-		DISCORD_CLIENT_SECRET: string;
-		BETTER_AUTH_SECRET: string;
-		APP_URL: string;
-		NODE_ENV: string;
 	};
 }
 

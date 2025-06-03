@@ -18,11 +18,11 @@ export default function createApp() {
 	const app = createRouter();
 	app.use(renderer);
 	app.use(logger());
-	app.use(trimTrailingSlash());
 	app.use("*", cors());
 	app.use(serveEmojiFavicon("📝"));
 	app.notFound(notFound);
 	app.onError(onError);
+	app.use(trimTrailingSlash());
 	return app;
 }
 

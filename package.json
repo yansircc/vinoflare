@@ -19,7 +19,8 @@
 		"env:sync:remote": "wrangler secret bulk .prod.vars",
 		"find:deadcode": "ts-prune",
 		"typecheck": "tsc --noEmit",
-		"check:write": "biome check --write .",
+		"lint": "biome check .",
+		"lint:fix": "biome check --write .",
 		"test": "vitest run",
 		"test:watch": "vitest"
 	},

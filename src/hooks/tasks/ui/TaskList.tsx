@@ -29,7 +29,10 @@ export function TasksList() {
 
 	const handleToggleTask = async (task: GetApiTasks200Item) => {
 		try {
-			await toggleTaskMutation.mutateAsync({ id: task.id, data: { done: !task.done } });
+			await toggleTaskMutation.mutateAsync({
+				id: task.id,
+				data: { done: !task.done },
+			});
 			refetch();
 		} catch (error) {
 			console.error("Error toggling task:", error);
@@ -100,10 +103,17 @@ export function TasksList() {
 								type="button"
 								onClick={() => handleToggleTask(task)}
 								className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded border border-gray-300 hover:border-gray-400"
-								aria-label={task.done ? "Mark as incomplete" : "Mark as complete"}
+								aria-label={
+									task.done ? "Mark as incomplete" : "Mark as complete"
+								}
 							>
 								{task.done && (
-									<svg className="h-3 w-3 text-gray-600" fill="currentColor" viewBox="0 0 20 20" aria-label="Mark as complete">
+									<svg
+										className="h-3 w-3 text-gray-600"
+										fill="currentColor"
+										viewBox="0 0 20 20"
+										aria-label="Mark as complete"
+									>
 										<title>Mark as complete</title>
 										<path
 											fillRule="evenodd"
@@ -118,9 +128,7 @@ export function TasksList() {
 							<div className="min-w-0 flex-1">
 								<span
 									className={`text-sm ${
-										task.done
-											? "text-gray-400 line-through"
-											: "text-gray-800"
+										task.done ? "text-gray-400 line-through" : "text-gray-800"
 									}`}
 								>
 									{task.name}

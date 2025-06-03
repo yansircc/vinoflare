@@ -2,7 +2,12 @@ import { useGetApiTasksId } from "@/hooks/gen/tasks/tasks";
 import { Link } from "@tanstack/react-router";
 
 export function TaskDetail({ id }: { id: string }) {
-	const { data: task, isLoading, isError, error } = useGetApiTasksId(Number(id));
+	const {
+		data: task,
+		isLoading,
+		isError,
+		error,
+	} = useGetApiTasksId(Number(id));
 
 	if (isLoading) {
 		return (

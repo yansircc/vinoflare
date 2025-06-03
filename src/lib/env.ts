@@ -71,15 +71,11 @@ function generateSecretKey(): string {
  * 获取环境变量
  * 在 Cloudflare Workers 中，环境变量通过 env 对象传递
  */
-export function getEnv(workerEnv?: any) {
+export function getEnv(workerEnv?: Env) {
 	// 在 Cloudflare Workers 中，环境变量通过 env 参数传递
 	const rawEnv = workerEnv || {
 		APP_URL: getProcessEnv("APP_URL") || "http://localhost:5173",
 		NODE_ENV: getProcessEnv("NODE_ENV") || "development",
-		DISCORD_CLIENT_ID: getProcessEnv("DISCORD_CLIENT_ID") || "",
-		DISCORD_CLIENT_SECRET: getProcessEnv("DISCORD_CLIENT_SECRET") || "",
-		BETTER_AUTH_SECRET:
-			getProcessEnv("BETTER_AUTH_SECRET") || generateSecretKey(),
 	};
 
 	try {
@@ -116,10 +112,6 @@ export function getEnv(workerEnv?: any) {
 			return {
 				APP_URL: rawEnv.APP_URL || "http://localhost:5173",
 				NODE_ENV: rawEnv.NODE_ENV || "development",
-				DISCORD_CLIENT_ID: rawEnv.DISCORD_CLIENT_ID || "dev-discord-client-id",
-				DISCORD_CLIENT_SECRET:
-					rawEnv.DISCORD_CLIENT_SECRET || "dev-discord-client-secret",
-				BETTER_AUTH_SECRET: devSecret,
 			};
 		}
 
@@ -143,41 +135,3 @@ export const clientEnv = {
 				(typeof import.meta !== "undefined" && import.meta.env?.NODE_ENV)
 			: getProcessEnv("NODE_ENV"),
 };
-
-/**
- * 验证 Better Auth 配置
- */
-export function validateAuthConfig(env: ReturnType<typeof getEnv>) {
-	const errors: string[] = [];
-
-	if (
-		!env.DISCORD_CLIENT_ID ||
-		env.DISCORD_CLIENT_ID === "dev-discord-client-id"
-	) {
-		errors.push("DISCORD_CLIENT_ID 未正确配置");
-	}
-
-	if (
-		!env.DISCORD_CLIENT_SECRET ||
-		env.DISCORD_CLIENT_SECRET === "dev-discord-client-secret"
-	) {
-		errors.push("DISCORD_CLIENT_SECRET 未正确配置");
-	}
-
-	if (
-		env.NODE_ENV === "production" &&
-		(!env.BETTER_AUTH_SECRET || env.BETTER_AUTH_SECRET.length < 32)
-	) {
-		errors.push("生产环境需要设置安全的 BETTER_AUTH_SECRET（至少32字符）");
-	}
-
-	if (errors.length > 0) {
-		console.warn("⚠️ Auth 配置警告:", errors);
-
-		if (env.NODE_ENV === "production") {
-			throw new Error(`Auth 配置错误: ${errors.join(", ")}`);
-		}
-	}
-
-	return true;
-}

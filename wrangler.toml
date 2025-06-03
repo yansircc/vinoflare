@@ -12,5 +12,5 @@ enabled = true
 [[d1_databases]]
 binding = "DB"
 database_name = "vinoflare"
-database_id = "8e27580b-773d-41d4-a134-1fc5b84d469a"
+database_id = "531d293d-8a71-4bbe-9e99-e7d844bbe11a"
 migrations_dir = "src/server/db/migrations"

@@ -1,12 +1,10 @@
-import { getEnv } from "@/lib/env";
 import { createDb } from "@/server/db";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { bearer, jwt } from "better-auth/plugins";
 
-export function createAuth(d1: D1Database, workerEnv?: any) {
+export function createAuth(d1: D1Database, env: Env) {
 	const db = createDb(d1);
-	const env = getEnv(workerEnv);
 
 	return betterAuth({
 		database: drizzleAdapter(db, {

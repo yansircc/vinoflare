@@ -1,10 +1,10 @@
 import type { PatchApiTasksIdBody, PostApiTasksBody } from "@/hooks/gen/model";
-import type { 
-	PatchApiTasksId200, 
+import type {
+	PatchApiTasksId200,
 	PatchApiTasksId404,
 	PatchApiTasksId422,
-	PostApiTasks200, 
-	PostApiTasks422 
+	PostApiTasks200,
+	PostApiTasks422,
 } from "@/hooks/gen/model";
 import type { Task } from "@/server/db/schema";
 import { type AnyFieldApi, useForm } from "@tanstack/react-form";
@@ -15,8 +15,18 @@ interface TaskFormProps {
 	onSuccess?: () => void;
 	onCancel?: () => void;
 	initialData?: Task; // 用于编辑模式
-	createTaskMutation: UseMutationResult<PostApiTasks200, PostApiTasks422, { data: PostApiTasksBody; }, unknown>;
-	updateTaskMutation: UseMutationResult<PatchApiTasksId200, PatchApiTasksId422 | PatchApiTasksId404, { id: number | null; data: PatchApiTasksIdBody; }, unknown>;
+	createTaskMutation: UseMutationResult<
+		PostApiTasks200,
+		PostApiTasks422,
+		{ data: PostApiTasksBody },
+		unknown
+	>;
+	updateTaskMutation: UseMutationResult<
+		PatchApiTasksId200,
+		PatchApiTasksId422 | PatchApiTasksId404,
+		{ id: number | null; data: PatchApiTasksIdBody },
+		unknown
+	>;
 }
 
 // 错误提示组件
@@ -35,7 +45,13 @@ function FieldInfo({ field }: { field: AnyFieldApi }) {
 	);
 }
 
-export function TaskForm({ onSuccess, onCancel, initialData, createTaskMutation, updateTaskMutation }: TaskFormProps) {
+export function TaskForm({
+	onSuccess,
+	onCancel,
+	initialData,
+	createTaskMutation,
+	updateTaskMutation,
+}: TaskFormProps) {
 	const [isSubmitting, setIsSubmitting] = useState(false);
 
 	const isEdit = !!initialData;
@@ -76,9 +92,7 @@ export function TaskForm({ onSuccess, onCancel, initialData, createTaskMutation,
 				className="space-y-6"
 			>
 				{/* 标题字段 */}
-				<form.Field
-					name="name"
-				>
+				<form.Field name="name">
 					{(field) => (
 						<div>
 							<label

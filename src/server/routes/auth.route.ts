@@ -1,8 +1,8 @@
 import { Hono } from "hono";
 import { createAuth } from "../lib/auth";
-import type { BetterAuthContext } from "../lib/types";
+import type { BaseContext } from "../lib/types";
 
-const router = new Hono<BetterAuthContext>();
+const router = new Hono<BaseContext>();
 
 // Better Auth 路由处理器
 router.all("/*", (c) => {
