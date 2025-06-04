@@ -12,7 +12,7 @@ export const renderer = jsxRenderer(({ children }, c) => {
 			<head>
 				<meta charSet="UTF-8" />
 				<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-				<title>留言板系统</title>
+				<title>Vinoflare 全栈开发模板</title>
 				{/* CSS 引用 - 使用资源清单中的路径 */}
 				{isDev ? (
 					<link href="/src/app.css" rel="stylesheet" />
