@@ -104,10 +104,6 @@ bun run test           # 使用cloudflare testing进行自动化测试
 
 ```bash
 # 创建 .prod.vars，注意，需要配置 ENVIRONMENT 为 production
-# APP_URL 则需要至少部署到 cloudflare workers 一次，获得过部署地址，才能填写
-# 这意味着，哪怕没有设置 APP_URL 也可以部署成功，所以需要部署两次
-# 不过，这个地址通常是 http://project_name.username.workers.dev
-# project_name 可在 wrangler.toml 中找到，字段为 name
 cp .dev.vars .prod.vars
 
 # 同步 .prod.vars 密钥到云端
@@ -131,14 +127,12 @@ bun run deploy
 - `CLOUDFLARE_D1_TOKEN`: 在 My Profile -> API Tokens 创建
 
 **Cloudflare Workers 开发环境** (`.dev.vars`):
-- `APP_URL`: 前端地址
 - `ENVIRONMENT`：[devlopment, production]，判断开发环境或生产环境
 - `BETTER_AUTH_SECRET`: 32字符随机密钥
 - `DISCORD_CLIENT_ID/SECRET`: Discord OAuth 凭据
 
 **生产环境** (需设置`.prod.vars`并使用`bun env:sync:remote`将密钥同步到Cloudflare Secrets):
 - 同`.dev.vars`
-- `APP_URL`: 同`.dev.vars`
 - `ENVIRONMENT`：同`.dev.vars`
 - `BETTER_AUTH_SECRET`: 同`.dev.vars`
 - `DISCORD_CLIENT_ID/SECRET`: 同`.dev.vars`

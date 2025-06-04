@@ -3,7 +3,7 @@ import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { bearer, jwt } from "better-auth/plugins";
 
-export function createAuth(c: CloudflareBindings) {
+export function createAuth(c: CloudflareBindings, baseURL: string) {
 	const db = createDb(c.DB);
 
 	return betterAuth({
@@ -12,7 +12,7 @@ export function createAuth(c: CloudflareBindings) {
 		}),
 
 		// 基础配置
-		baseURL: c.APP_URL,
+		baseURL,
 		secret: c.BETTER_AUTH_SECRET,
 
 		// 禁用邮箱密码登录，只使用 Discord OAuth

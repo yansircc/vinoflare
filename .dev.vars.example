@@ -1,5 +1,4 @@
 # 本地开发环境变量
-APP_URL=http://localhost:5173
 ENVIRONMENT=development
 
 # Better Auth 配置

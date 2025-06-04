@@ -7,7 +7,6 @@ import { z } from "zod";
 
 // 环境变量验证 schema
 const envSchema = z.object({
-	APP_URL: z.string().url("APP_URL必须是有效的URL"),
 	ENVIRONMENT: z
 		.enum(["development", "production", "test"])
 		.default("development"),
@@ -74,7 +73,6 @@ function generateSecretKey(): string {
 export function getEnv(workerEnv?: CloudflareBindings) {
 	// 在 Cloudflare Workers 中，环境变量通过 env 参数传递
 	const rawEnv = workerEnv || {
-		APP_URL: getProcessEnv("APP_URL") || "http://localhost:5173",
 		ENVIRONMENT: getProcessEnv("ENVIRONMENT") || "development",
 	};
 
@@ -110,7 +108,6 @@ export function getEnv(workerEnv?: CloudflareBindings) {
 			console.log("🔐 开发环境生成的密钥:", devSecret);
 
 			return {
-				APP_URL: rawEnv.APP_URL || "http://localhost:5173",
 				ENVIRONMENT: rawEnv.ENVIRONMENT || "development",
 			};
 		}
@@ -124,11 +121,6 @@ export function getEnv(workerEnv?: CloudflareBindings) {
  * 客户端环境变量（仅包含公开信息）
  */
 export const clientEnv = {
-	APP_URL:
-		typeof window !== "undefined"
-			? (window as any).__ENV__?.APP_URL ||
-				(typeof import.meta !== "undefined" && import.meta.env?.APP_URL)
-			: getProcessEnv("APP_URL"),
 	ENVIRONMENT:
 		typeof window !== "undefined"
 			? (window as any).__ENV__?.ENVIRONMENT ||

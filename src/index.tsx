@@ -19,6 +19,12 @@ routes.forEach((route) => {
 	app.route("/api", route);
 });
 
+app.get("/env", (c) => {
+	const url = new URL(c.req.url);
+	const origin = url.origin;
+	return c.text(`origin: ${origin}`);
+});
+
 // 处理静态资源
 app.get("/*", async (c) => {
 	return c.render(<div id="root">{/* React 应用将在此处挂载 */}</div>);
