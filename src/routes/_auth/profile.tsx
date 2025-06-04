@@ -1,4 +1,4 @@
-import { UserProfile } from "@/components/auth/UserProfile";
+import { UserProfile } from "@/components/auth/user-profile";
 import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/_auth/profile")({

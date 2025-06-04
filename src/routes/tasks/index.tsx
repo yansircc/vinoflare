@@ -1,5 +1,5 @@
-import { Explanation } from "@/components/Explanation";
-import { PageHeader } from "@/components/PageHeader";
+import { Explanation } from "@/components/explanation";
+import { PageHeader } from "@/components/page-header";
 import { TasksList } from "@/hooks/tasks/ui/TaskList";
 import { createFileRoute } from "@tanstack/react-router";
 
