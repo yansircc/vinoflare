@@ -47,6 +47,15 @@ bun db:push:local
 bun dev
 ```
 
+### 关于 assets-manifest.json
+
+本项目使用 `assets-manifest.json` 来管理客户端资源的路径映射。这个文件会在构建时自动生成，包含了打包后的 JS 和 CSS 文件路径。
+
+- **开发环境**: 运行 `bun dev` 时会自动生成一个默认的 assets-manifest.json 文件
+- **生产环境**: 运行 `bun build` 时会根据实际构建结果更新这个文件
+- **版本控制**: 该文件已被加入 `.gitignore`，避免因文件内容变化导致的版本冲突
+- **模板文件**: `src/assets-manifest.example.json` 提供了文件格式示例
+
 > 因为本地开发的响应速度过快，有时会错过许多部署之后因网络延迟而导致的问题，为了模拟延迟，本框架添加了`src/server/middleware/delay.ts`延迟路由来模拟响应，如不需要，可在`src/server/lib/create-app.ts`中把延迟路由注释，或者设置为`app.use(delayMiddleware({fixed: 0}));`
 
 ## 🎯 核心概念
@@ -151,7 +160,7 @@ bun run deploy
 ## 🔧 已知问题
 
 ### 数据库 schema 自动化
-因为 zod 升级到 v4 版本之后，drizzle-zod 和 @hono/zod-openapi 产生了不兼容，导致在`src/server/db/schema`中，无法通过 drizzle-zod 来自动生成 schema，所以目前暂时只能通过自己手动定义和数据库表相同的 schema 来匹配类型。
+因为 zod 升级到 v4 版本之后，drizzle-zod 和 @hono/zod-openapi 产生了不兼容，导致在`src/server/db/schema`中，无法通过 drizzle-zod 来自动生成 schema，所以目前暂时只能通过将 drizzle-zod 的版本锁定在 v0.7.1 来解决。
 
 ### 认证问题修复
 

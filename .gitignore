@@ -41,3 +41,16 @@ cookies.txt
 
 # cursor
 /.cursor/
+
+# claude
+/.claude/
+CLAUDE.md
+
+# misc
+*.bak
+
+# generated assets manifest
+src/assets-manifest.json
+
+# generated route tree
+src/routeTree.gen.ts
