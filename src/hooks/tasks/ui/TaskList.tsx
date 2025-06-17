@@ -12,36 +12,25 @@ export function TasksList() {
 	const [showForm, setShowForm] = useState(false);
 
 	// 使用 TanStack Query hooks
-	const { data: tasks, isLoading, isError, refetch } = useTasks();
+	const { data: tasks, isLoading, isError } = useTasks();
 	const deleteTaskMutation = useDeleteTask();
 	const toggleTaskMutation = useUpdateTask();
 	const createTaskMutation = useCreateTask();
 	const updateTaskMutation = useUpdateTask();
 
 	const handleDeleteTask = (id: number) => {
-		try {
-			deleteTaskMutation.mutate(id);
-			refetch();
-		} catch (error) {
-			console.error("Error deleting task:", error);
-		}
+		deleteTaskMutation.mutate(id);
 	};
 
 	const handleToggleTask = (task: Task) => {
-		try {
-			toggleTaskMutation.mutate({
-				id: task.id,
-				task: { done: !task.done },
-			});
-			refetch();
-		} catch (error) {
-			console.error("Error toggling task:", error);
-		}
+		toggleTaskMutation.mutate({
+			id: task.id,
+			task: { done: !task.done },
+		});
 	};
 
 	const handleFormSuccess = () => {
 		setShowForm(false);
-		refetch();
 	};
 
 	if (isLoading) {

@@ -85,7 +85,7 @@ export interface BaseContext {
 如想添加任何全局的 Hono 路由，可在`src/server/lib/create-app.ts`中添加，具体可见 [Hono 官网](https://hono.dev/)。
 
 ## 4. 前端类型自动生成
-本框架使用 [Orval](https://orval.dev/) 自动生成 React Query Hooks，如修改了`src/server`中的任何和路由相关的代码，可使用`bun apigen`来自动生成所有前端类型。
+本框架使用 [Tanstack Query](https://tanstack.com/query/latest/docs/framework/react/overview) 自动生成 React Query Hooks，如修改了`src/server`中的任何和路由相关的代码，可使用`bun cf-typegen`来自动生成所有前端类型。
 
 ### 常用维护命令
 
@@ -99,7 +99,6 @@ bun db:studio:remote   # 检查云端数据库
 
 # 开发工具
 bun cf-typegen         # 生成 Cloudflare 类型
-bun api-gen            # 生成 Orval 前端类型
 bun dev                # 启动开发服务器
 bun build              # 构建生产版本
 

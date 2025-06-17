@@ -1,12 +1,12 @@
 import type { NewTask, PatchTask } from "@/server/db/schema";
 import { hcWithType } from "@/server/lib/hc";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { HTTPException } from "hono/http-exception";
 
 const client = hcWithType("/api");
 
 export const useTasks = () => {
-	const { data, isLoading, isError, error, refetch } = useQuery({
+	const { data, isLoading, isError, error } = useQuery({
 		queryKey: ["tasks"],
 		queryFn: async () => {
 			const res = await client.tasks.$get();
@@ -19,7 +19,7 @@ export const useTasks = () => {
 		},
 	});
 
-	return { data, isLoading, isError, error, refetch };
+	return { data, isLoading, isError, error };
 };
 
 export const useTask = (id: number) => {
@@ -43,6 +43,8 @@ export const useTask = (id: number) => {
 };
 
 export const useCreateTask = () => {
+	const queryClient = useQueryClient();
+
 	const { mutate, isPending, error } = useMutation({
 		mutationFn: async (task: NewTask) => {
 			const res = await client.tasks.$post({ json: task });
@@ -53,12 +55,18 @@ export const useCreateTask = () => {
 				message: `Failed to create task: ${res.statusText}`,
 			});
 		},
+		onSuccess: () => {
+			// 创建任务成功后失效 tasks 查询缓存
+			queryClient.invalidateQueries({ queryKey: ["tasks"] });
+		},
 	});
 
 	return { mutate, isPending, error };
 };
 
 export const useUpdateTask = () => {
+	const queryClient = useQueryClient();
+
 	const { mutate, isPending, error } = useMutation({
 		mutationFn: async ({ id, task }: { id: number; task: PatchTask }) => {
 			const res = await client.tasks[":id"].$patch({
@@ -72,12 +80,19 @@ export const useUpdateTask = () => {
 				message: `Failed to update task: ${res.statusText}`,
 			});
 		},
+		onSuccess: (_data, { id }) => {
+			// 更新任务成功后失效相关查询缓存
+			queryClient.invalidateQueries({ queryKey: ["tasks"] });
+			queryClient.invalidateQueries({ queryKey: ["task", id] });
+		},
 	});
 
 	return { mutate, isPending, error };
 };
 
 export const useDeleteTask = () => {
+	const queryClient = useQueryClient();
+
 	const { mutate, isPending, error } = useMutation({
 		mutationFn: async (id: number) => {
 			const res = await client.tasks[":id"].$delete({
@@ -89,6 +104,11 @@ export const useDeleteTask = () => {
 			throw new HTTPException(res.status, {
 				message: `Failed to delete task: ${res.statusText}`,
 			});
+		},
+		onSuccess: (_data, id) => {
+			// 删除任务成功后失效相关查询缓存
+			queryClient.invalidateQueries({ queryKey: ["tasks"] });
+			queryClient.invalidateQueries({ queryKey: ["task", id] });
 		},
 	});
 
