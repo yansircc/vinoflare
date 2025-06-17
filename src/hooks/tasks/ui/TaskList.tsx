@@ -1,37 +1,37 @@
-import type { GetApiTasks200Item } from "@/hooks/gen/model";
-import {
-	useDeleteApiTasksId,
-	useGetApiTasks,
-	usePatchApiTasksId,
-	usePostApiTasks,
-} from "@/hooks/gen/tasks/tasks";
 import { TaskForm } from "@/hooks/tasks/ui/TaskForm";
+import {
+	useCreateTask,
+	useDeleteTask,
+	useTasks,
+	useUpdateTask,
+} from "@/hooks/tasks/use-tasks";
+import type { Task } from "@/server/db/schema";
 import { useState } from "react";
 
 export function TasksList() {
 	const [showForm, setShowForm] = useState(false);
 
 	// 使用 TanStack Query hooks
-	const { data: tasks, isLoading, isError, refetch } = useGetApiTasks();
-	const deleteTaskMutation = useDeleteApiTasksId();
-	const toggleTaskMutation = usePatchApiTasksId();
-	const createTaskMutation = usePostApiTasks();
-	const updateTaskMutation = usePatchApiTasksId();
+	const { data: tasks, isLoading, isError, refetch } = useTasks();
+	const deleteTaskMutation = useDeleteTask();
+	const toggleTaskMutation = useUpdateTask();
+	const createTaskMutation = useCreateTask();
+	const updateTaskMutation = useUpdateTask();
 
-	const handleDeleteTask = async (id: number) => {
+	const handleDeleteTask = (id: number) => {
 		try {
-			await deleteTaskMutation.mutateAsync({ id });
+			deleteTaskMutation.mutate(id);
 			refetch();
 		} catch (error) {
 			console.error("Error deleting task:", error);
 		}
 	};
 
-	const handleToggleTask = async (task: GetApiTasks200Item) => {
+	const handleToggleTask = (task: Task) => {
 		try {
-			await toggleTaskMutation.mutateAsync({
+			toggleTaskMutation.mutate({
 				id: task.id,
-				data: { done: !task.done },
+				task: { done: !task.done },
 			});
 			refetch();
 		} catch (error) {
@@ -88,12 +88,12 @@ export function TasksList() {
 
 			{/* Tasks List */}
 			<div className="space-y-2">
-				{tasks.length === 0 ? (
+				{!tasks || !Array.isArray(tasks) || tasks.length === 0 ? (
 					<div className="py-12 text-center">
 						<div className="text-gray-400">No tasks yet</div>
 					</div>
 				) : (
-					tasks.map((task: GetApiTasks200Item) => (
+					tasks.map((task: Task) => (
 						<div
 							key={task.id}
 							className="flex items-center gap-3 border-gray-100 border-b p-3 hover:bg-gray-50"

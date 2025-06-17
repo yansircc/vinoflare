@@ -1,5 +1,6 @@
 import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
+import type { z } from "zod";
 
 // Better Auth 需要的表
 export const user = sqliteTable("user", {
@@ -74,7 +75,10 @@ export const tasks = sqliteTable("tasks", {
 		.$onUpdate(() => new Date()),
 });
 
-export const selectTaskSchema = createSelectSchema(tasks);
+export const selectTaskSchema = createSelectSchema(tasks, {
+	createdAt: (schema) => schema.transform((val) => val.toISOString()),
+	updatedAt: (schema) => schema.transform((val) => val.toISOString()),
+});
 export const insertTaskSchema = createInsertSchema(tasks, {
 	name: (schema) => schema.min(1).max(500),
 })
@@ -88,6 +92,9 @@ export const insertTaskSchema = createInsertSchema(tasks, {
 	});
 export const patchTaskSchema = insertTaskSchema.partial();
 
-export type Task = typeof tasks.$inferSelect;
+export type Task = z.infer<typeof selectTaskSchema>;
+export type NewTask = z.infer<typeof insertTaskSchema>;
+export type PatchTask = z.infer<typeof patchTaskSchema>;
+
 export type AuthUser = typeof user.$inferSelect;
 export type AuthSession = typeof session.$inferSelect;

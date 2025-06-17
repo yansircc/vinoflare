@@ -1,28 +1,25 @@
 /** @jsxImportSource hono/jsx */
 import configureOpenAPI from "@/server/lib/configure-open-api";
 import createApp from "@/server/lib/create-app";
+import authMiddleware from "@/server/middleware/auth";
 import authRouter from "@/server/routes/auth.route";
-import indexRoute from "@/server/routes/index.route";
 import tasksRoute from "@/server/routes/tasks/tasks.index";
 
 // 创建主应用
 const app = createApp();
+export const routes = [tasksRoute] as const;
 
 // API 路由继续使用 Hono
 configureOpenAPI(app);
 
+// 认证专用路由
 app.route("/api/auth", authRouter);
 
-const routes = [indexRoute, tasksRoute] as const;
+// 需要认证的路由
+app.use("/api/tasks/*", authMiddleware);
 
 routes.forEach((route) => {
 	app.route("/api", route);
-});
-
-app.get("/env", (c) => {
-	const url = new URL(c.req.url);
-	const origin = url.origin;
-	return c.text(`origin: ${origin}`);
 });
 
 // 处理静态资源
@@ -31,7 +28,7 @@ app.get("/*", async (c) => {
 });
 
 // 为客户端导出类型
-export type AppType = (typeof routes)[number];
+// export type AppType = (typeof routes)[number];
 
 // 导出 Worker 处理器
 export default app;

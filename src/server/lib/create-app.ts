@@ -24,7 +24,7 @@ export default function createApp() {
 	app.notFound(notFound);
 	app.onError(onError);
 	app.use(trimTrailingSlash());
-	app.use(delayMiddleware(DelayPresets.slow));
+	// app.use(delayMiddleware(DelayPresets.slow));
 	return app;
 }
 

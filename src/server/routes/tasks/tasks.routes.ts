@@ -21,6 +21,10 @@ export const list = createRoute({
 			z.array(selectTaskSchema),
 			"The list of tasks",
 		),
+		[HttpStatusCodes.UNAUTHORIZED]: jsonContent(
+			createErrorSchema(z.object({ message: z.string() })),
+			"Unauthorized",
+		),
 	},
 });
 
@@ -33,6 +37,10 @@ export const create = createRoute({
 	tags,
 	responses: {
 		[HttpStatusCodes.OK]: jsonContent(selectTaskSchema, "The created task"),
+		[HttpStatusCodes.UNAUTHORIZED]: jsonContent(
+			createErrorSchema(z.object({ message: z.string() })),
+			"Unauthorized",
+		),
 		[HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
 			createErrorSchema(insertTaskSchema),
 			"The validation error(s)",
@@ -50,6 +58,10 @@ export const getOne = createRoute({
 	responses: {
 		[HttpStatusCodes.OK]: jsonContent(selectTaskSchema, "The requested task"),
 		[HttpStatusCodes.NOT_FOUND]: jsonContent(notFoundSchema, "Task not found"),
+		[HttpStatusCodes.UNAUTHORIZED]: jsonContent(
+			createErrorSchema(z.object({ message: z.string() })),
+			"Unauthorized",
+		),
 		[HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
 			createErrorSchema(IdParamsSchema),
 			"Invalid id error",
@@ -68,6 +80,10 @@ export const patch = createRoute({
 	responses: {
 		[HttpStatusCodes.OK]: jsonContent(selectTaskSchema, "The updated task"),
 		[HttpStatusCodes.NOT_FOUND]: jsonContent(notFoundSchema, "Task not found"),
+		[HttpStatusCodes.UNAUTHORIZED]: jsonContent(
+			createErrorSchema(z.object({ message: z.string() })),
+			"Unauthorized",
+		),
 		[HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
 			createErrorSchema(patchTaskSchema).or(createErrorSchema(IdParamsSchema)),
 			"The validation error(s)",
@@ -87,6 +103,10 @@ export const remove = createRoute({
 			description: "Task deleted",
 		},
 		[HttpStatusCodes.NOT_FOUND]: jsonContent(notFoundSchema, "Task not found"),
+		[HttpStatusCodes.UNAUTHORIZED]: jsonContent(
+			createErrorSchema(z.object({ message: z.string() })),
+			"Unauthorized",
+		),
 		[HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
 			createErrorSchema(IdParamsSchema),
 			"Invalid id error",

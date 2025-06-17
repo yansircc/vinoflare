@@ -22,10 +22,7 @@ const router = createRouter()
 								version: z.string(),
 								description: z.string(),
 								endpoints: z.object({
-									auth: z.string(),
 									tasks: z.string(),
-									gallery: z.string(),
-									kitchen: z.string(),
 								}),
 								timestamp: z.string(),
 							}),
@@ -41,11 +38,7 @@ const router = createRouter()
 					version: "1.0.0",
 					description: "Hono + Cloudflare Workers + Better Auth",
 					endpoints: {
-						auth: "/api/auth/*",
-						posts: "/api/posts",
 						tasks: "/api/tasks",
-						gallery: "/api/gallery",
-						kitchen: "/api/kitchen",
 						health: "/health",
 					},
 					timestamp: new Date().toISOString(),

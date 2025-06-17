@@ -7,5 +7,5 @@ export const Route = createFileRoute("/tasks/$id")({
 
 function TaskDetailPage() {
 	const { id } = Route.useParams();
-	return <TaskDetail id={id} />;
+	return <TaskDetail id={Number(id)} />;
 }

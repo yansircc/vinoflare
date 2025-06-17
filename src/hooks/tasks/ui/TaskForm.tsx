@@ -1,32 +1,14 @@
-import type { PatchApiTasksIdBody, PostApiTasksBody } from "@/hooks/gen/model";
-import type {
-	PatchApiTasksId200,
-	PatchApiTasksId404,
-	PatchApiTasksId422,
-	PostApiTasks200,
-	PostApiTasks422,
-} from "@/hooks/gen/model";
-import type { Task } from "@/server/db/schema";
+import type { useCreateTask, useUpdateTask } from "@/hooks/tasks/use-tasks";
+import type { NewTask, Task } from "@/server/db/schema";
 import { type AnyFieldApi, useForm } from "@tanstack/react-form";
-import type { UseMutationResult } from "@tanstack/react-query";
 import { useState } from "react";
 
 interface TaskFormProps {
 	onSuccess?: () => void;
 	onCancel?: () => void;
 	initialData?: Task; // 用于编辑模式
-	createTaskMutation: UseMutationResult<
-		PostApiTasks200,
-		PostApiTasks422,
-		{ data: PostApiTasksBody },
-		unknown
-	>;
-	updateTaskMutation: UseMutationResult<
-		PatchApiTasksId200,
-		PatchApiTasksId422 | PatchApiTasksId404,
-		{ id: number | null; data: PatchApiTasksIdBody },
-		unknown
-	>;
+	createTaskMutation: ReturnType<typeof useCreateTask>;
+	updateTaskMutation: ReturnType<typeof useUpdateTask>;
 }
 
 // 错误提示组件
@@ -61,16 +43,16 @@ export function TaskForm({
 			name: initialData?.name || "",
 			done: initialData?.done || false,
 		},
-		onSubmit: async ({ value }: { value: PostApiTasksBody }) => {
+		onSubmit: async ({ value }: { value: NewTask }) => {
 			setIsSubmitting(true);
 			try {
 				if (isEdit && initialData) {
-					await updateTaskMutation.mutateAsync({
+					updateTaskMutation.mutate({
 						id: initialData.id,
-						data: value as PatchApiTasksIdBody,
+						task: value,
 					});
 				} else {
-					await createTaskMutation.mutateAsync({ data: value });
+					createTaskMutation.mutate(value);
 				}
 				form.reset();
 				onSuccess?.();
