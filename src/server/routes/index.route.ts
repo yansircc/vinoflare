@@ -1,6 +1,7 @@
 import { createRoute } from "@hono/zod-openapi";
 import * as HttpStatusCodes from "stoker/http-status-codes";
 
+import type { AuthSession, AuthUser } from "@/server/db/schema";
 import { createRouter } from "@/server/lib/create-app";
 import { z } from "zod";
 
@@ -23,6 +24,8 @@ const router = createRouter()
 								description: z.string(),
 								endpoints: z.object({
 									tasks: z.string(),
+									health: z.string(),
+									me: z.string(),
 								}),
 								timestamp: z.string(),
 							}),
@@ -39,7 +42,8 @@ const router = createRouter()
 					description: "Hono + Cloudflare Workers + Better Auth",
 					endpoints: {
 						tasks: "/api/tasks",
-						health: "/health",
+						health: "/api/health",
+						me: "/api/me",
 					},
 					timestamp: new Date().toISOString(),
 				},
@@ -77,6 +81,59 @@ const router = createRouter()
 				version: "1.0.0",
 				environment: (c.env as any)?.ENVIRONMENT || "unknown",
 			});
+		},
+	)
+	.openapi(
+		createRoute({
+			tags: ["me"],
+			method: "get",
+			summary: "Get me",
+			description: "Get me",
+			path: "/me",
+			responses: {
+				[HttpStatusCodes.OK]: {
+					description: "Get me",
+					content: {
+						"application/json": {
+							schema: z.object({
+								user: z
+									.object({
+										id: z.string(),
+										name: z.string(),
+										email: z.string(),
+										emailVerified: z.boolean(),
+										image: z.string().nullable(),
+										createdAt: z.date(),
+										updatedAt: z.date(),
+									})
+									.nullable(),
+								session: z
+									.object({
+										id: z.string(),
+										userId: z.string(),
+										userAgent: z.string().nullable(),
+										ipAddress: z.string().nullable(),
+										expiresAt: z.date(),
+										createdAt: z.date(),
+										updatedAt: z.date(),
+									})
+									.nullable(),
+							}),
+						},
+					},
+				},
+			},
+		}),
+		(c) => {
+			const user = c.get("user") as AuthUser;
+			const session = c.get("session") as AuthSession;
+			return c.json(
+				{
+					user,
+					session,
+				},
+				HttpStatusCodes.OK,
+			);
 		},
 	);
 

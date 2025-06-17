@@ -1,5 +1,5 @@
 import type { NewTask, PatchTask } from "@/server/db/schema";
-import { hcWithType } from "@/server/lib/create-client";
+import { hcWithType } from "@/server/lib/hc";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { HTTPException } from "hono/http-exception";
 
