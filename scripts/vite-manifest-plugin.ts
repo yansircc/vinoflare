@@ -2,17 +2,26 @@ import fs from "node:fs";
 import path from "node:path";
 import type { Plugin } from "vite";
 
-export function manifestPlugin(): Plugin {
+export function manifestPlugin(): Plugin<any> {
 	return {
 		name: "vite-manifest-plugin",
 		apply: "build",
-		closeBundle() {
+		async writeBundle(options, bundle) {
 			try {
+				// 等待一小段时间，确保 manifest 文件已写入
+				await new Promise((resolve) => setTimeout(resolve, 100));
+
 				// 读取 manifest 文件
 				const manifestPath = path.join(
 					process.cwd(),
 					"dist/client/.vite/manifest.json",
 				);
+
+				if (!fs.existsSync(manifestPath)) {
+					console.warn("Manifest file not found, using fallback");
+					throw new Error("Manifest file not found");
+				}
+
 				const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf-8"));
 
 				// 提取客户端入口的资源路径

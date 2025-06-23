@@ -1,10 +1,13 @@
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { cloudflare } from "@cloudflare/vite-plugin";
 import tailwindcss from "@tailwindcss/vite";
 import { TanStackRouterVite } from "@tanstack/router-plugin/vite";
 import { defineConfig } from "vite";
 import ssrPlugin from "vite-ssr-components/plugin";
 import { manifestPlugin } from "./scripts/vite-manifest-plugin";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig(({ mode }) => {
 	if (mode === "client") {
@@ -15,9 +18,25 @@ export default defineConfig(({ mode }) => {
 				manifestPlugin(),
 			],
 			resolve: {
-				alias: {
-					"@": path.resolve(__dirname, "./src"),
-				},
+				alias: [
+					{ find: "@", replacement: path.resolve(__dirname, "./src") },
+					{
+						find: "@/components/layout",
+						replacement: path.resolve(__dirname, "./src/components/layout.tsx"),
+					},
+					{
+						find: "@/components/404",
+						replacement: path.resolve(__dirname, "./src/components/404.tsx"),
+					},
+					{
+						find: "@/components/error",
+						replacement: path.resolve(__dirname, "./src/components/error.tsx"),
+					},
+				],
+				extensions: [".mjs", ".js", ".ts", ".jsx", ".tsx", ".json"],
+			},
+			optimizeDeps: {
+				include: ["react", "react-dom"],
 			},
 			build: {
 				outDir: "dist/client",
@@ -47,9 +66,8 @@ export default defineConfig(({ mode }) => {
 				tailwindcss(),
 			],
 			resolve: {
-				alias: {
-					"@": path.resolve(__dirname, "./src"),
-				},
+				alias: [{ find: "@", replacement: path.resolve(__dirname, "./src") }],
+				extensions: [".mjs", ".js", ".ts", ".jsx", ".tsx", ".json"],
 			},
 		};
 	}
