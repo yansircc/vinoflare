@@ -1,7 +1,7 @@
 #!/usr/bin/env bun
 
-import { $ } from "bun";
 import { existsSync } from "node:fs";
+import { $ } from "bun";
 
 console.log("🚀 开始初始化 Vinoflare 项目...\n");
 

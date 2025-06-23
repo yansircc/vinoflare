@@ -196,7 +196,7 @@ bun deploy
    bun env:push:gh
    ```
 2. 确保设置了以下 GitHub Secrets:
-   - `CLOUDFLARE_API_TOKEN`
+   - `CLOUDFLARE_API_TOKEN` - [创建 Token 指南](docs/CLOUDFLARE_API_TOKEN.md)
    - `CLOUDFLARE_ACCOUNT_ID`
    - 其他环境变量（BETTER_AUTH_SECRET 等）
 3. 推送到 main 分支会自动触发部署
