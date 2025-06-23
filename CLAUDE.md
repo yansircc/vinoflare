@@ -30,7 +30,7 @@ bun db:studio:local      # Open Drizzle Studio for local DB inspection
 ### Deployment
 ```bash
 bun build                # Build client assets
-bun env:sync:remote      # Sync secrets to Cloudflare
+bun env:push:remote      # Sync secrets to Cloudflare
 bun deploy               # Deploy to Cloudflare Workers
 ```
 

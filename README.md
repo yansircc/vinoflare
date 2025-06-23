@@ -173,7 +173,7 @@ cp .dev.vars .prod.vars
 bun gen:types
 
 # 2. 同步密钥到 Cloudflare
-bun env:sync:remote
+bun env:push:remote
 
 # 3. 推送数据库架构到生产环境
 bun db:push:remote
@@ -211,7 +211,7 @@ wrangler tail
 - `BETTER_AUTH_SECRET`: 32字符随机密钥
 - `DISCORD_CLIENT_ID/SECRET`: Discord OAuth 凭据
 
-**生产环境** (需设置`.prod.vars`并使用`bun env:sync:remote`将密钥同步到Cloudflare Secrets):
+**生产环境** (需设置`.prod.vars`并使用`bun env:push:remote`将密钥同步到Cloudflare Secrets):
 - 同`.dev.vars`
 - `ENVIRONMENT`：同`.dev.vars`
 - `BETTER_AUTH_SECRET`: 同`.dev.vars`
