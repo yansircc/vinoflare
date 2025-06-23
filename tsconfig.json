@@ -14,7 +14,13 @@
 		"baseUrl": ".",
 		"paths": {
 			"@/*": ["./src/*"]
-		}
+		},
+		// 性能优化选项
+		"incremental": true,
+		"tsBuildInfoFile": ".tsbuildinfo",
+		"disableSourceOfProjectReferenceRedirect": true,
+		"disableSolutionSearching": true,
+		"disableReferencedProjectLoad": true
 	},
 	"types": ["@cloudflare/vitest-pool-workers"],
 	"include": ["src/**/*", "worker-configuration.d.ts"],

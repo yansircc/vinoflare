@@ -1,19 +1,20 @@
 import type { NewTask, PatchTask } from "@/server/db/schema";
-import { hcWithType } from "@/server/lib/hc";
+import { createTypedClient } from "@/hooks/api-client";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { HTTPException } from "hono/http-exception";
 
-const client = hcWithType("/api");
+const client = createTypedClient("/").api;
 
 export const useTasks = () => {
 	const { data, isLoading, isError, error } = useQuery({
 		queryKey: ["tasks"],
 		queryFn: async () => {
 			const res = await client.tasks.$get();
+
 			if (res.ok) {
 				return res.json();
 			}
-			throw new HTTPException(res.status, {
+			throw new HTTPException(res.status as any, {
 				message: `Failed to fetch tasks: ${res.statusText}`,
 			});
 		},
@@ -32,7 +33,7 @@ export const useTask = (id: number) => {
 			if (res.ok) {
 				return res.json();
 			}
-			throw new HTTPException(res.status, {
+			throw new HTTPException(res.status as any, {
 				message: `Failed to fetch task: ${res.statusText}`,
 			});
 		},
@@ -51,7 +52,7 @@ export const useCreateTask = () => {
 			if (res.ok) {
 				return res.json();
 			}
-			throw new HTTPException(res.status, {
+			throw new HTTPException(res.status as any, {
 				message: `Failed to create task: ${res.statusText}`,
 			});
 		},
@@ -76,7 +77,7 @@ export const useUpdateTask = () => {
 			if (res.ok) {
 				return res.json();
 			}
-			throw new HTTPException(res.status, {
+			throw new HTTPException(res.status as any, {
 				message: `Failed to update task: ${res.statusText}`,
 			});
 		},
@@ -101,7 +102,7 @@ export const useDeleteTask = () => {
 			if (res.ok) {
 				return res.json();
 			}
-			throw new HTTPException(res.status, {
+			throw new HTTPException(res.status as any, {
 				message: `Failed to delete task: ${res.statusText}`,
 			});
 		},

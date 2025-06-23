@@ -53,3 +53,6 @@ src/assets-manifest.json
 
 # generated route tree
 src/routeTree.gen.ts
+
+# typescript build info
+.tsbuildinfo

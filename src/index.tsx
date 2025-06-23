@@ -8,7 +8,6 @@ import tasksRoute from "@/server/routes/tasks/tasks.index";
 
 // 创建主应用
 const app = createApp();
-export const routes = [indexRoute, tasksRoute] as const;
 
 // API 路由继续使用 Hono
 configureOpenAPI(app);
@@ -20,9 +19,10 @@ app.route("/api/auth", authRouter);
 app.use("/api/tasks/*", authMiddleware);
 app.use("/api/me", authMiddleware);
 
-routes.forEach((route) => {
-	app.route("/api", route);
-});
+// 链式路由注册以保持类型推断
+const routes = app
+	.route("/api", indexRoute)
+	.route("/api", tasksRoute);
 
 // 处理静态资源
 app.get("/*", async (c) => {
@@ -30,7 +30,7 @@ app.get("/*", async (c) => {
 });
 
 // 为客户端导出类型
-// export type AppType = (typeof routes)[number];
+export type AppType = typeof routes;
 
 // 导出 Worker 处理器
 export default app;
