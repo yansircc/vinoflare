@@ -4,7 +4,7 @@ import {
 	useDeleteTask,
 	useTasks,
 	useUpdateTask,
-} from "@/generated/hooks";
+} from "@/hooks/use-tasks";
 import type { Task } from "@/server/db/schema";
 import { useState } from "react";
 
@@ -25,7 +25,7 @@ export function TasksList() {
 	const handleToggleTask = (task: Task) => {
 		toggleTaskMutation.mutate({
 			id: task.id,
-			data: { done: !task.done },
+			task: { done: !task.done },
 		});
 	};
 

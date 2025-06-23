@@ -1,4 +1,4 @@
-import { useTask } from "@/generated/hooks";
+import { useTask } from "@/hooks/use-tasks";
 import { Link } from "@tanstack/react-router";
 
 export function TaskDetail({ id }: { id: number }) {

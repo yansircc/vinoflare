@@ -47,7 +47,6 @@ cookies.txt
 
 # misc
 *.bak
-/.tanstack/
 
 # generated assets manifest
 src/assets-manifest.json
@@ -55,5 +54,7 @@ src/assets-manifest.json
 # generated route tree
 src/routeTree.gen.ts
 
-# typescript build info
-.tsbuildinfo
+# generated OpenAPI and client files
+openapi.json
+src/hooks/api/endpoints
+src/hooks/api/schemas

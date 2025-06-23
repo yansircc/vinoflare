@@ -1,4 +1,4 @@
-import type { useCreateTask, useUpdateTask } from "@/generated/hooks";
+import type { useCreateTask, useUpdateTask } from "@/hooks/use-tasks";
 import type { NewTask, Task } from "@/server/db/schema";
 import { type AnyFieldApi, useForm } from "@tanstack/react-form";
 import { useState } from "react";
@@ -49,10 +49,10 @@ export function TaskForm({
 				if (isEdit && initialData) {
 					updateTaskMutation.mutate({
 						id: initialData.id,
-						data: value,
+						task: value,
 					});
 				} else {
-					createTaskMutation.mutate({ data: value });
+					createTaskMutation.mutate(value);
 				}
 				form.reset();
 				onSuccess?.();
