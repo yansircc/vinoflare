@@ -14,7 +14,29 @@
 - [Cloudflare 账户](https://cloudflare.com) (用于部署)
 - [Discord Developer Application](https://discord.com/developers/applications) (用于 OAuth)
 
-### 一键安装
+### 使用 create-vinoflare（推荐）
+
+```bash
+# 使用 Bun
+bunx create-vinoflare@latest
+
+# 使用 npm
+npx create-vinoflare@latest
+
+# 使用 pnpm
+pnpm create vinoflare@latest
+
+# 使用 Yarn
+yarn create vinoflare
+```
+
+CLI 会引导你完成项目创建，包括：
+- 项目命名
+- 自动安装依赖
+- 初始化 Git 仓库
+- 运行项目初始化设置
+
+### 手动安装
 
 ```bash
 # 1. 克隆项目

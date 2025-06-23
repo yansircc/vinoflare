@@ -1,0 +1,45 @@
+{
+	"name": "create-vinoflare",
+	"version": "0.1.0",
+	"description": "Create a new Vinoflare app with one command",
+	"type": "module",
+	"bin": {
+		"create-vinoflare": "./dist/index.js"
+	},
+	"files": ["dist", "templates"],
+	"scripts": {
+		"build": "bun build ./src/index.ts --outdir ./dist --target node --format esm",
+		"dev": "bun run src/index.ts",
+		"prepublishOnly": "bun run build"
+	},
+	"keywords": [
+		"vinoflare",
+		"create",
+		"hono",
+		"cloudflare",
+		"vite",
+		"template",
+		"starter"
+	],
+	"author": "yansircc",
+	"license": "MIT",
+	"homepage": "https://github.com/yansircc/vinoflare#readme",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/yansircc/vinoflare.git"
+	},
+	"bugs": {
+		"url": "https://github.com/yansircc/vinoflare/issues"
+	},
+	"dependencies": {
+		"@clack/prompts": "^0.8.2",
+		"kleur": "^4.1.5",
+		"degit": "^2.8.4"
+	},
+	"devDependencies": {
+		"@types/node": "^22.10.5"
+	},
+	"engines": {
+		"node": ">=18.0.0"
+	}
+}

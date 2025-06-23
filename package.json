@@ -1,6 +1,8 @@
 {
 	"name": "vinoflare",
 	"type": "module",
+	"private": true,
+	"workspaces": ["packages/*"],
 	"scripts": {
 		"setup": "bun scripts/setup.ts",
 		"dev": "bun scripts/generate-default-manifest.ts && vite --port 5173",
