@@ -6,7 +6,7 @@
 		"build": "vite build --mode client",
 		"preview": "$npm_execpath run build && vite preview",
 		"deploy": "$npm_execpath run build && wrangler deploy",
-		"gen:api": "bun scripts/generate-api-client.ts",
+		"gen:api": "bun scripts/generator",
 		"gen:types": "wrangler types --env-interface CloudflareBindings",
 		"db:generate": "drizzle-kit generate",
 		"db:migrate": "drizzle-kit migrate",

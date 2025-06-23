@@ -52,7 +52,7 @@ export function TaskForm({
 						data: value,
 					});
 				} else {
-					createTaskMutation.mutate(value);
+					createTaskMutation.mutate({ data: value });
 				}
 				form.reset();
 				onSuccess?.();
