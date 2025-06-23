@@ -1,4 +1,3 @@
-import { TaskForm } from "@/components/tasks/task-form";
 import {
 	useCreateTask,
 	useDeleteTask,
@@ -6,6 +5,7 @@ import {
 	useUpdateTask,
 } from "@/hooks/use-tasks";
 import type { Task } from "@/server/db/schema";
+import { TaskForm } from "@/ui/tasks/task-form";
 import { useState } from "react";
 
 export function TasksList() {

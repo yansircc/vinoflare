@@ -1,4 +1,4 @@
-import NotFoundComponent from "@/components/404";
+import NotFoundComponent from "@/ui/404";
 import { createRouter as createTanStackRouter } from "@tanstack/react-router";
 import { routeTree } from "./routeTree.gen";
 

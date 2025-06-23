@@ -1,4 +1,4 @@
-import { TaskDetail } from "@/components/tasks/task-detail";
+import { TaskDetail } from "@/ui/tasks/task-detail";
 import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/tasks/$id")({
