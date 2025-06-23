@@ -20,6 +20,7 @@
 		"db:push:remote": "wrangler d1 migrations apply DB --remote",
 		"env:sync:local": "bun scripts/sync-dev-vars.ts",
 		"env:push:remote": "wrangler secret bulk .prod.vars",
+		"env:push:gh": "bun scripts/push-secrets-to-github.ts",
 		"find:deadcode": "ts-prune",
 		"typecheck": "tsc --noEmit",
 		"lint": "biome check .",

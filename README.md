@@ -184,10 +184,22 @@ bun deploy
 
 ### 持续部署 (推荐)
 
+#### 方式一：Cloudflare Dashboard
 1. 在 Cloudflare Dashboard 中连接你的 GitHub 仓库
 2. 设置构建命令为 `bun run build`
 3. 设置构建输出目录为 `dist`
 4. 之后每次推送到主分支都会自动部署
+
+#### 方式二：GitHub Actions
+1. 推送密钥到 GitHub:
+   ```bash
+   bun env:push:gh
+   ```
+2. 确保设置了以下 GitHub Secrets:
+   - `CLOUDFLARE_API_TOKEN`
+   - `CLOUDFLARE_ACCOUNT_ID`
+   - 其他环境变量（BETTER_AUTH_SECRET 等）
+3. 推送到 main 分支会自动触发部署
 
 ### 部署后验证
 
