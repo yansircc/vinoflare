@@ -1,5 +1,4 @@
 import { MutationCache, QueryCache, QueryClient } from "@tanstack/react-query";
-import { HTTPException } from "hono/http-exception";
 import { toast } from "sonner";
 
 export const createQueryClient = () => {
@@ -23,16 +22,12 @@ export const createQueryClient = () => {
 		},
 		queryCache: new QueryCache({
 			onError: (err) => {
-				if (err instanceof HTTPException) {
-					toast.error(err.message);
-				}
+				toast.error(err.message);
 			},
 		}),
 		mutationCache: new MutationCache({
 			onError: (err) => {
-				if (err instanceof HTTPException) {
-					toast.error(err.message);
-				}
+				toast.error(err.message);
 			},
 		}),
 	});
