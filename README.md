@@ -77,7 +77,7 @@ export interface BaseContext {
 如想添加任何全局的 Hono 路由，可在`src/server/lib/create-app.ts`中添加，具体可见 [Hono 官网](https://hono.dev/)。
 
 ## 4. 前端类型自动生成
-本框架使用 [Tanstack Query](https://tanstack.com/query/latest/docs/framework/react/overview) 自动生成 React Query Hooks，如修改了`src/server`中的任何和路由相关的代码，可使用`bun cf-typegen`来自动生成所有前端类型。
+本框架使用 [Tanstack Query](https://tanstack.com/query/latest/docs/framework/react/overview) 自动生成 React Query Hooks，如修改了`src/server`中的任何和路由相关的代码，可使用`bun gen:types`来自动生成所有前端类型。
 
 ### 常用维护命令
 
@@ -90,7 +90,7 @@ bun db:studio:local    # 检查本地数据库
 bun db:studio:remote   # 检查云端数据库
 
 # 开发工具
-bun cf-typegen         # 生成 Cloudflare 类型
+bun gen:types         # 生成 Cloudflare 类型
 bun dev                # 启动开发服务器
 bun build              # 构建生产版本
 
@@ -109,7 +109,7 @@ bun run test           # 使用cloudflare testing进行自动化测试
 wrangler d1 create vinoflare-db
 
 # 生成 Cloudflare 类型
-bun cf-typegen
+bun gen:types
 
 # 创建 .prod.vars，注意，需要配置 ENVIRONMENT 为 production
 cp .dev.vars .prod.vars
@@ -152,7 +152,7 @@ bun run deploy
 推荐的开发顺序：
 1. **设计数据模型** → `src/server/db/schema.ts`
 2. **生成迁移** → `bun db:generate && bun db:push:local`
-3. **生成类型** → `bun cf-typegen`
+3. **生成类型** → `bun gen:types`
 4. **创建路由** → `src/server/routers/`
 5. **实现前端** → `components/` 和 `routes/`
 

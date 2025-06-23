@@ -20,9 +20,7 @@ app.use("/api/tasks/*", authMiddleware);
 app.use("/api/me", authMiddleware);
 
 // 链式路由注册以保持类型推断
-const routes = app
-	.route("/api", indexRoute)
-	.route("/api", tasksRoute);
+const routes = app.route("/api", indexRoute).route("/api", tasksRoute);
 
 // 处理静态资源
 app.get("/*", async (c) => {

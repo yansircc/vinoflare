@@ -1,10 +1,10 @@
-import { TaskForm } from "@/hooks/tasks/ui/TaskForm";
+import { TaskForm } from "@/components/tasks/task-form";
 import {
 	useCreateTask,
 	useDeleteTask,
 	useTasks,
 	useUpdateTask,
-} from "@/hooks/tasks/use-tasks";
+} from "@/generated/hooks";
 import type { Task } from "@/server/db/schema";
 import { useState } from "react";
 
@@ -25,7 +25,7 @@ export function TasksList() {
 	const handleToggleTask = (task: Task) => {
 		toggleTaskMutation.mutate({
 			id: task.id,
-			task: { done: !task.done },
+			data: { done: !task.done },
 		});
 	};
 

@@ -1,6 +1,6 @@
-import { Explanation } from "@/components/Explanation";
+import { Explanation } from "@/components/explanation";
 import { PageHeader } from "@/components/page-header";
-import { TasksList } from "@/hooks/tasks/ui/TaskList";
+import { TasksList } from "@/components/tasks/task-list";
 import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/tasks/")({

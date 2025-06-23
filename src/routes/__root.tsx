@@ -1,6 +1,6 @@
 import NotFoundComponent from "@/components/404";
 import ErrorComponent from "@/components/error";
-import { Layout } from "@/components/Layout";
+import { Layout } from "@/components/layout";
 import { isDev } from "@/lib/env";
 import { createRootRoute } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";

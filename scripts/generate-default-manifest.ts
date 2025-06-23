@@ -8,11 +8,11 @@ import path from "node:path";
 function generateDefaultManifest() {
 	const defaultAssets = {
 		js: "/static/client.js",
-		css: "/assets/client.css"
+		css: "/assets/client.css",
 	};
 
 	const manifestPath = path.join(process.cwd(), "src/assets-manifest.json");
-	
+
 	// 如果文件不存在，则创建默认文件
 	if (!fs.existsSync(manifestPath)) {
 		fs.writeFileSync(manifestPath, JSON.stringify(defaultAssets, null, 2));

@@ -11,7 +11,7 @@ Vinoflare is a full-stack TypeScript template combining **Vi**te + Ho**no** + Cl
 ### Development
 ```bash
 bun dev                    # Start dev server on port 5173
-bun cf-typegen            # Generate Cloudflare binding types (run after API changes)
+bun gen:types            # Generate Cloudflare binding types (run after API changes)
 bun typecheck             # Run TypeScript type checking
 bun lint                  # Run Biome linter
 bun lint:fix              # Fix linting issues
@@ -80,6 +80,6 @@ Tests use Vitest with Cloudflare Workers pool. Example pattern from `src/server/
 
 ### Important Notes
 
-- **Always run `bun cf-typegen` after modifying wrangler.toml** to update TypeScript types
+- **Always run `bun gen:types` after modifying wrangler.toml** to update TypeScript types
 - **drizzle-zod locked to v0.7.1** due to Zod v4 incompatibility
 - **Asset manifest** (`assets-manifest.json`) is auto-generated during build
