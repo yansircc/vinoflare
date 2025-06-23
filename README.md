@@ -24,29 +24,42 @@ cd vinoflare-app
 # 2. 安装依赖
 bun i
 
-# 3. 配置环境变量
-cp .dev.vars.example .dev.vars
+# 3. 一键初始化项目
+bun setup
+# 这个命令会自动：
+# - 创建 .dev.vars 配置文件
+# - 生成并应用数据库迁移
+# - 生成所有必要的类型文件
+# - 生成 API 客户端代码
+
+# 4. 配置环境变量
 # 编辑 .dev.vars 添加你的 Discord OAuth 信息
-
-# 可选：如需使用`bun db:studio:remote`链接远程数据库，需要配置 env 的环境变量
-cp .env.example .env
-
-# 4. 生成类型和迁移
-bun db:generate
-bun db:push:local
 
 # 5. 启动开发服务器
 bun dev
 ```
 
-### 关于 assets-manifest.json
+### 关于自动生成的文件
 
-本项目使用 `assets-manifest.json` 来管理客户端资源的路径映射。这个文件会在构建时自动生成，包含了打包后的 JS 和 CSS 文件路径。
+以下文件会在开发过程中自动生成，**不需要**提交到版本控制：
 
-- **开发环境**: 运行 `bun dev` 时会自动生成一个默认的 assets-manifest.json 文件
-- **生产环境**: 运行 `bun build` 时会根据实际构建结果更新这个文件
-- **版本控制**: 该文件已被加入 `.gitignore`，避免因文件内容变化导致的版本冲突
-- **模板文件**: `src/assets-manifest.example.json` 提供了文件格式示例
+- **assets-manifest.json** - 客户端资源路径映射
+  - 开发时：`bun dev` 自动生成默认版本
+  - 生产时：`bun build` 根据实际打包结果更新
+  
+- **src/routeTree.gen.ts** - TanStack Router 路由类型
+  - 由 TanStack Router Plugin 自动生成
+  
+- **worker-configuration.d.ts** - Cloudflare Workers 类型定义
+  - 运行 `bun gen:types` 生成
+  
+- **openapi.json** - OpenAPI 规范文件
+  - 运行 `bun gen:openapi` 生成
+  
+- **src/hooks/api/** - Orval 生成的 API 客户端
+  - 运行 `bun gen:api` 生成
+
+这些文件都已添加到 `.gitignore`，确保版本控制的整洁性。
 
 > 因为本地开发的响应速度过快，有时会错过许多部署之后因网络延迟而导致的问题，为了模拟延迟，本框架添加了`src/server/middleware/delay.ts`延迟路由来模拟响应，如不需要，可在`src/server/lib/create-app.ts`中把延迟路由注释，或者设置为`app.use(delayMiddleware({fixed: 0}));`
 
@@ -77,55 +90,114 @@ export interface BaseContext {
 如想添加任何全局的 Hono 路由，可在`src/server/lib/create-app.ts`中添加，具体可见 [Hono 官网](https://hono.dev/)。
 
 ## 4. 前端类型自动生成
-本框架使用 [Tanstack Query](https://tanstack.com/query/latest/docs/framework/react/overview) 自动生成 React Query Hooks，如修改了`src/server`中的任何和路由相关的代码，可使用`bun gen:types`来自动生成所有前端类型。
+本框架使用 [Orval](https://orval.dev/) 基于 OpenAPI 规范自动生成类型安全的 API 客户端和 React Query Hooks。
 
-### 常用维护命令
+```bash
+# 生成 API 类型和客户端
+bun gen:api           # 同时生成 OpenAPI 规范和客户端代码
+bun gen:openapi       # 仅生成 OpenAPI 规范 (openapi.json)
+bun gen:client        # 仅生成客户端代码 (需要先有 openapi.json)
+```
+
+生成的代码位于 `src/hooks/api/` 目录，包含：
+- `endpoints/` - 按标签分组的 API 端点函数和 hooks
+- `schemas/` - TypeScript 类型定义
+- `custom-instance.ts` - 基于 Fetch API 的 HTTP 客户端
+
+### 常用开发命令
 
 ```bash
 # 数据库操作
-bun db:generate        # 生成迁移文件
-bun db:push:local      # 推送到本地数据库
-bun db:push:remote     # 推送到云端数据库
-bun db:studio:local    # 检查本地数据库
-bun db:studio:remote   # 检查云端数据库
+bun db:generate        # 生成 Drizzle 迁移文件
+bun db:push:local      # 应用迁移到本地 D1 数据库
+bun db:push:remote     # 应用迁移到生产 D1 数据库
+bun db:studio:local    # 使用 Drizzle Studio 查看本地数据库
+bun db:studio:remote   # 使用 Drizzle Studio 查看生产数据库
 
-# 开发工具
-bun gen:types         # 生成 Cloudflare 类型
-bun dev                # 启动开发服务器
-bun build              # 构建生产版本
+# 类型生成
+bun gen:types         # 生成 Cloudflare 绑定类型
+bun gen:api           # 生成 OpenAPI 规范和 API 客户端
 
-# 测试相关
-bun run test           # 使用cloudflare testing进行自动化测试
+# 开发和构建
+bun dev               # 启动开发服务器 (端口 5173)
+bun build             # 构建客户端资源
+bun preview           # 预览构建结果
+
+# 代码质量
+bun typecheck         # TypeScript 类型检查
+bun lint              # 运行 Biome 代码检查
+bun lint:fix          # 自动修复代码风格问题
+bun test              # 运行 Vitest 测试
+bun test:watch        # 监听模式运行测试
 ```
 
-## 🚀 部署到生产
+## 🚀 部署指南
 
-### Cloudflare Workers 部署
+### 部署前准备
 
+1. **创建 Cloudflare D1 数据库**
 ```bash
-# 创建数据库，运行此命令前，先确保全局安装了 wrangler 并且绑定了 cloudflare 账号，具体参考 ChatGPT
-# 此处注意，创建成功后，需把对应的 database_name & CLOUDFLARE_DATABASE_ID 填入 wrangler.toml
-# 再把 CLOUDFLARE_DATABASE_ID 填入 .env
+# 确保已安装并登录 wrangler
+npm install -g wrangler
+wrangler login
+
+# 创建 D1 数据库
 wrangler d1 create vinoflare-db
+```
 
-# 生成 Cloudflare 类型
-bun gen:types
+2. **更新配置文件**
+创建数据库后，将输出的信息更新到 `wrangler.toml`：
+```toml
+[[d1_databases]]
+binding = "DB"
+database_name = "vinoflare-db"
+database_id = "你的数据库ID"
+```
 
-# 创建 .prod.vars，注意，需要配置 ENVIRONMENT 为 production
+3. **配置环境变量**
+```bash
+# 复制并编辑生产环境变量
 cp .dev.vars .prod.vars
 
-# 同步 .prod.vars 密钥到云端
-bun env:sync:remote
-
-# 推送数据库架构
-bun db:push:remote
-
-# 构建和部署
-# 不需要 bun run build 构建，构建已包含在 deploy 命令中
-bun run deploy
+# 编辑 .prod.vars，设置：
+# ENVIRONMENT=production
+# BETTER_AUTH_SECRET=生成32字符的安全密钥
+# DISCORD_CLIENT_ID=你的Discord OAuth ID
+# DISCORD_CLIENT_SECRET=你的Discord OAuth密钥
 ```
 
-> 如果部署到 cloudflare workers 之后链接了 github 仓库中的项目，后续不再需要手动构建部署，github 推送后，项目即可立即同步。
+### 部署步骤
+
+```bash
+# 1. 生成必要的类型文件
+bun gen:types
+
+# 2. 同步密钥到 Cloudflare
+bun env:sync:remote
+
+# 3. 推送数据库架构到生产环境
+bun db:push:remote
+
+# 4. 部署到 Cloudflare Workers
+bun deploy
+```
+
+### 持续部署 (推荐)
+
+1. 在 Cloudflare Dashboard 中连接你的 GitHub 仓库
+2. 设置构建命令为 `bun run build`
+3. 设置构建输出目录为 `dist`
+4. 之后每次推送到主分支都会自动部署
+
+### 部署后验证
+
+```bash
+# 查看部署日志
+wrangler tail
+
+# 访问你的应用
+# https://你的项目名.你的子域名.workers.dev
+```
 
 ### 环境变量清单
 
@@ -145,16 +217,50 @@ bun run deploy
 - `BETTER_AUTH_SECRET`: 同`.dev.vars`
 - `DISCORD_CLIENT_ID/SECRET`: 同`.dev.vars`
 
-## 🔄 更新和迁移
+## 📝 开发指南
 
-### 开发工作流
+### 推荐的开发流程
 
-推荐的开发顺序：
-1. **设计数据模型** → `src/server/db/schema.ts`
-2. **生成迁移** → `bun db:generate && bun db:push:local`
-3. **生成类型** → `bun gen:types`
-4. **创建路由** → `src/server/routers/`
-5. **实现前端** → `components/` 和 `routes/`
+1. **设计数据模型**
+   - 编辑 `src/server/db/schema.ts` 定义数据表结构
+   - 使用 Drizzle ORM 的类型安全 API
+
+2. **数据库迁移**
+   ```bash
+   bun db:generate      # 生成迁移 SQL
+   bun db:push:local    # 应用到本地数据库
+   ```
+
+3. **创建 API 路由**
+   - 在 `src/server/routes/` 创建新路由
+   - 使用 `@hono/zod-openapi` 定义类型安全的端点
+   - 路由会自动生成 OpenAPI 文档
+
+4. **生成前端类型**
+   ```bash
+   bun gen:types       # 生成 Cloudflare 绑定类型
+   bun gen:api         # 生成 API 客户端和 hooks
+   ```
+
+5. **实现前端功能**
+   - 使用生成的 hooks 调用 API
+   - 在 `src/routes/` 创建页面
+   - 在 `src/components/` 创建组件
+
+### 项目结构说明
+
+```
+src/
+├── server/              # 后端代码
+│   ├── db/             # 数据库 schema 和配置
+│   ├── routes/         # API 路由定义
+│   ├── middleware/     # 中间件（认证、延迟等）
+│   └── lib/            # 核心工具和类型
+├── hooks/              # React hooks
+│   └── api/            # Orval 生成的 API 客户端
+├── routes/             # TanStack Router 页面
+└── components/         # React 组件
+```
 
 ## 🔧 已知问题
 

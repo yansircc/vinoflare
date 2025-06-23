@@ -20,8 +20,5 @@ export default defineConfig({
 				},
 			},
 		},
-		hooks: {
-			afterAllFilesWrite: "bun run lint:fix",
-		},
 	},
 });

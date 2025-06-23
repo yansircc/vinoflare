@@ -48,13 +48,13 @@ cookies.txt
 # misc
 *.bak
 
-# generated assets manifest
+# generated files
 src/assets-manifest.json
-
-# generated route tree
 src/routeTree.gen.ts
-
-# generated OpenAPI and client files
+worker-configuration.d.ts
+.tsbuildinfo
 openapi.json
+
+# generated API client
 src/hooks/api/endpoints
 src/hooks/api/schemas
