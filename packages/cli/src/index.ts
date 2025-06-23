@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 
+/// <reference path="./types.d.ts" />
+
 import { spawn } from "node:child_process";
 import { existsSync, readdirSync } from "node:fs";
-import { join } from "node:path";
-import { promisify } from "node:util";
 import {
 	cancel,
 	confirm,
@@ -16,8 +16,6 @@ import {
 } from "@clack/prompts";
 import degit from "degit";
 import kleur from "kleur";
-
-const execAsync = promisify(spawn);
 
 async function main() {
 	// 检查是否是非交互式模式
@@ -35,7 +33,7 @@ async function main() {
 	let projectName = projectNameArg;
 
 	if (!projectName) {
-		projectName = await text({
+		const result = await text({
 			message: "项目名称:",
 			placeholder: "my-vinoflare-app",
 			defaultValue: "my-vinoflare-app",
@@ -58,10 +56,12 @@ async function main() {
 			},
 		});
 
-		if (isCancel(projectName)) {
+		if (isCancel(result)) {
 			cancel("已取消");
 			process.exit(0);
 		}
+
+		projectName = result as string;
 	} else {
 		// 验证命令行参数中的项目名
 		if (projectName === ".") {
@@ -113,7 +113,7 @@ async function main() {
 	const shouldSetup = skipPrompts
 		? true
 		: await confirm({
-				message: `是否运行初始化设置? (${packageManager} ${packageManager === "npm" ? "run" : ""} setup)`,
+				message: `是否运行初始化设置? (${packageManager}${packageManager === "npm" ? " run" : ""} setup)`,
 				initialValue: true,
 			});
 
@@ -134,12 +134,12 @@ async function main() {
 			verbose: false,
 		});
 
-		await emitter.clone(projectName as string);
+		await emitter.clone(projectName);
 		s.stop("模板下载完成");
 
 		// 进入项目目录（如果不是当前目录）
 		if (projectName !== ".") {
-			process.chdir(projectName as string);
+			process.chdir(projectName);
 		}
 
 		// 2. 初始化 git（如果需要）
@@ -189,14 +189,14 @@ async function main() {
 		if (!shouldSetup) {
 			console.log(
 				kleur.cyan(
-					`  ${packageManager} ${packageManager === "npm" ? "run" : ""} setup`,
+					`  ${packageManager}${packageManager === "npm" ? " run" : ""} setup`,
 				),
 			);
 		}
 
 		console.log(
 			kleur.cyan(
-				`  ${packageManager} ${packageManager === "npm" ? "run" : ""} dev`,
+				`  ${packageManager}${packageManager === "npm" ? " run" : ""} dev`,
 			),
 		);
 		console.log();

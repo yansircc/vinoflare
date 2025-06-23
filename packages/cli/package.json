@@ -1,6 +1,6 @@
 {
 	"name": "create-vinoflare",
-	"version": "0.1.2",
+	"version": "0.1.3",
 	"description": "Create a new Vinoflare app with one command",
 	"type": "module",
 	"bin": {
@@ -10,7 +10,8 @@
 	"scripts": {
 		"build": "bun build ./src/index.ts --outdir ./dist --target node --format esm",
 		"dev": "bun run src/index.ts",
-		"prepublishOnly": "bun run build"
+		"prepublishOnly": "bun run build",
+		"typecheck": "tsc --noEmit"
 	},
 	"keywords": [
 		"vinoflare",
