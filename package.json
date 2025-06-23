@@ -4,7 +4,8 @@
 	"scripts": {
 		"setup": "bun scripts/setup.ts",
 		"dev": "bun scripts/generate-default-manifest.ts && vite --port 5173",
-		"build": "vite build --mode client",
+		"build": "bun scripts/build-for-deploy.ts",
+		"build:client": "vite build --mode client",
 		"preview": "$npm_execpath run build && vite preview",
 		"deploy": "$npm_execpath run build && wrangler deploy",
 		"gen:openapi": "bun scripts/gen-openapi.ts",

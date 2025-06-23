@@ -184,10 +184,26 @@ bun deploy
 
 ### 持续部署 (推荐)
 
+#### 方案 1: Cloudflare Pages 集成
 1. 在 Cloudflare Dashboard 中连接你的 GitHub 仓库
-2. 设置构建命令为 `bun run build`
-3. 设置构建输出目录为 `dist`
-4. 之后每次推送到主分支都会自动部署
+2. 设置构建配置：
+   - 构建命令：`bun run build`
+   - 构建输出目录：`dist/client`
+   - 环境变量：在 Cloudflare Dashboard 中设置
+3. 之后每次推送到主分支都会自动部署
+
+#### 方案 2: GitHub Actions
+1. 在 GitHub 仓库的 Settings > Secrets 中添加：
+   - `CLOUDFLARE_API_TOKEN` - 从 Cloudflare 获取
+   - `CLOUDFLARE_ACCOUNT_ID` - 你的账户 ID
+   - `BETTER_AUTH_SECRET` - 认证密钥
+   - `DISCORD_CLIENT_ID` - Discord OAuth ID
+   - `DISCORD_CLIENT_SECRET` - Discord OAuth 密钥
+
+2. 使用提供的 `.github/workflows/deploy.yml` 文件
+3. 推送到 main 分支即可自动部署
+
+**注意**: `bun build` 命令会自动生成所有必要的文件（类型、API 客户端等），无需手动生成
 
 ### 部署后验证
 

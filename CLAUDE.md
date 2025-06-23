@@ -10,13 +10,15 @@ Vinoflare is a full-stack TypeScript template combining **Vi**te + Ho**no** + Cl
 
 ### Development
 ```bash
-bun dev                    # Start dev server on port 5173
-bun gen:types            # Generate Cloudflare binding types (run after API changes)
-bun typecheck             # Run TypeScript type checking
-bun lint                  # Run Biome linter
-bun lint:fix              # Fix linting issues
-bun test                  # Run tests
-bun test:watch            # Run tests in watch mode
+bun setup                # One-time project setup
+bun dev                  # Start dev server on port 5173
+bun gen:types            # Generate Cloudflare binding types
+bun gen:api              # Generate OpenAPI spec and API client
+bun typecheck            # Run TypeScript type checking
+bun lint                 # Run Biome linter
+bun lint:fix             # Fix linting issues
+bun test                 # Run tests
+bun test:watch           # Run tests in watch mode
 ```
 
 ### Database Management
@@ -29,7 +31,7 @@ bun db:studio:local      # Open Drizzle Studio for local DB inspection
 
 ### Deployment
 ```bash
-bun build                # Build client assets
+bun build                # Build with all generated files
 bun env:sync:remote      # Sync secrets to Cloudflare
 bun deploy               # Deploy to Cloudflare Workers
 ```
