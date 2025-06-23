@@ -38,6 +38,14 @@ async function main() {
 			defaultValue: "my-vinoflare-app",
 			validate: (value) => {
 				if (!value) return "项目名称不能为空";
+				if (value === ".") {
+					// 检查当前目录是否为空
+					const files = readdirSync(".");
+					if (files.length > 0) {
+						return "当前目录不为空，请使用空目录或指定新的项目名称";
+					}
+					return; // 当前目录为空，可以使用
+				}
 				if (!/^[a-z0-9-_]+$/.test(value)) {
 					return "项目名称只能包含小写字母、数字、连字符和下划线";
 				}
@@ -53,13 +61,22 @@ async function main() {
 		}
 	} else {
 		// 验证命令行参数中的项目名
-		if (!/^[a-z0-9-_]+$/.test(projectName)) {
-			log.error(kleur.red("项目名称只能包含小写字母、数字、连字符和下划线"));
-			process.exit(1);
-		}
-		if (existsSync(projectName)) {
-			log.error(kleur.red(`目录 ${projectName} 已存在`));
-			process.exit(1);
+		if (projectName === ".") {
+			// 检查当前目录是否为空
+			const files = readdirSync(".");
+			if (files.length > 0) {
+				log.error(kleur.red("当前目录不为空，请使用空目录或指定新的项目名称"));
+				process.exit(1);
+			}
+		} else {
+			if (!/^[a-z0-9-_]+$/.test(projectName)) {
+				log.error(kleur.red("项目名称只能包含小写字母、数字、连字符和下划线"));
+				process.exit(1);
+			}
+			if (existsSync(projectName)) {
+				log.error(kleur.red(`目录 ${projectName} 已存在`));
+				process.exit(1);
+			}
 		}
 	}
 
@@ -117,8 +134,10 @@ async function main() {
 		await emitter.clone(projectName as string);
 		s.stop("模板下载完成");
 
-		// 进入项目目录
-		process.chdir(projectName as string);
+		// 进入项目目录（如果不是当前目录）
+		if (projectName !== ".") {
+			process.chdir(projectName as string);
+		}
 
 		// 2. 初始化 git（如果需要）
 		if (shouldGitInit) {
@@ -181,7 +200,7 @@ async function runCommand(command: string, args: string[]): Promise<void> {
 	return new Promise((resolve, reject) => {
 		const child = spawn(command, args, {
 			stdio: "inherit",
-			shell: true,
+			shell: false,
 		});
 
 		child.on("close", (code) => {
