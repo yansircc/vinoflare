@@ -25,7 +25,8 @@
 		"lint": "biome check .",
 		"lint:fix": "biome check --write .",
 		"test": "vitest run",
-		"test:watch": "vitest"
+		"test:watch": "vitest",
+		"prepare": "husky"
 	},
 	"dependencies": {
 		"@hono/trpc-server": "^0.3.4",
@@ -73,6 +74,8 @@
 		"better-sqlite3": "^11.10.0",
 		"cloudflare": "^4.3.0",
 		"drizzle-kit": "^0.31.1",
+		"husky": "^9.1.7",
+		"lint-staged": "^16.1.2",
 		"orval": "^7.10.0",
 		"tailwindcss": "^4.1.10",
 		"ts-prune": "^0.10.3",
