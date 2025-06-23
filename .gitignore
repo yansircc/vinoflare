@@ -44,7 +44,6 @@ cookies.txt
 
 # claude
 /.claude/
-CLAUDE.md
 
 # misc
 *.bak

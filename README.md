@@ -22,28 +22,20 @@ git clone https://github.com/yansircc/vinoflare.git vinoflare-app
 cd vinoflare-app
 
 # 2. 安装依赖
-bun install
+bun i
 
 # 3. 配置环境变量
 cp .dev.vars.example .dev.vars
 # 编辑 .dev.vars 添加你的 Discord OAuth 信息
 
 # 可选：如需使用`bun db:studio:remote`链接远程数据库，需要配置 env 的环境变量
-# 注意，因为 env 中包含了 cloudflare 的认证信息，而我们申请的 token 的权限并包含创建 d1 的权限
-# 所以，此处创建 .env.local 而不能创建 .env 是为了绕开 wrangler 命令的局限
-cp .env.example .env.local
+cp .env.example .env
 
-# 4. 创建数据库，运行此命令前，先确保全局安装了 wrangler 并且绑定了 cloudflare 账号，具体参考 ChatGPT
-# 此处注意，创建成功后，需把对应的 database_name & CLOUDFLARE_DATABASE_ID 填入 wrangler.toml
-# 再把 CLOUDFLARE_DATABASE_ID 填入 .env.local
-wrangler d1 create vinoflare-db
-
-# 5. 生成类型和迁移
-bun cf-typegen
+# 4. 生成类型和迁移
 bun db:generate
 bun db:push:local
 
-# 6. 启动开发服务器
+# 5. 启动开发服务器
 bun dev
 ```
 
@@ -111,16 +103,24 @@ bun run test           # 使用cloudflare testing进行自动化测试
 ### Cloudflare Workers 部署
 
 ```bash
+# 创建数据库，运行此命令前，先确保全局安装了 wrangler 并且绑定了 cloudflare 账号，具体参考 ChatGPT
+# 此处注意，创建成功后，需把对应的 database_name & CLOUDFLARE_DATABASE_ID 填入 wrangler.toml
+# 再把 CLOUDFLARE_DATABASE_ID 填入 .env
+wrangler d1 create vinoflare-db
+
+# 生成 Cloudflare 类型
+bun cf-typegen
+
 # 创建 .prod.vars，注意，需要配置 ENVIRONMENT 为 production
 cp .dev.vars .prod.vars
 
 # 同步 .prod.vars 密钥到云端
 bun env:sync:remote
 
-# 4. 推送数据库架构
+# 推送数据库架构
 bun db:push:remote
 
-# 5. 构建和部署
+# 构建和部署
 # 不需要 bun run build 构建，构建已包含在 deploy 命令中
 bun run deploy
 ```
@@ -129,7 +129,7 @@ bun run deploy
 
 ### 环境变量清单
 
-**本地 Node 开发环境** (`.env.local`):
+**本地 Node 开发环境** (`.env`):
 - `CLOUDFLARE_ACCOUNT_ID`: 登录 Cloudflare 后台，在账户总览或 URL 里可以找到
 - `CLOUDFLARE_DATABASE_ID`: 在 D1 数据库详情页可以找到
 - `CLOUDFLARE_D1_TOKEN`: 在 My Profile -> API Tokens 创建
@@ -152,8 +152,8 @@ bun run deploy
 推荐的开发顺序：
 1. **设计数据模型** → `src/server/db/schema.ts`
 2. **生成迁移** → `bun db:generate && bun db:push:local`
-3. **创建路由** → `src/server/routers/`
-4. **生成类型** → `bun apigen`
+3. **生成类型** → `bun cf-typegen`
+4. **创建路由** → `src/server/routers/`
 5. **实现前端** → `components/` 和 `routes/`
 
 ## 🔧 已知问题
@@ -163,13 +163,9 @@ bun run deploy
 
 ### 认证问题修复
 
-当因为在开发过程中切换数据库，遇到 JWT 密钥问题时，除了可以通过删除 “.wrangler” 文件夹的方式重置数据库外，也可使用内置脚本：
+当因为在开发过程中切换数据库，遇到 JWT 密钥问题时，可通过删除 “.wrangler” 文件夹的方式重置数据库外，也可使用以下脚本清理数据库：
 
 ```bash
-# 重置认证数据 (清理旧的 JWT 密钥)
-./scripts/reset-auth.sh
-
-# 或手动清理
 wrangler d1 execute vinoflare --local --command="DELETE FROM jwks;"
 ```
 
