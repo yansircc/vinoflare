@@ -1,6 +1,6 @@
 {
 	"name": "create-vinoflare",
-	"version": "0.1.0",
+	"version": "0.1.2",
 	"description": "Create a new Vinoflare app with one command",
 	"type": "module",
 	"bin": {

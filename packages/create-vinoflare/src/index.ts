@@ -25,6 +25,9 @@ async function main() {
 	const projectNameArg = args[0];
 	const skipPrompts = args.includes("--yes") || args.includes("-y");
 
+	// 检测包管理器
+	const packageManager = await detectPackageManager();
+
 	console.log();
 	intro(kleur.bgCyan().black(" create-vinoflare "));
 
@@ -84,7 +87,7 @@ async function main() {
 	const shouldInstall = skipPrompts
 		? true
 		: await confirm({
-				message: "是否安装依赖?",
+				message: `是否安装依赖? (${packageManager} install)`,
 				initialValue: true,
 			});
 
@@ -110,7 +113,7 @@ async function main() {
 	const shouldSetup = skipPrompts
 		? true
 		: await confirm({
-				message: "是否运行初始化设置 (bun setup)?",
+				message: `是否运行初始化设置? (${packageManager} ${packageManager === "npm" ? "run" : ""} setup)`,
 				initialValue: true,
 			});
 
@@ -154,8 +157,7 @@ async function main() {
 
 		// 3. 安装依赖（如果需要）
 		if (shouldInstall) {
-			s.start("安装依赖...");
-			const packageManager = await detectPackageManager();
+			s.start(`使用 ${packageManager} 安装依赖...`);
 			await runCommand(packageManager, ["install"]);
 			s.stop("依赖安装完成");
 		}
@@ -163,7 +165,8 @@ async function main() {
 		// 4. 运行 setup（如果需要）
 		if (shouldSetup && shouldInstall) {
 			s.start("运行初始化设置...");
-			await runCommand("bun", ["setup"]);
+			const setupArgs = packageManager === "npm" ? ["run", "setup"] : ["setup"];
+			await runCommand(packageManager, setupArgs);
 			s.stop("初始化设置完成");
 		}
 
@@ -173,17 +176,29 @@ async function main() {
 		console.log();
 		console.log(kleur.bold("  接下来:"));
 		console.log();
-		console.log(kleur.cyan(`  cd ${projectName}`));
+
+		// 只在不是当前目录时显示 cd 命令
+		if (projectName !== ".") {
+			console.log(kleur.cyan(`  cd ${projectName}`));
+		}
 
 		if (!shouldInstall) {
-			console.log(kleur.cyan("  bun install"));
+			console.log(kleur.cyan(`  ${packageManager} install`));
 		}
 
 		if (!shouldSetup) {
-			console.log(kleur.cyan("  bun setup"));
+			console.log(
+				kleur.cyan(
+					`  ${packageManager} ${packageManager === "npm" ? "run" : ""} setup`,
+				),
+			);
 		}
 
-		console.log(kleur.cyan("  bun dev"));
+		console.log(
+			kleur.cyan(
+				`  ${packageManager} ${packageManager === "npm" ? "run" : ""} dev`,
+			),
+		);
 		console.log();
 		console.log(kleur.gray("  Happy coding! 🚀"));
 		console.log();
