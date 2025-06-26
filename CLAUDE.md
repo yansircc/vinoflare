@@ -23,11 +23,15 @@ bun run build              # Build CLI with tsup
 bun run test               # Run all tests with vitest
 bun run test:integration   # Run integration tests only
 bun run test:unit          # Run unit tests only
+bun run test:all           # Run all test scenarios (comprehensive testing)
 
 # Code Quality
 bun run typecheck          # TypeScript type checking (tsc --noEmit)
 bun run lint               # Run Biome linter
 bun run lint:fix           # Fix linting issues with Biome
+
+# Template Validation
+bun run validate           # Validate all templates
 ```
 
 ## Architecture
@@ -49,7 +53,13 @@ The project follows a **modular, plugin-based architecture**:
    - Plugin-like processors that handle specific features
    - Each processor implements the `Processor` interface with `shouldProcess()` and `process()` methods
    - Processors are registered in `registry.ts` and executed in order
-   - Key processors: `copy-template`, `feature-cleanup`, `file-transform`, `package-json`, `project-init`
+   - Key processors: 
+     - `copy-template` - Copies template files to target directory
+     - `feature-cleanup` - Removes files based on feature selections
+     - `file-transform` - Applies transformations based on rules
+     - `package-json` - Updates package.json with project details
+     - `project-init` - Initializes the project (git, install deps)
+     - `client-no-db` - Handles client-side adjustments for no-db scenarios
 
 4. **Template System** (`src/templates/`)
    - `template-loader.ts` - Loads and validates templates
@@ -60,7 +70,7 @@ The project follows a **modular, plugin-based architecture**:
 
 - `src/index.ts` - Main CLI entry point (legacy approach)
 - `src/index-modular.ts` - New modular architecture entry point (recommended)
-- `src/index-new.ts` - Alternative entry point
+- `src/index-legacy.ts` - Legacy entry point
 
 ### Template Structure
 
@@ -68,7 +78,8 @@ The project follows a **modular, plugin-based architecture**:
 templates/
 ├── api-only/          # API-only template
 ├── full-stack/        # Full-stack template with React frontend
-└── minimal-modules/   # Minimal module examples for no-db scenarios
+├── minimal-modules/   # Minimal module examples for no-db scenarios
+└── replacements/      # Replacement files for different feature combinations
 ```
 
 ## Key Implementation Details
@@ -100,6 +111,10 @@ Integration tests in `tests/integration/cli.test.ts` cover:
 - File system operations
 - Package.json modifications
 
+Additional testing tools:
+- `scripts/test-all-scenarios.ts` - Comprehensive end-to-end testing of all project configurations
+- Run with options: `--keep-failed`, `--parallel`, `--debug`, `--save-logs`
+
 ## Important Notes
 
 - The CLI builds to ESM format only
@@ -107,6 +122,10 @@ Integration tests in `tests/integration/cli.test.ts` cover:
 - Uses Biome for linting/formatting (not ESLint/Prettier)
 - All paths in the codebase should use absolute paths, not relative
 - The modular architecture (`index-modular.ts`) is the recommended approach
+- Configuration files:
+  - `config/transform-rules.json` - Defines file transformation rules
+  - `config/feature-rules.json` - Defines feature dependencies and constraints
+- When debugging, check debug output files in `test-*` directories
 
 ## Common Development Tasks
 
