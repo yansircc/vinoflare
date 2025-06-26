@@ -1,60 +1,65 @@
 {
-  "name": "api-only",
-  "description": "API server only with Hono",
-  "features": [
-    {
-      "name": "database",
-      "enabled": true,
-      "optional": true,
-      "files": {
-        "remove": [
-          "src/server/db/**",
-          "src/server/middleware/database.ts",
-          "src/server/schemas/database/**",
-          "src/server/modules/posts/**",
-          "drizzle.config.ts",
-          "scripts/link-db.ts"
-        ],
-        "transform": {
-          "package.json": "removeDatabaseDeps",
-          "src/server/lib/types.ts": "updateTypesForNoDb",
-          "wrangler.toml": "removeD1Config",
-          "src/server/routes/api.ts": "removePostsModule"
-        }
-      },
-      "dependencies": {
-        "remove": ["drizzle-orm", "drizzle-zod", "drizzle-kit", "better-sqlite3"]
-      }
-    },
-    {
-      "name": "auth",
-      "enabled": true,
-      "optional": true,
-      "requires": ["database"],
-      "files": {
-        "remove": [
-          "src/server/lib/auth.ts",
-          "src/server/middleware/auth-guard.ts",
-          "src/server/modules/auth/**",
-          "src/server/db/tables/auth.ts",
-          "src/server/schemas/database/auth.ts"
-        ],
-        "transform": {
-          "src/server/routes/api.ts": "removeAuthModule",
-          "src/index.ts": "removeAuthMiddleware",
-          "src/server/config/routes.ts": "updateRoutesForNoAuth"
-        }
-      },
-      "dependencies": {
-        "remove": ["better-auth"]
-      }
-    }
-  ],
-  "scripts": {
-    "init": ["gen:types", "gen:api"],
-    "initWithDb": ["gen:types", "db:generate", "db:push:local", "gen:api"],
-    "dev": "dev",
-    "build": "build",
-    "lint": "lint:fix"
-  }
+	"name": "api-only",
+	"description": "API server only with Hono",
+	"features": [
+		{
+			"name": "database",
+			"enabled": true,
+			"optional": true,
+			"files": {
+				"remove": [
+					"src/server/db/**",
+					"src/server/middleware/database.ts",
+					"src/server/schemas/database/**",
+					"src/server/modules/posts/**",
+					"drizzle.config.ts",
+					"scripts/link-db.ts"
+				],
+				"transform": {
+					"package.json": "removeDatabaseDeps",
+					"src/server/lib/types.ts": "updateTypesForNoDb",
+					"wrangler.toml": "removeD1Config",
+					"src/server/routes/api.ts": "removePostsModule"
+				}
+			},
+			"dependencies": {
+				"remove": [
+					"drizzle-orm",
+					"drizzle-zod",
+					"drizzle-kit",
+					"better-sqlite3"
+				]
+			}
+		},
+		{
+			"name": "auth",
+			"enabled": true,
+			"optional": true,
+			"requires": ["database"],
+			"files": {
+				"remove": [
+					"src/server/lib/auth.ts",
+					"src/server/middleware/auth-guard.ts",
+					"src/server/modules/auth/**",
+					"src/server/db/tables/auth.ts",
+					"src/server/schemas/database/auth.ts"
+				],
+				"transform": {
+					"src/server/routes/api.ts": "removeAuthModule",
+					"src/index.ts": "removeAuthMiddleware",
+					"src/server/config/routes.ts": "updateRoutesForNoAuth"
+				}
+			},
+			"dependencies": {
+				"remove": ["better-auth"]
+			}
+		}
+	],
+	"scripts": {
+		"init": ["gen:types", "gen:api"],
+		"initWithDb": ["gen:types", "db:generate", "db:push:local", "gen:api"],
+		"dev": "dev",
+		"build": "build",
+		"lint": "lint:fix"
+	}
 }

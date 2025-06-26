@@ -1,27 +1,30 @@
 #!/usr/bin/env node
 
-import { existsSync, readFileSync } from "node:fs";
 import { spawn } from "node:child_process";
+import { existsSync, readFileSync } from "node:fs";
 import { createInterface } from "node:readline";
 
 interface EnvVars {
 	[key: string]: string;
 }
 
-async function execCommand(command: string, args: string[] = []): Promise<{ success: boolean; output?: string }> {
+async function execCommand(
+	command: string,
+	args: string[] = [],
+): Promise<{ success: boolean; output?: string }> {
 	return new Promise((resolve) => {
-		const proc = spawn(command, args, { stdio: ['pipe', 'pipe', 'pipe'] });
-		let output = '';
-		
-		proc.stdout.on('data', (data) => {
+		const proc = spawn(command, args, { stdio: ["pipe", "pipe", "pipe"] });
+		let output = "";
+
+		proc.stdout.on("data", (data) => {
 			output += data.toString();
 		});
-		
-		proc.on('close', (code) => {
+
+		proc.on("close", (code) => {
 			resolve({ success: code === 0, output });
 		});
-		
-		proc.on('error', () => {
+
+		proc.on("error", () => {
 			resolve({ success: false });
 		});
 	});
@@ -43,18 +46,18 @@ async function readUserInput(prompt: string): Promise<string> {
 
 async function setGitHubSecret(key: string, value: string): Promise<boolean> {
 	return new Promise((resolve) => {
-		const proc = spawn('gh', ['secret', 'set', key], {
-			stdio: ['pipe', 'pipe', 'pipe']
+		const proc = spawn("gh", ["secret", "set", key], {
+			stdio: ["pipe", "pipe", "pipe"],
 		});
-		
+
 		proc.stdin.write(value);
 		proc.stdin.end();
-		
-		proc.on('close', (code) => {
+
+		proc.on("close", (code) => {
 			resolve(code === 0);
 		});
-		
-		proc.on('error', () => {
+
+		proc.on("error", () => {
 			resolve(false);
 		});
 	});
@@ -64,7 +67,7 @@ async function pushSecretsToGitHub() {
 	console.log("🔐 准备推送环境变量到 GitHub Secrets...\n");
 
 	// 检查是否有 gh CLI
-	const ghVersionCheck = await execCommand('gh', ['--version']);
+	const ghVersionCheck = await execCommand("gh", ["--version"]);
 	if (!ghVersionCheck.success) {
 		console.error("❌ 未找到 GitHub CLI (gh)。请先安装：");
 		console.error("   brew install gh");
@@ -73,7 +76,7 @@ async function pushSecretsToGitHub() {
 	}
 
 	// 检查是否已登录
-	const ghAuthCheck = await execCommand('gh', ['auth', 'status']);
+	const ghAuthCheck = await execCommand("gh", ["auth", "status"]);
 	if (!ghAuthCheck.success) {
 		console.error("❌ 尚未登录 GitHub。请运行：");
 		console.error("   gh auth login");

@@ -31,8 +31,12 @@ export default defineConfig(({ mode }) => {
 					input: "./src/client/client.tsx",
 					onwarn(warning, warn) {
 						// 忽略 "use client" 指令警告
-						if (warning.message.includes('Module level directives cause errors when bundled') ||
-							warning.message.includes('"use client"')) {
+						if (
+							warning.message.includes(
+								"Module level directives cause errors when bundled",
+							) ||
+							warning.message.includes('"use client"')
+						) {
 							return;
 						}
 						warn(warning);
@@ -71,8 +75,12 @@ export default defineConfig(({ mode }) => {
 			rollupOptions: {
 				onwarn(warning, warn) {
 					// 忽略 "use client" 指令警告
-					if (warning.message.includes('Module level directives cause errors when bundled') ||
-						warning.message.includes('"use client"')) {
+					if (
+						warning.message.includes(
+							"Module level directives cause errors when bundled",
+						) ||
+						warning.message.includes('"use client"')
+					) {
 						return;
 					}
 					warn(warning);

@@ -1,9 +1,9 @@
-import { StatusCodes } from "http-status-codes";
-import { z } from "zod/v4";
 import {
 	insertPostSchema,
 	selectPostSchema,
 } from "@/server/schemas/database/posts";
+import { StatusCodes } from "http-status-codes";
+import { z } from "zod/v4";
 
 const postSchema = z.toJSONSchema(selectPostSchema);
 

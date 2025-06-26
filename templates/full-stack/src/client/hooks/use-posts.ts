@@ -1,9 +1,9 @@
-import { useQueryClient } from "@tanstack/react-query";
 import {
 	getGetPostsLatestQueryKey,
 	useGetPostsLatest,
 	usePostPosts,
 } from "@/generated/endpoints/posts/posts";
+import { useQueryClient } from "@tanstack/react-query";
 
 // Hook for getting the latest post
 export function useLatestPost() {

@@ -1,13 +1,13 @@
 /** @jsxImportSource hono/jsx */
 
-import { Hono } from "hono";
-import { cors } from "hono/cors";
-import { logger } from "hono/logger";
-import { trimTrailingSlash } from "hono/trailing-slash";
 import { STATIC_ROUTES } from "@/server/config/routes";
 import { authGuard } from "@/server/middleware/auth-guard";
 import { trimSlash } from "@/server/middleware/trim-slash";
 import { createAPIApp } from "@/server/routes/api";
+import { Hono } from "hono";
+import { cors } from "hono/cors";
+import { logger } from "hono/logger";
+import { trimTrailingSlash } from "hono/trailing-slash";
 import { renderer } from "./client/renderer";
 
 interface Env {

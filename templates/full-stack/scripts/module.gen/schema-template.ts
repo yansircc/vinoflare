@@ -1,7 +1,7 @@
 import type { NameVariations } from "./utils";
 
 export function getSchemaTemplate({ pascal, camel }: NameVariations): string {
-  return `// Add this to your src/server/db/schema.ts file
+	return `// Add this to your src/server/db/schema.ts file
 
 export const ${camel} = sqliteTable("${camel}", {
 	id: integer("id").primaryKey({ autoIncrement: true }),

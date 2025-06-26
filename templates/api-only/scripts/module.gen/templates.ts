@@ -1,6 +1,10 @@
 import type { NameVariations } from "./utils";
 
-export const getHandlersTemplate = ({ pascal, camel, schema }: NameVariations & { schema: string }) => `import type { Context } from "hono";
+export const getHandlersTemplate = ({
+	pascal,
+	camel,
+	schema,
+}: NameVariations & { schema: string }) => `import type { Context } from "hono";
 import { eq } from "drizzle-orm";
 import { db } from "@/server/db";
 import { ${schema} } from "@/server/db";
@@ -113,7 +117,10 @@ export async function delete${pascal}(c: Context<BaseContext>) {
 	return c.json({ message: "${pascal} deleted successfully" });
 }`;
 
-export const getOpenAPITemplate = ({ pascal, camel }: NameVariations) => `import { StatusCodes } from "http-status-codes";
+export const getOpenAPITemplate = ({
+	pascal,
+	camel,
+}: NameVariations) => `import { StatusCodes } from "http-status-codes";
 import { z } from "zod/v4";
 import { insert${pascal}Schema, select${pascal}Schema } from "@/server/db";
 
@@ -272,7 +279,11 @@ export const delete${pascal}OpenAPI = {
 	},
 };`;
 
-export const getRoutesTemplate = ({ pascal, camel, kebab }: NameVariations) => `import { APIBuilder } from "@/server/lib/api-builder";
+export const getRoutesTemplate = ({
+	pascal,
+	camel,
+	kebab,
+}: NameVariations) => `import { APIBuilder } from "@/server/lib/api-builder";
 import type { BaseContext } from "@/server/lib/types";
 import { insert${pascal}Schema } from "@/server/db";
 import {
@@ -314,7 +325,11 @@ export function create${pascal}Module() {
 		.delete("/:id", delete${pascal}, delete${pascal}OpenAPI);
 }`;
 
-export const getTestTemplate = ({ pascal, camel, kebab }: NameVariations) => `/**
+export const getTestTemplate = ({
+	pascal,
+	camel,
+	kebab,
+}: NameVariations) => `/**
  * @vitest-environment workers
  */
 import { beforeAll, describe, expect, it } from "vitest";

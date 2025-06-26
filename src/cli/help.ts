@@ -1,16 +1,16 @@
-import kleur from 'kleur';
+import kleur from "kleur";
 
 /**
  * Display help information
  */
 export function showHelp(): void {
-  console.log(`
-${kleur.bold('create-vino-app')} - Create modern full-stack applications
+	console.log(`
+${kleur.bold("create-vino-app")} - Create modern full-stack applications
 
-${kleur.dim('Usage:')}
+${kleur.dim("Usage:")}
   create-vino-app [project-name] [options]
 
-${kleur.dim('Options:')}
+${kleur.dim("Options:")}
   -y, --yes              Skip all prompts and use defaults
   --type=<type>          Project type: full-stack or api-only (default: full-stack)
   --no-db                Skip D1 Database
@@ -21,7 +21,7 @@ ${kleur.dim('Options:')}
   --pm=<pm>              Package manager: npm, yarn, pnpm, or bun
   -h, --help             Show this help message
 
-${kleur.dim('Examples:')}
+${kleur.dim("Examples:")}
   # Interactive mode
   create-vino-app my-app
 
@@ -40,6 +40,6 @@ ${kleur.dim('Examples:')}
  * Display version information
  */
 export function showVersion(): void {
-  const { version } = require('../../package.json');
-  console.log(`create-vino-app v${version}`);
+	const { version } = require("../../package.json");
+	console.log(`create-vino-app v${version}`);
 }

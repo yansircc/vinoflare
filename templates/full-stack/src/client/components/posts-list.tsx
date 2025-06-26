@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
 import { useCreatePost, useLatestPost } from "@/client/hooks/use-posts";
 import { cn, colors, focus, interactive, text } from "@/client/lib/design";
+import { useEffect, useState } from "react";
 
 export function PostsList() {
 	const [title, setTitle] = useState("");

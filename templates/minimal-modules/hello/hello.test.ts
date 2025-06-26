@@ -15,7 +15,10 @@ describe("Hello handlers", () => {
 	describe("GET /hello", () => {
 		it("should return hello message with timestamp", async () => {
 			const response = await app.request("/hello");
-			const json = await response.json() as { success: boolean; data: { message: string; time: string } };
+			const json = (await response.json()) as {
+				success: boolean;
+				data: { message: string; time: string };
+			};
 
 			expect(response.status).toBe(StatusCodes.OK);
 			expect(json.success).toBe(true);

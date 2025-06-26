@@ -1,45 +1,51 @@
 {
-  "name": "full-stack",
-  "description": "Full-stack app with Hono API + React frontend",
-  "features": [
-    {
-      "name": "database",
-      "enabled": true,
-      "optional": true,
-      "files": {
-        "remove": [
-          "src/server/db/**",
-          "src/server/middleware/database.ts",
-          "src/server/schemas/database/**",
-          "src/server/modules/posts/**",
-          "drizzle.config.ts",
-          "scripts/link-db.ts"
-        ]
-      }
-    },
-    {
-      "name": "auth",
-      "enabled": true,
-      "optional": true,
-      "requires": ["database"],
-      "files": {
-        "remove": [
-          "src/server/lib/auth.ts",
-          "src/server/middleware/auth-guard.ts",
-          "src/server/modules/auth/**",
-          "src/server/db/tables/auth.ts",
-          "src/server/schemas/database/auth.ts",
-          "src/client/lib/auth.ts",
-          "src/client/components/auth/**"
-        ]
-      }
-    }
-  ],
-  "scripts": {
-    "init": ["gen:types", "gen:routes", "gen:api"],
-    "initWithDb": ["gen:types", "gen:routes", "db:generate", "db:push:local", "gen:api"],
-    "dev": "dev",
-    "build": "build",
-    "lint": "lint:fix"
-  }
+	"name": "full-stack",
+	"description": "Full-stack app with Hono API + React frontend",
+	"features": [
+		{
+			"name": "database",
+			"enabled": true,
+			"optional": true,
+			"files": {
+				"remove": [
+					"src/server/db/**",
+					"src/server/middleware/database.ts",
+					"src/server/schemas/database/**",
+					"src/server/modules/posts/**",
+					"drizzle.config.ts",
+					"scripts/link-db.ts"
+				]
+			}
+		},
+		{
+			"name": "auth",
+			"enabled": true,
+			"optional": true,
+			"requires": ["database"],
+			"files": {
+				"remove": [
+					"src/server/lib/auth.ts",
+					"src/server/middleware/auth-guard.ts",
+					"src/server/modules/auth/**",
+					"src/server/db/tables/auth.ts",
+					"src/server/schemas/database/auth.ts",
+					"src/client/lib/auth.ts",
+					"src/client/components/auth/**"
+				]
+			}
+		}
+	],
+	"scripts": {
+		"init": ["gen:types", "gen:routes", "gen:api"],
+		"initWithDb": [
+			"gen:types",
+			"gen:routes",
+			"db:generate",
+			"db:push:local",
+			"gen:api"
+		],
+		"dev": "dev",
+		"build": "build",
+		"lint": "lint:fix"
+	}
 }

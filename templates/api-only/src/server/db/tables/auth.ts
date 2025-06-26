@@ -72,8 +72,9 @@ export const verification = sqliteTable("verification", {
 	identifier: text("identifier").notNull(),
 	value: text("value").notNull(),
 	expiresAt: integer("expiresAt", { mode: "timestamp" }).notNull(),
-	createdAt: integer("createdAt", { mode: "timestamp" })
-		.default(sql`(CURRENT_TIMESTAMP)`),
+	createdAt: integer("createdAt", { mode: "timestamp" }).default(
+		sql`(CURRENT_TIMESTAMP)`,
+	),
 	updatedAt: integer("updatedAt", { mode: "timestamp" })
 		.default(sql`(CURRENT_TIMESTAMP)`)
 		.$onUpdate(() => sql`(CURRENT_TIMESTAMP)`),
