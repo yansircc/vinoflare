@@ -1,6 +1,6 @@
 import path from "node:path";
+import { readJSON, writeJSON } from "fs-extra";
 import type { ExecutionContext } from "../types";
-import { readJSON, writeJSON } from "../utils/fs";
 import { BaseProcessor } from "./types";
 
 /**

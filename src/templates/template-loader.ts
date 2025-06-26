@@ -1,11 +1,11 @@
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { pathExists, readJSON } from "fs-extra";
 import transformRules from "../../config/transform-rules.json";
 import type { Template } from "../types";
 import type { TransformRulesConfig } from "../types/config";
 import type { TemplateConfig, UnifiedTemplateConfig } from "../types/template-config";
 import { ConfigMerger } from "../utils/config-merger";
-import { pathExists, readJSON } from "../utils/fs";
 import { getLogger } from "../utils/logger";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));

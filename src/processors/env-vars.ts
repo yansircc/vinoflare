@@ -1,6 +1,6 @@
 import path from "node:path";
+import { pathExists } from "fs-extra";
 import type { ExecutionContext } from "../types";
-import { pathExists } from "../utils/fs";
 import { createFileOperations } from "../utils/file-operations";
 import { BaseProcessor } from "./types";
 

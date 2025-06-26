@@ -26,8 +26,8 @@ import { TemplateInheritanceProcessor } from "./processors/template-inheritance"
 // Processors
 import { ProcessorRegistry } from "./processors/registry";
 
+import { pathExists } from "fs-extra";
 import type { ProjectConfig } from "./types";
-import { pathExists } from "./utils/fs";
 // Utils
 import {
 	detectPackageManager,

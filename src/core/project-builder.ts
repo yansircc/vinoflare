@@ -1,9 +1,8 @@
 import path from "node:path";
-import fs from "fs-extra";
+import fs, { pathExists } from "fs-extra";
 import type { ProcessorRegistry } from "../processors/registry";
 import type { TemplateLoader } from "../templates/template-loader";
 import { type ProjectConfig, Template } from "../types";
-import { pathExists } from "../utils/fs";
 import { createLogger } from "../utils/logger";
 import { ProjectContext } from "./context";
 

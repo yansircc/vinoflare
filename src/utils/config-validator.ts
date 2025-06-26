@@ -221,7 +221,7 @@ export class ConfigValidator {
 	): Promise<ValidationResult> {
 		const errors: string[] = [];
 		const warnings: string[] = [];
-		const { pathExists } = await import("./fs");
+		const { pathExists } = await import("fs-extra");
 
 		// Check if template path exists
 		if (!(await pathExists(templatePath))) {

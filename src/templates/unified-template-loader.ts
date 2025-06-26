@@ -1,1 +1,0 @@
-// This file has been removed - functionality merged into template-loader.ts
