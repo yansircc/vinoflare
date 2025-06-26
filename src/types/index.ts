@@ -84,6 +84,12 @@ export interface ExecutionContext {
 	template: Template;
 	logger: Logger;
 	state: Map<string, any>;
+	
+	// Methods
+	getState<T>(key: string): T | undefined;
+	setState(key: string, value: any): void;
+	hasFeature(featureName: string): boolean;
+	getFeature(featureName: string): TemplateFeature | undefined;
 }
 
 // Logger interface

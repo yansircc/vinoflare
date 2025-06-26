@@ -807,6 +807,12 @@ async function collectUserChoices(
 		process.exit(1);
 	}
 
+	// Ensure we have a project name at this point
+	if (!projectName) {
+		cancel("Project name is required");
+		process.exit(1);
+	}
+
 	// Check if directory exists
 	const targetDir = path.join(process.cwd(), projectName);
 	if (fs.existsSync(targetDir)) {

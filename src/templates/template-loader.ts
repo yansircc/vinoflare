@@ -1,6 +1,8 @@
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import type { Template } from "../types";
+import type { TemplateConfig } from "../types/config";
+import { isValidTemplateConfig } from "../types/config";
 import { pathExists, readJSON } from "../utils/fs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -28,9 +30,14 @@ export class TemplateLoader {
 		}
 
 		// Load template configuration if exists
-		let config: any = {};
+		let config: TemplateConfig | Record<string, any> = {};
 		if (await pathExists(configPath)) {
-			config = await readJSON(configPath);
+			const rawConfig = await readJSON(configPath);
+			if (isValidTemplateConfig(rawConfig)) {
+				config = rawConfig;
+			} else {
+				console.warn(`Invalid template config for '${templateName}', using defaults`);
+			}
 		}
 
 		// Build template object

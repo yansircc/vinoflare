@@ -2,6 +2,7 @@ import path from "node:path";
 import transformRules from "../../config/transform-rules.json";
 import { transformerManager } from "../templates/transformers";
 import type { ExecutionContext } from "../types";
+import type { TransformRulesConfig, FileTransform } from "../types/config";
 import { ConditionEvaluator } from "../utils/condition-evaluator";
 import { pathExists, readFile, writeFile } from "../utils/fs";
 import { BaseProcessor } from "./types";
@@ -21,8 +22,9 @@ export class FileTransformProcessor extends BaseProcessor {
 		context.logger.info("Applying file transformations...");
 
 		// Process feature-based transformations
+		const rules = transformRules as TransformRulesConfig;
 		for (const [featureName, featureConfig] of Object.entries(
-			transformRules.features,
+			rules.features,
 		)) {
 			if (!this.shouldProcessFeature(featureName, context)) {
 				continue;
@@ -36,12 +38,12 @@ export class FileTransformProcessor extends BaseProcessor {
 			}
 		}
 
-		// Process project-type based transformations
-		const projectTypeConfig = transformRules.projectTypes[context.config.type];
-		if (projectTypeConfig?.files?.transform) {
+		// Process project-type based transformations (if exists)
+		const projectTypes = (rules as any).projectTypes;
+		if (projectTypes && projectTypes[context.config.type]?.files?.transform) {
 			await this.processTransformations(
 				context,
-				projectTypeConfig.files.transform,
+				projectTypes[context.config.type].files.transform,
 			);
 		}
 
