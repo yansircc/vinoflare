@@ -1,0 +1,30 @@
+{
+	"name": "create-vino-app",
+	"version": "0.0.1",
+	"description": "Create modern full-stack apps with Hono + TanStack Router",
+	"type": "module",
+	"bin": {
+		"create-vino-app": "./dist/index.js"
+	},
+	"files": ["dist", "templates"],
+	"scripts": {
+		"dev": "tsx src/index.ts",
+		"build": "tsup",
+		"prepublishOnly": "bun run build"
+	},
+	"dependencies": {
+		"@clack/prompts": "^0.8.2",
+		"fs-extra": "^11.2.0",
+		"kleur": "^4.1.5"
+	},
+	"devDependencies": {
+		"@types/fs-extra": "^11.0.4",
+		"@types/node": "^22.10.6",
+		"tsup": "^8.3.5",
+		"tsx": "^4.19.2",
+		"typescript": "^5.7.3"
+	},
+	"engines": {
+		"node": ">=18"
+	}
+}
