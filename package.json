@@ -14,6 +14,9 @@
 		"test": "vitest",
 		"test:integration": "vitest run tests/integration",
 		"test:unit": "vitest run tests/unit",
+		"test:all": "bun run scripts/test-all-scenarios.ts",
+		"test:all:parallel": "bun run scripts/test-all-scenarios.ts --parallel",
+		"test:all:keep-failed": "bun run scripts/test-all-scenarios.ts --keep-failed",
 		"typecheck": "tsc --noEmit",
 		"lint": "biome check",
 		"lint:fix": "biome check --write"
