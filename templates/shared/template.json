@@ -1,0 +1,36 @@
+{
+  "name": "shared",
+  "description": "Shared server code and configurations",
+  "features": [
+    {
+      "name": "database",
+      "enabled": true,
+      "optional": true,
+      "files": {
+        "remove": [
+          "src/server/db/**",
+          "src/server/middleware/database.ts",
+          "src/server/schemas/database/**",
+          "src/server/modules/posts/**",
+          "drizzle.config.ts",
+          "scripts/link-db.ts"
+        ]
+      }
+    },
+    {
+      "name": "auth",
+      "enabled": true,
+      "optional": true,
+      "requires": ["database"],
+      "files": {
+        "remove": [
+          "src/server/lib/auth.ts",
+          "src/server/middleware/auth-guard.ts",
+          "src/server/modules/auth/**",
+          "src/server/db/tables/auth.ts",
+          "src/server/schemas/database/auth.ts"
+        ]
+      }
+    }
+  ]
+}

@@ -254,6 +254,48 @@
 								"options": {
 									"module": "../schemas/database"
 								}
+							},
+							{
+								"type": "function",
+								"transformer": "removeType",
+								"options": {
+									"typeName": "SelectPost"
+								}
+							},
+							{
+								"type": "function",
+								"transformer": "removeType",
+								"options": {
+									"typeName": "InsertPost"
+								}
+							},
+							{
+								"type": "function",
+								"transformer": "removeType",
+								"options": {
+									"typeName": "Post"
+								}
+							},
+							{
+								"type": "function",
+								"transformer": "removeType",
+								"options": {
+									"typeName": "SelectUser"
+								}
+							},
+							{
+								"type": "function",
+								"transformer": "removeType",
+								"options": {
+									"typeName": "InsertUser"
+								}
+							},
+							{
+								"type": "function",
+								"transformer": "removeType",
+								"options": {
+									"typeName": "User"
+								}
 							}
 						]
 					},
@@ -308,6 +350,13 @@
 								"options": {
 									"module": "@client/components/auth/user-menu"
 								}
+							},
+							{
+								"type": "function",
+								"transformer": "removeStatement",
+								"options": {
+									"pattern": "<UserMenu />"
+								}
 							}
 						]
 					}
@@ -318,7 +367,29 @@
 	"projectTypes": {
 		"api-only": {
 			"files": {
-				"remove": ["src/utils/manifest.ts"]
+				"remove": ["src/utils/manifest.ts"],
+				"transform": [
+					{
+						"file": "src/index.ts",
+						"condition": "!hasAuth",
+						"rules": [
+							{
+								"type": "function",
+								"transformer": "removeImport",
+								"options": {
+									"module": "@/server/middleware/auth-guard"
+								}
+							},
+							{
+								"type": "function",
+								"transformer": "removeStatement",
+								"options": {
+									"pattern": "app.use(\"/api/*\", authGuard);"
+								}
+							}
+						]
+					}
+				]
 			}
 		},
 		"full-stack": {

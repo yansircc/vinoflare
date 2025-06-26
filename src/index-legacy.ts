@@ -124,6 +124,8 @@ const DB_FILES_TO_REMOVE = [
 	"src/server/modules/posts", // Posts module depends on DB
 	"drizzle.config.ts",
 	"scripts/link-db.ts",
+	"src/client/hooks/use-posts.ts", // Client files that depend on posts/DB
+	"src/client/components/posts-list.tsx",
 ];
 
 // Files specific to full-stack that should be removed in api-only
@@ -605,12 +607,8 @@ async function updateClientAuthReferences(projectPath: string) {
 
 // Update client files for no-database scenario
 async function updateClientForNoDb(projectPath: string) {
-	// Remove posts-related components
-	const postsFiles = [
-		"src/client/components/posts-list.tsx",
-		"src/client/components/post-form.tsx",
-	];
-	await removeFiles(projectPath, postsFiles);
+	// Posts files should already be removed by processTemplate
+	// Just need to create the replacement component
 
 	// Create HelloDemo component
 	const helloDemoPath = path.join(

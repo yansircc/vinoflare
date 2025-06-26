@@ -1,6 +1,7 @@
 {
 	"name": "api-only",
 	"description": "API server only with Hono",
+	"extends": "shared",
 	"features": [
 		{
 			"name": "database",

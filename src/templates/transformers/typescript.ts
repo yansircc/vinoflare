@@ -127,9 +127,9 @@ export class TypeScriptTransformer extends BaseTransformer {
 		}
 
 		try {
-			// In the bundled version, we need to find the project root
-			// Start from the current working directory where the CLI is executed
-			const cliRoot = process.cwd();
+			// The template path is relative to the project being created
+			// We need to go up from the project path to find the CLI's templates
+			const cliRoot = path.resolve(context.projectPath, "..");
 			const templatePath = path.join(cliRoot, template);
 			
 			// Read template file synchronously for transformation
@@ -137,7 +137,14 @@ export class TypeScriptTransformer extends BaseTransformer {
 			return templateContent;
 		} catch (error) {
 			console.error(`Failed to read template file: ${template}`, error);
-			return content;
+			// As a fallback, try the current working directory
+			try {
+				const fallbackPath = path.join(process.cwd(), template);
+				const templateContent = fs.readFileSync(fallbackPath, "utf-8");
+				return templateContent;
+			} catch {
+				return content;
+			}
 		}
 	}
 

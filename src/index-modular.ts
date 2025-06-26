@@ -23,6 +23,7 @@ import { GitInitProcessor } from "./processors/git-init.processor";
 import { InstallDependenciesProcessor } from "./processors/install-dependencies.processor";
 import { PackageJsonProcessor } from "./processors/package-json.processor";
 import { ProjectInitProcessor } from "./processors/project-init.processor";
+import { TemplateInheritanceProcessor } from "./processors/template-inheritance.processor";
 // Processors
 import { ProcessorRegistry } from "./processors/registry";
 
@@ -167,6 +168,7 @@ async function main() {
 
 		// Register processors in order
 		processorRegistry.registerAll([
+			new TemplateInheritanceProcessor(),
 			new CopyTemplateProcessor(),
 			new PackageJsonProcessor(),
 			new FeatureCleanupProcessor(),

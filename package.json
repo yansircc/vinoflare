@@ -19,7 +19,9 @@
 		"test:all:keep-failed": "bun run scripts/test-all-scenarios.ts --keep-failed",
 		"typecheck": "tsc --noEmit",
 		"lint": "biome check",
-		"lint:fix": "biome check --write"
+		"lint:fix": "biome check --write",
+		"validate": "bun scripts/validate-templates.ts",
+		"validate:fix": "bun scripts/validate-templates.ts --fix"
 	},
 	"dependencies": {
 		"@clack/prompts": "^0.8.2",
