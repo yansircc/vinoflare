@@ -1,5 +1,5 @@
 import type { ExecutionContext } from "../types";
-import { copyTemplate } from "../utils/fs";
+import { createFileOperations } from "../utils/file-operations";
 import { BaseProcessor } from "./types";
 
 /**
@@ -17,7 +17,8 @@ export class CopyTemplateProcessor extends BaseProcessor {
 	async process(context: ExecutionContext): Promise<void> {
 		context.logger.info("Copying template files...");
 
-		await copyTemplate(context.template.path, context.projectPath);
+		const fs = await import("fs-extra");
+		await fs.copy(context.template.path, context.projectPath);
 
 		context.logger.success("Template files copied successfully");
 	}

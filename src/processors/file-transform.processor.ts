@@ -4,7 +4,7 @@ import { transformerManager } from "../templates/transformers";
 import type { ExecutionContext } from "../types";
 import type { TransformRulesConfig, FileTransform } from "../types/config";
 import { ConditionEvaluator } from "../utils/condition-evaluator";
-import { pathExists, readFile, writeFile } from "../utils/fs";
+import { createFileOperations } from "../utils/file-operations";
 import { BaseProcessor } from "./types";
 
 /**
@@ -62,9 +62,9 @@ export class FileTransformProcessor extends BaseProcessor {
 		context: ExecutionContext,
 		transformations: any[],
 	): Promise<void> {
-		for (const transformation of transformations) {
-			const filePath = path.join(context.projectPath, transformation.file);
+		const fileOps = createFileOperations(context.projectPath);
 
+		for (const transformation of transformations) {
 			// Check condition if specified
 			if (
 				transformation.condition &&
@@ -73,7 +73,7 @@ export class FileTransformProcessor extends BaseProcessor {
 				continue;
 			}
 
-			if (!(await pathExists(filePath))) {
+			if (!(await fileOps.exists(transformation.file))) {
 				context.logger.debug(
 					`File not found for transformation: ${transformation.file}`,
 				);
@@ -81,10 +81,11 @@ export class FileTransformProcessor extends BaseProcessor {
 			}
 
 			try {
-				let content = await readFile(filePath);
+				let content = await fileOps.read(transformation.file);
 
 				// Apply rules
 				if (transformation.rules) {
+					const filePath = path.join(context.projectPath, transformation.file);
 					content = await transformerManager.transformFile(
 						filePath,
 						content,
@@ -93,7 +94,7 @@ export class FileTransformProcessor extends BaseProcessor {
 					);
 				}
 
-				await writeFile(filePath, content);
+				await fileOps.write(transformation.file, content);
 				context.logger.debug(`Transformed: ${transformation.file}`);
 			} catch (error) {
 				context.logger.error(
