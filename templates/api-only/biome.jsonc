@@ -50,12 +50,15 @@
 				"noForEach": "off"
 			},
 			"nursery": {
-				"useUniqueElementIds": "off",
 				"useSortedClasses": {
 					"level": "warn",
 					"fix": "safe",
 					"options": {
-						"functions": ["clsx", "cva", "cn"]
+						"functions": [
+							"clsx",
+							"cva",
+							"cn"
+						]
 					}
 				}
 			},

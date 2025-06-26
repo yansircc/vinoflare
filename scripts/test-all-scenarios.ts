@@ -1,9 +1,9 @@
 #!/usr/bin/env bun
 
 import { exec } from "node:child_process";
-import fs from "fs-extra";
 import path from "node:path";
 import { promisify } from "node:util";
+import fs from "fs-extra";
 import kleur from "kleur";
 
 const execAsync = promisify(exec);
@@ -34,14 +34,16 @@ const scenarios: TestScenario[] = [
 	{
 		name: "API-only: DB, No Auth",
 		projectName: "test-api-db-noauth",
-		command: "bunx create-vino-app test-api-db-noauth --type=api-only --no-auth -y",
+		command:
+			"bunx create-vino-app test-api-db-noauth --type=api-only --no-auth -y",
 		needsDevVars: false,
 		projectType: "api-only",
 	},
 	{
 		name: "API-only: No DB, No Auth",
 		projectName: "test-api-nodb-noauth",
-		command: "bunx create-vino-app test-api-nodb-noauth --type=api-only --no-db -y",
+		command:
+			"bunx create-vino-app test-api-nodb-noauth --type=api-only --no-db -y",
 		needsDevVars: false,
 		projectType: "api-only",
 	},
@@ -130,20 +132,19 @@ async function testScenario(scenario: TestScenario): Promise<TestResult> {
 			await createDevVarsFile(projectPath);
 		}
 
-		// Step 3: Change to project directory and run initialization
+		// Step 3: Run initialization in project directory (without changing process.cwd)
 		console.log(`  ${kleur.dim("→")} Running project initialization...`);
-		process.chdir(projectPath);
 
 		// Run initialization commands
 		if (scenario.needsDevVars) {
 			// For auth scenarios, we need to run gen:types first to generate worker-configuration.d.ts
-			await runCommand("bun run gen:types");
+			await runCommand("bun run gen:types", projectPath);
 		}
 
 		// Step 4: Run lint:fix
 		console.log(`  ${kleur.dim("→")} Running lint:fix...`);
 		try {
-			await runCommand("bun run lint:fix");
+			await runCommand("bun run lint:fix", projectPath);
 			console.log(`  ${kleur.green("✓")} lint:fix passed`);
 		} catch (error: any) {
 			throw new Error(`lint:fix failed: ${error.message}`);
@@ -152,7 +153,7 @@ async function testScenario(scenario: TestScenario): Promise<TestResult> {
 		// Step 5: Run typecheck
 		console.log(`  ${kleur.dim("→")} Running typecheck...`);
 		try {
-			await runCommand("bun run typecheck");
+			await runCommand("bun run typecheck", projectPath);
 			console.log(`  ${kleur.green("✓")} typecheck passed`);
 		} catch (error: any) {
 			throw new Error(`typecheck failed: ${error.message}`);
@@ -166,7 +167,6 @@ async function testScenario(scenario: TestScenario): Promise<TestResult> {
 
 		// Clean up successful test
 		if (!KEEP_FAILED) {
-			process.chdir(TEST_OUTPUT_DIR);
 			await fs.remove(projectPath);
 		}
 
@@ -187,7 +187,6 @@ async function testScenario(scenario: TestScenario): Promise<TestResult> {
 			);
 		} else {
 			// Clean up failed test
-			process.chdir(TEST_OUTPUT_DIR);
 			await fs.remove(projectPath).catch(() => {});
 		}
 
@@ -204,30 +203,24 @@ async function runAllTests() {
 	console.log(kleur.bold("\n🧪 Testing all create-vino-app scenarios\n"));
 	console.log(`Output directory: ${kleur.cyan(TEST_OUTPUT_DIR)}`);
 	console.log(`Keep failed tests: ${kleur.cyan(KEEP_FAILED ? "Yes" : "No")}`);
-	console.log(`Run mode: ${kleur.cyan(RUN_PARALLEL ? "Parallel" : "Sequential")}\n`);
+	console.log(
+		`Run mode: ${kleur.cyan(RUN_PARALLEL ? "Parallel" : "Sequential")}\n`,
+	);
 
 	// Ensure test output directory exists
 	await fs.ensureDir(TEST_OUTPUT_DIR);
 
-	// Save current directory
-	const originalCwd = process.cwd();
-
-	try {
-		if (RUN_PARALLEL) {
-			// Run tests in parallel
-			const promises = scenarios.map((scenario) => testScenario(scenario));
-			const testResults = await Promise.all(promises);
-			results.push(...testResults);
-		} else {
-			// Run tests sequentially
-			for (const scenario of scenarios) {
-				const result = await testScenario(scenario);
-				results.push(result);
-			}
+	if (RUN_PARALLEL) {
+		// Run tests in parallel
+		const promises = scenarios.map((scenario) => testScenario(scenario));
+		const testResults = await Promise.all(promises);
+		results.push(...testResults);
+	} else {
+		// Run tests sequentially
+		for (const scenario of scenarios) {
+			const result = await testScenario(scenario);
+			results.push(result);
 		}
-	} finally {
-		// Restore original directory
-		process.chdir(originalCwd);
 	}
 
 	// Print summary
@@ -238,9 +231,7 @@ async function runAllTests() {
 	const failCount = results.filter((r) => !r.success).length;
 
 	for (const result of results) {
-		const status = result.success
-			? kleur.green("✓ PASS")
-			: kleur.red("✗ FAIL");
+		const status = result.success ? kleur.green("✓ PASS") : kleur.red("✗ FAIL");
 		const time = `(${(result.duration / 1000).toFixed(2)}s)`;
 		console.log(`${status} ${result.scenario} ${kleur.dim(time)}`);
 		if (!result.success && result.error) {
