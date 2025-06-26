@@ -10,7 +10,10 @@
 	"scripts": {
 		"dev": "tsx src/index.ts",
 		"build": "tsup",
-		"prepublishOnly": "bun run build"
+		"prepublishOnly": "bun run build",
+		"test": "vitest",
+		"test:integration": "vitest run tests/integration",
+		"test:unit": "vitest run tests/unit"
 	},
 	"dependencies": {
 		"@clack/prompts": "^0.8.2",
@@ -22,7 +25,9 @@
 		"@types/node": "^22.10.6",
 		"tsup": "^8.3.5",
 		"tsx": "^4.19.2",
-		"typescript": "^5.7.3"
+		"typescript": "^5.7.3",
+		"vitest": "^2.1.8",
+		"glob": "^11.0.0"
 	},
 	"engines": {
 		"node": ">=18"

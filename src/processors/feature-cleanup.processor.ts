@@ -16,6 +16,7 @@ export class FeatureCleanupProcessor extends BaseProcessor {
   async process(context: ExecutionContext): Promise<void> {
     context.logger.info('Processing feature configuration...');
     
+    // Process template features
     for (const feature of context.template.features) {
       // Skip if feature is enabled
       if (!feature.optional || context.hasFeature(feature.name)) {
@@ -39,6 +40,15 @@ export class FeatureCleanupProcessor extends BaseProcessor {
         context.logger.debug(`Removing files for disabled feature: ${feature.name}`);
         await removeFiles(context.projectPath, feature.files.remove);
       }
+    }
+    
+    // Handle project-type specific cleanup
+    if (context.config.type === 'full-stack' && !context.hasFeature('auth')) {
+      const authClientFiles = [
+        'src/client/routes/login.tsx',
+        'src/client/routes/profile.tsx',
+      ];
+      await removeFiles(context.projectPath, authClientFiles);
     }
     
     context.logger.success('Feature configuration processed');

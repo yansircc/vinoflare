@@ -159,26 +159,33 @@ async function updatePackageJson(
   await fs.writeJSON(packageJsonPath, packageJson, { spaces: 2 });
 }
 
-// Update src/index.ts to remove auth middleware
-async function updateIndexFile(projectPath: string, options: { includeDb: boolean; includeAuth: boolean }) {
-  const indexPath = path.join(projectPath, 'src/index.ts');
-  if (!await fs.pathExists(indexPath)) return;
+// Update src/index.ts or src/index.tsx to remove auth middleware
+async function updateIndexFile(projectPath: string, projectType: string, options: { includeDb: boolean; includeAuth: boolean }) {
+  // Try both index.ts and index.tsx
+  const indexPaths = [
+    path.join(projectPath, 'src/index.ts'),
+    path.join(projectPath, 'src/index.tsx')
+  ];
+  
+  for (const indexPath of indexPaths) {
+    if (!await fs.pathExists(indexPath)) continue;
 
-  let content = await fs.readFile(indexPath, 'utf-8');
+    let content = await fs.readFile(indexPath, 'utf-8');
 
-  if (!options.includeAuth) {
-    // Remove auth imports and middleware
-    content = content.replace(/import { authGuard } from.*\n/g, '');
-    content = content.replace(/app\.use\("\/api\/\*", authGuard\);\n/g, '');
+    if (!options.includeAuth) {
+      // Remove auth imports and middleware
+      content = content.replace(/import { authGuard } from.*\n/g, '');
+      content = content.replace(/app\.use\("\/api\/\*", authGuard\);\n/g, '');
+    }
+
+    if (!options.includeDb) {
+      // Additional cleanup for no-db scenario
+      content = content.replace(/import { trimSlash } from.*\n/g, '');
+      content = content.replace(/app\.use\(trimSlash\);\n/g, '');
+    }
+
+    await fs.writeFile(indexPath, content);
   }
-
-  if (!options.includeDb) {
-    // Additional cleanup for no-db scenario
-    content = content.replace(/import { trimSlash } from.*\n/g, '');
-    content = content.replace(/app\.use\(trimSlash\);\n/g, '');
-  }
-
-  await fs.writeFile(indexPath, content);
 }
 
 // Update wrangler.toml to remove D1 configuration
@@ -258,6 +265,25 @@ async function updateNoAuthFiles(projectPath: string, options: { includeDb: bool
     await fs.writeFile(middlewareIndexPath, content);
   }
 
+  // Update lib/types.ts for DB without auth scenario
+  if (options.includeDb && !options.includeAuth) {
+    const libTypesPath = path.join(projectPath, 'src/server/lib/types.ts');
+    if (await fs.pathExists(libTypesPath)) {
+      const dbWithoutAuthTypes = `/// <reference path="../../../worker-configuration.d.ts" />
+
+import type { Database } from "../db";
+
+export interface BaseContext {
+	Bindings: CloudflareBindings;
+	Variables: {
+		db: Database;
+	};
+}
+`;
+      await fs.writeFile(libTypesPath, dbWithoutAuthTypes);
+    }
+  }
+
   // Update openapi/schemas.ts to remove user schema references
   if (options.includeDb) {
     const openapiSchemasPath = path.join(projectPath, 'src/server/openapi/schemas.ts');
@@ -265,8 +291,10 @@ async function updateNoAuthFiles(projectPath: string, options: { includeDb: bool
       let content = await fs.readFile(openapiSchemasPath, 'utf-8');
       // Remove user schema import
       content = content.replace(/,?\s*selectUserSchema/g, '');
-      // Remove user schema definitions
-      content = content.replace(/\s*\/\/ User schemas[\s\S]*?User: z\.toJSONSchema\(selectUserSchema\),?\n/g, '');
+      // Remove the entire User schema block including the empty toJSONSchema call
+      content = content.replace(/,?\s*\/\/ User schemas[\s\S]*?User: z\.toJSONSchema\([^)]*\),?\s*/g, '');
+      // Clean up trailing commas
+      content = content.replace(/,(\s*})/, '$1');
       await fs.writeFile(openapiSchemasPath, content);
     }
 
@@ -274,10 +302,16 @@ async function updateNoAuthFiles(projectPath: string, options: { includeDb: bool
     const typesIndexPath = path.join(projectPath, 'src/server/types/index.ts');
     if (await fs.pathExists(typesIndexPath)) {
       let content = await fs.readFile(typesIndexPath, 'utf-8');
-      // Remove user type exports
-      content = content.replace(/export type SelectUser[\s\S]*?;\n/g, '');
-      content = content.replace(/export type InsertUser[\s\S]*?;\n/g, '');
-      content = content.replace(/export type SelectSession[\s\S]*?;\n/g, '');
+      // Remove user type definitions and exports
+      content = content.replace(/\/\/ User[\s\S]*?(?=\/\/|$)/g, '');
+      content = content.replace(/\/\/ Session[\s\S]*?(?=\/\/|$)/g, '');
+      // Remove auth-related types that reference removed types
+      content = content.replace(/\/\/ Better Auth returns[\s\S]*?};\s*$/gm, '');
+      // Remove any AuthUser or AuthSession type that references SelectUser/SelectSession
+      content = content.replace(/export type AuthUser[\s\S]*?};\s*\n/g, '');
+      content = content.replace(/export type AuthSession[\s\S]*?};\s*\n/g, '');
+      // Clean up any trailing commas or empty lines
+      content = content.replace(/,\s*\n\s*\n/g, '\n\n');
       await fs.writeFile(typesIndexPath, content);
     }
   }
@@ -395,13 +429,15 @@ export const openAPISchemas = {
     await fs.writeFile(manifestPath, content);
   }
 
-  // Update hello handler types for no-db scenario
-  const helloHandlerPath = path.join(projectPath, 'src/server/modules/hello/hello.handlers.ts');
-  if (await fs.pathExists(helloHandlerPath)) {
-    let content = await fs.readFile(helloHandlerPath, 'utf-8');
-    content = content.replace(/import type { BaseContext } from/g, 'import type { BaseEnv } from');
-    content = content.replace(/Context<BaseContext>/g, 'Context<BaseEnv>');
-    await fs.writeFile(helloHandlerPath, content);
+  // Replace hello module with minimal version for no-db scenario
+  const helloModulePath = path.join(projectPath, 'src/server/modules/hello');
+  if (await fs.pathExists(helloModulePath)) {
+    // Remove existing hello module
+    await fs.remove(helloModulePath);
+    
+    // Copy minimal hello module
+    const minimalHelloPath = path.join(__dirname, '..', 'templates', 'minimal-modules', 'hello');
+    await fs.copy(minimalHelloPath, helloModulePath);
   }
 }
 
@@ -463,6 +499,99 @@ async function createDevVarsFile(projectPath: string, options: { includeDb: bool
   await fs.writeFile(devVarsExamplePath, content);
 }
 
+// Update client files that reference auth
+async function updateClientAuthReferences(projectPath: string) {
+  // Update __root.tsx
+  const rootPath = path.join(projectPath, 'src/client/routes/__root.tsx');
+  if (await fs.pathExists(rootPath)) {
+    let content = await fs.readFile(rootPath, 'utf-8');
+    // Remove UserMenu import and usage
+    content = content.replace(/import { UserMenu } from.*\n/g, '');
+    content = content.replace(/<UserMenu\s*\/>/g, '');
+    await fs.writeFile(rootPath, content);
+  }
+
+  // Update router.tsx to remove auth routes
+  const routerPath = path.join(projectPath, 'src/client/router.tsx');
+  if (await fs.pathExists(routerPath)) {
+    let content = await fs.readFile(routerPath, 'utf-8');
+    // Remove login and profile route imports
+    content = content.replace(/import\s+{\s*Route\s+as\s+LoginRoute\s*}\s+from.*login.*\n/g, '');
+    content = content.replace(/import\s+{\s*Route\s+as\s+ProfileRoute\s*}\s+from.*profile.*\n/g, '');
+    await fs.writeFile(routerPath, content);
+  }
+}
+
+// Update client files for no-database scenario
+async function updateClientForNoDb(projectPath: string) {
+  // Remove posts-related components
+  const postsFiles = [
+    'src/client/components/posts-list.tsx',
+    'src/client/components/post-form.tsx',
+  ];
+  await removeFiles(projectPath, postsFiles);
+
+  // Create HelloDemo component
+  const helloDemoPath = path.join(projectPath, 'src/client/components/hello-demo.tsx');
+  const helloDemoContent = `import { useGetHello } from "@/generated/endpoints/hello/hello";
+import { cn, colors, text } from "@/client/lib/design";
+
+export function HelloDemo() {
+	const { data, isLoading, error } = useGetHello();
+
+	if (isLoading) {
+		return (
+			<div className="space-y-4">
+				<h2 className={cn(text.h2, "mb-2")}>API Demo</h2>
+				<p className={cn(text.base, colors.text.secondary)}>Loading...</p>
+			</div>
+		);
+	}
+
+	if (error) {
+		return (
+			<div className="space-y-4">
+				<h2 className={cn(text.h2, "mb-2")}>API Demo</h2>
+				<p className={cn(text.base, "text-red-600")}>Failed to load data</p>
+			</div>
+		);
+	}
+
+	return (
+		<div className="space-y-4">
+			<h2 className={cn(text.h2, "mb-2")}>API Demo</h2>
+			<div className="space-y-2">
+				<p className={cn(text.large)}>{data?.data?.message || "Hello from /api/hello"}</p>
+				<p className={cn(text.small, colors.text.muted)}>
+					{data?.data?.time
+						? new Date(data.data.time).toLocaleString("en-US", {
+								year: "numeric",
+								month: "long",
+								day: "numeric",
+								hour: "2-digit",
+								minute: "2-digit",
+								second: "2-digit",
+						  })
+						: "No timestamp"}
+				</p>
+			</div>
+		</div>
+	);
+}`;
+  await fs.writeFile(helloDemoPath, helloDemoContent);
+
+  // Update index.tsx to use HelloDemo instead of PostsList
+  const indexRoutePath = path.join(projectPath, 'src/client/routes/index.tsx');
+  if (await fs.pathExists(indexRoutePath)) {
+    let content = await fs.readFile(indexRoutePath, 'utf-8');
+    // Replace PostsList import with HelloDemo
+    content = content.replace(/import { PostsList } from.*\n/g, 'import { HelloDemo } from "@client/components/hello-demo";\n');
+    // Replace PostsList component with HelloDemo
+    content = content.replace(/<PostsList\s*\/>/g, '<HelloDemo />');
+    await fs.writeFile(indexRoutePath, content);
+  }
+}
+
 // Process template based on options
 async function processTemplate(
   projectPath: string,
@@ -475,7 +604,7 @@ async function processTemplate(
   }
 
   // If everything is included, no more processing needed
-  if (options.includeDb && options.includeAuth && projectType === 'api-only') return;
+  if (options.includeDb && options.includeAuth) return;
 
   const filesToRemove = options.includeDb 
     ? AUTH_FILES_TO_REMOVE 
@@ -486,7 +615,7 @@ async function processTemplate(
 
   // Update configurations
   await updatePackageJson(projectPath, options);
-  await updateIndexFile(projectPath, options);
+  await updateIndexFile(projectPath, projectType, options);
   await updateWranglerToml(projectPath, options.includeDb);
   await updateApiRoutes(projectPath, options);
   await updateNoAuthFiles(projectPath, options);
@@ -495,13 +624,23 @@ async function processTemplate(
   await createDevVarsFile(projectPath, options);
 
   // Update other files based on project type
-  if (projectType === 'full-stack' && !options.includeAuth) {
-    // Remove auth UI components and routes
-    const clientAuthFiles = [
-      'src/client/routes/login.tsx',
-      'src/client/routes/profile.tsx',
-    ];
-    await removeFiles(projectPath, clientAuthFiles);
+  if (projectType === 'full-stack') {
+    if (!options.includeAuth) {
+      // Remove auth UI components and routes
+      const clientAuthFiles = [
+        'src/client/routes/login.tsx',
+        'src/client/routes/profile.tsx',
+      ];
+      await removeFiles(projectPath, clientAuthFiles);
+
+      // Update client files that reference auth
+      await updateClientAuthReferences(projectPath);
+    }
+
+    // Handle no-database scenario for client - will be done after init
+    // if (!options.includeDb) {
+    //   await updateClientForNoDb(projectPath);
+    // }
   }
 }
 
@@ -527,11 +666,21 @@ function getInitCommands(
   return commands;
 }
 
-async function main() {
-  console.log();
-  intro(kleur.bgCyan().black(' create-vino-app '));
+// Configuration object to hold all user choices
+interface ProjectConfig {
+  projectName: string;
+  projectType: 'full-stack' | 'api-only';
+  includeDb: boolean;
+  includeAuth: boolean;
+  installDeps: boolean;
+  initProject: boolean;
+  initGit: boolean;
+  packageManager: string;
+  targetDir: string;
+}
 
-  const { projectName: argProjectName, flags } = parseArgs();
+// Collect all user choices upfront
+async function collectUserChoices(argProjectName: string | undefined, flags: any): Promise<ProjectConfig> {
   const packageManager = flags.packageManager || detectPackageManager();
 
   // Validate package manager
@@ -573,7 +722,7 @@ async function main() {
   }
 
   // Get project type
-  let projectType: string;
+  let projectType: 'full-stack' | 'api-only';
   if (flags.yes || flags.projectType) {
     projectType = flags.projectType || 'full-stack';
     if (flags.projectType && !['full-stack', 'api-only'].includes(flags.projectType)) {
@@ -587,7 +736,7 @@ async function main() {
         { value: 'full-stack', label: 'Full-stack app (Hono API + React frontend)' },
         { value: 'api-only', label: 'API server only (Hono)' }
       ]
-    });
+    }) as 'full-stack' | 'api-only';
 
     if (typeof typeChoice === 'symbol') {
       cancel('Operation cancelled');
@@ -638,175 +787,188 @@ async function main() {
     console.log(kleur.yellow('⚠️  Better Auth requires a database. Skipping auth.'));
   }
 
-  // Show configuration summary in non-interactive mode
-  if (flags.yes) {
-    console.log();
-    console.log(kleur.dim('Configuration:'));
-    console.log(kleur.dim(`  Project: ${projectName}`));
-    console.log(kleur.dim(`  Type: ${projectType}`));
-    console.log(kleur.dim(`  Database: ${includeDb ? 'Yes' : 'No'}`));
-    console.log(kleur.dim(`  Auth: ${includeAuth ? 'Yes' : 'No'}`));
-    console.log(kleur.dim(`  Package Manager: ${packageManager}`));
-    console.log();
+  // Get install dependencies option
+  let installDeps = true;
+  if (flags.noInstall) {
+    installDeps = false;
+  } else if (!flags.yes) {
+    const installChoice = await confirm({
+      message: 'Install dependencies?',
+      initialValue: true,
+    });
+
+    if (typeof installChoice === 'symbol') {
+      installDeps = false;
+    } else {
+      installDeps = installChoice;
+    }
   }
 
-  // Create project
+  // Get initialize project option (only if installing deps)
+  let initProject = false;
+  if (installDeps && !flags.skipInit) {
+    if (flags.yes) {
+      initProject = true;
+    } else {
+      const initMessage = includeDb 
+        ? 'Initialize project? (Generate types, routes, and setup database)'
+        : 'Initialize project? (Generate types and routes)';
+        
+      const initChoice = await confirm({
+        message: initMessage,
+        initialValue: true,
+      });
+
+      if (typeof initChoice !== 'symbol') {
+        initProject = initChoice;
+      }
+    }
+  }
+
+  // Get git initialization option
+  let initGit = true;
+  if (flags.noGit) {
+    initGit = false;
+  } else if (!flags.yes) {
+    const gitChoice = await confirm({
+      message: 'Initialize git repository?',
+      initialValue: true,
+    });
+
+    if (typeof gitChoice === 'symbol') {
+      initGit = false;
+    } else {
+      initGit = gitChoice;
+    }
+  }
+
+  return {
+    projectName,
+    projectType,
+    includeDb,
+    includeAuth,
+    installDeps,
+    initProject,
+    initGit,
+    packageManager,
+    targetDir
+  };
+}
+
+// Execute all actions based on collected choices
+async function executeActions(config: ProjectConfig) {
   const s = spinner();
   s.start('Creating project...');
 
   try {
     // Create target directory
-    await fs.ensureDir(targetDir);
+    await fs.ensureDir(config.targetDir);
 
     // Copy template
-    const templateDir = path.join(__dirname, '..', 'templates', projectType);
-    await fs.copy(templateDir, targetDir);
+    const templateDir = path.join(__dirname, '..', 'templates', config.projectType);
+    await fs.copy(templateDir, config.targetDir);
 
     // Process template based on options
-    await processTemplate(targetDir, projectType, { includeDb, includeAuth });
+    await processTemplate(config.targetDir, config.projectType, { 
+      includeDb: config.includeDb, 
+      includeAuth: config.includeAuth 
+    });
 
     // Update package.json with project name
-    const packageJsonPath = path.join(targetDir, 'package.json');
+    const packageJsonPath = path.join(config.targetDir, 'package.json');
     const packageJson = await fs.readJSON(packageJsonPath);
-    packageJson.name = projectName;
+    packageJson.name = config.projectName;
     await fs.writeJSON(packageJsonPath, packageJson, { spaces: 2 });
 
     s.stop('Project created successfully!');
 
     // Change to project directory
-    process.chdir(targetDir);
+    process.chdir(config.targetDir);
 
     // Install dependencies
-    let dependenciesInstalled = false;
-    if (!flags.noInstall) {
-      let shouldInstall = flags.yes;
+    if (config.installDeps) {
+      const installSpinner = spinner();
+      installSpinner.start(`Installing dependencies with ${config.packageManager}...`);
       
-      if (!flags.yes) {
-        const installChoice = await confirm({
-          message: 'Install dependencies?',
-          initialValue: true,
-        });
-
-        if (typeof installChoice === 'symbol') {
-          shouldInstall = false;
-        } else {
-          shouldInstall = installChoice;
-        }
-      }
-
-      if (shouldInstall) {
-        const installSpinner = spinner();
-        installSpinner.start(`Installing dependencies with ${packageManager}...`);
-        
-        try {
-          await execAsync(getInstallCommand(packageManager));
-          installSpinner.stop('Dependencies installed!');
-          dependenciesInstalled = true;
-        } catch (error: any) {
-          installSpinner.stop('Failed to install dependencies');
-          console.error(kleur.red('Error:'), error.message);
-        }
+      try {
+        await execAsync(getInstallCommand(config.packageManager));
+        installSpinner.stop('Dependencies installed!');
+      } catch (error: any) {
+        installSpinner.stop('Failed to install dependencies');
+        console.error(kleur.red('Error:'), error.message);
+        config.initProject = false; // Don't init if deps failed
       }
     }
 
-    // Initialize project - only if dependencies were installed
-    if (dependenciesInstalled && !flags.skipInit) {
-      let shouldInitialize = flags.yes;
-      
-      if (!flags.yes) {
-        const initMessage = includeDb 
-          ? 'Initialize project? (Generate types, routes, and setup database)'
-          : 'Initialize project? (Generate types and routes)';
-          
-        const initChoice = await confirm({
-          message: initMessage,
-          initialValue: true,
+    // Initialize project
+    if (config.initProject) {
+      const initSpinner = spinner();
+      initSpinner.start('Initializing project...');
+
+      try {
+        const commands = getInitCommands(config.packageManager, config.projectType, { 
+          includeDb: config.includeDb, 
+          includeAuth: config.includeAuth 
         });
 
-        if (typeof initChoice === 'symbol') {
-          shouldInitialize = false;
-        } else {
-          shouldInitialize = initChoice;
+        // Run commands sequentially
+        for (const cmd of commands) {
+          await execAsync(cmd);
         }
-      }
 
-      if (shouldInitialize) {
-        const initSpinner = spinner();
-        initSpinner.start('Initializing project...');
-
-        try {
-          const commands = getInitCommands(packageManager, projectType, { includeDb, includeAuth });
-
-          // Run commands sequentially
-          for (const cmd of commands) {
-            await execAsync(cmd);
-          }
-
-          initSpinner.stop('Project initialized!');
-        } catch (error: any) {
-          initSpinner.stop('Failed to initialize project');
-          console.error(kleur.red('Error:'), error.message);
-          console.log(kleur.yellow('You can run the initialization commands manually later.'));
+        // For full-stack without DB, ensure client files are updated after API generation
+        if (config.projectType === 'full-stack' && !config.includeDb) {
+          // Since we've already changed to project directory, use current directory
+          await updateClientForNoDb(process.cwd());
         }
+
+        initSpinner.stop('Project initialized!');
+      } catch (error: any) {
+        initSpinner.stop('Failed to initialize project');
+        console.error(kleur.red('Error:'), error.message);
+        console.log(kleur.yellow('You can run the initialization commands manually later.'));
       }
     }
 
     // Git initialization
-    if (!flags.noGit) {
-      let shouldInitGit = flags.yes;
-      
-      if (!flags.yes) {
-        const gitChoice = await confirm({
-          message: 'Initialize git repository?',
-          initialValue: true,
-        });
+    if (config.initGit) {
+      const gitSpinner = spinner();
+      gitSpinner.start('Initializing git repository...');
 
-        if (typeof gitChoice === 'symbol') {
-          shouldInitGit = false;
-        } else {
-          shouldInitGit = gitChoice;
+      try {
+        // Initialize git
+        await execAsync('git init');
+
+        // Only format code if dependencies were installed
+        if (config.installDeps) {
+          await execAsync(getRunCommand(config.packageManager, 'lint:fix'));
         }
-      }
 
-      if (shouldInitGit) {
-        const gitSpinner = spinner();
-        gitSpinner.start('Initializing git repository...');
+        // Create initial commit
+        await execAsync('git add -A');
+        await execAsync('git commit -m "chore: initial commit"');
 
-        try {
-          // Initialize git
-          await execAsync('git init');
-
-          // Only format code if dependencies were installed
-          if (dependenciesInstalled) {
-            await execAsync(getRunCommand(packageManager, 'lint:fix'));
-          }
-
-          // Create initial commit
-          await execAsync('git add -A');
-          await execAsync('git commit -m "chore: initial commit"');
-
-          gitSpinner.stop('Git repository initialized!');
-        } catch (error: any) {
-          gitSpinner.stop('Failed to initialize git');
-          console.error(kleur.red('Error:'), error.message);
-        }
+        gitSpinner.stop('Git repository initialized!');
+      } catch (error: any) {
+        gitSpinner.stop('Failed to initialize git');
+        console.error(kleur.red('Error:'), error.message);
       }
     }
 
     // Success message
     const features = [];
-    if (includeDb) features.push('D1 Database');
-    if (includeAuth) features.push('Better Auth');
+    if (config.includeDb) features.push('D1 Database');
+    if (config.includeAuth) features.push('Better Auth');
     const featuresText = features.length > 0 
       ? `\n${kleur.dim(`Features: ${features.join(', ')}`)}` 
       : '';
 
     outro(`
-${kleur.green('✓')} Project created at ${kleur.cyan(targetDir)}${featuresText}
+${kleur.green('✓')} Project created at ${kleur.cyan(config.targetDir)}${featuresText}
 
 Next steps:
-  ${kleur.cyan(`cd ${projectName}`)}
-  ${kleur.cyan(getRunCommand(packageManager, 'dev'))}
+  ${kleur.cyan(`cd ${config.projectName}`)}
+  ${config.installDeps ? '' : `${kleur.cyan(getInstallCommand(config.packageManager))}\n  `}${kleur.cyan(getRunCommand(config.packageManager, 'dev'))}
 
 ${kleur.dim('For more commands, check the README.md file.')}
 `);
@@ -815,6 +977,47 @@ ${kleur.dim('For more commands, check the README.md file.')}
     console.error(error);
     process.exit(1);
   }
+}
+
+async function main() {
+  console.log();
+  intro(kleur.bgCyan().black(' create-vino-app '));
+
+  const { projectName: argProjectName, flags } = parseArgs();
+
+  // Collect all user choices upfront
+  const config = await collectUserChoices(argProjectName, flags);
+
+  // Show configuration summary
+  console.log();
+  console.log(kleur.bold('Configuration Summary:'));
+  console.log(kleur.dim('────────────────────────'));
+  console.log(`  ${kleur.cyan('Project:')} ${config.projectName}`);
+  console.log(`  ${kleur.cyan('Type:')} ${config.projectType}`);
+  console.log(`  ${kleur.cyan('Database:')} ${config.includeDb ? 'Yes' : 'No'}`);
+  console.log(`  ${kleur.cyan('Auth:')} ${config.includeAuth ? 'Yes' : 'No'}`);
+  console.log(`  ${kleur.cyan('Install dependencies:')} ${config.installDeps ? 'Yes' : 'No'}`);
+  console.log(`  ${kleur.cyan('Initialize project:')} ${config.initProject ? 'Yes' : 'No'}`);
+  console.log(`  ${kleur.cyan('Initialize git:')} ${config.initGit ? 'Yes' : 'No'}`);
+  console.log(`  ${kleur.cyan('Package Manager:')} ${config.packageManager}`);
+  console.log();
+
+  // Confirm before proceeding (unless using -y flag)
+  if (!flags.yes) {
+    const proceed = await confirm({
+      message: 'Proceed with the above configuration?',
+      initialValue: true,
+    });
+
+    if (typeof proceed === 'symbol' || !proceed) {
+      cancel('Operation cancelled');
+      process.exit(0);
+    }
+  }
+
+  // Execute all actions
+  await executeActions(config);
+
 }
 
 main().catch((error) => {

@@ -1,0 +1,225 @@
+{
+  "features": {
+    "auth": {
+      "files": {
+        "remove": [
+          "src/server/lib/auth.ts",
+          "src/server/middleware/auth-guard.ts",
+          "src/server/modules/auth/**",
+          "src/server/db/tables/auth.ts",
+          "src/server/schemas/database/auth.ts",
+          "src/client/lib/auth.ts",
+          "src/client/components/auth/**"
+        ],
+        "transform": [
+          {
+            "file": "src/server/routes/api.ts",
+            "rules": [
+              {
+                "type": "function",
+                "transformer": "removeImport",
+                "options": {
+                  "module": "../modules/auth/index"
+                }
+              },
+              {
+                "type": "replace",
+                "transformer": "removeExport",
+                "options": {
+                  "pattern": "authModule"
+                }
+              }
+            ]
+          },
+          {
+            "file": "src/server/schemas/database/index.ts",
+            "rules": [
+              {
+                "type": "function",
+                "transformer": "removeBlock",
+                "options": {
+                  "startPattern": "// Authentication schemas",
+                  "endPattern": "from \"./auth\";"
+                }
+              }
+            ]
+          },
+          {
+            "file": "src/server/lib/types.ts",
+            "condition": "hasDatabase && !hasAuth",
+            "rules": [
+              {
+                "type": "replace",
+                "transformer": "replaceFile",
+                "options": {
+                  "template": "templates/replacements/lib-types-db-noauth.ts"
+                }
+              }
+            ]
+          },
+          {
+            "file": "src/server/openapi/schemas.ts",
+            "rules": [
+              {
+                "type": "function",
+                "transformer": "removeImport",
+                "options": {
+                  "module": "@/server/schemas",
+                  "imports": ["selectUserSchema"]
+                }
+              },
+              {
+                "type": "function",
+                "transformer": "removeExport",
+                "options": {
+                  "pattern": "User:"
+                }
+              }
+            ]
+          },
+          {
+            "file": "src/server/types/index.ts",
+            "rules": [
+              {
+                "type": "function",
+                "transformer": "removeType",
+                "options": {
+                  "typeName": "AuthUser"
+                }
+              },
+              {
+                "type": "function",
+                "transformer": "removeType",
+                "options": {
+                  "typeName": "AuthSession"
+                }
+              }
+            ]
+          },
+          {
+            "file": "package.json",
+            "rules": [
+              {
+                "type": "function",
+                "transformer": "removeDependency",
+                "options": {
+                  "dependencies": ["better-auth"]
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "database": {
+      "files": {
+        "remove": [
+          "src/server/db/**",
+          "src/server/middleware/database.ts",
+          "src/server/schemas/database/**",
+          "src/server/modules/posts/**",
+          "drizzle.config.ts",
+          "scripts/link-db.ts"
+        ],
+        "transform": [
+          {
+            "file": "package.json",
+            "rules": [
+              {
+                "type": "function",
+                "transformer": "removeDependency",
+                "options": {
+                  "dependencies": [
+                    "drizzle-orm",
+                    "drizzle-zod",
+                    "drizzle-kit",
+                    "better-sqlite3"
+                  ]
+                }
+              },
+              {
+                "type": "function",
+                "transformer": "removeScript",
+                "options": {
+                  "scripts": [
+                    "db:generate",
+                    "db:push:local",
+                    "db:push:remote",
+                    "db:studio",
+                    "db:reset:local",
+                    "db:reset:remote",
+                    "gen:module"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "file": "wrangler.toml",
+            "rules": [
+              {
+                "type": "regex",
+                "transformer": "removeBlock",
+                "options": {
+                  "pattern": "\\[\\[d1_databases\\]\\][\\s\\S]*?(?=\\n\\[|$)"
+                }
+              }
+            ]
+          },
+          {
+            "file": "src/server/lib/types.ts",
+            "condition": "!hasDatabase",
+            "rules": [
+              {
+                "type": "replace",
+                "transformer": "replaceFile",
+                "options": {
+                  "template": "templates/replacements/lib-types-minimal.ts"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "projectTypes": {
+    "api-only": {
+      "files": {
+        "remove": [
+          "src/utils/manifest.ts"
+        ]
+      }
+    },
+    "full-stack": {
+      "files": {
+        "removeWhenNoAuth": [
+          "src/client/routes/login.tsx",
+          "src/client/routes/profile.tsx"
+        ],
+        "transform": [
+          {
+            "file": "src/client/router.tsx",
+            "condition": "!hasAuth",
+            "rules": [
+              {
+                "type": "function",
+                "transformer": "removeImport",
+                "options": {
+                  "module": "./routes/login"
+                }
+              },
+              {
+                "type": "function",
+                "transformer": "removeImport",
+                "options": {
+                  "module": "./routes/profile"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

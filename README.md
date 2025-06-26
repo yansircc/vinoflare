@@ -1,91 +1,166 @@
 # create-vino-app
 
-A simple CLI to scaffold modern full-stack applications with Hono and TanStack Router.
-
-## Usage
-
-```bash
-npx create-vino-app my-app
-# or
-bunx create-vino-app my-app
-# or
-pnpm create vino-app my-app
-# or
-yarn create vino-app my-app
-```
+A modern CLI tool to scaffold full-stack TypeScript applications with Hono and TanStack Router, featuring flexible architecture options and smart dependency management.
 
 ## Features
 
-- 🚀 **Smart package manager detection** - Automatically detects and uses your preferred package manager
-- 📦 **Project templates** - Choose between full-stack or API-only
-- 🎨 **Flexible architecture** - Optional D1 Database and Better Auth integration
-- 🔧 **Auto initialization** - Optionally generate types, routes, and setup database
-- 🎯 **Git integration** - Initialize git repo with formatted code and initial commit
-- ⚡ **Command line arguments** - Pass project name directly to skip prompts
+- 🚀 **Hono** - Fast, lightweight web framework for Cloudflare Workers
+- ⚛️ **React + TanStack Router** - Type-safe routing for React applications
+- 🔐 **Better Auth** - Comprehensive authentication solution (optional)
+- 📦 **D1 Database** - Cloudflare's SQLite database with Drizzle ORM (optional)
+- 📝 **TypeScript** - Full type safety with strict mode
+- 🎨 **Tailwind CSS** - Utility-first CSS framework
+- 🛠️ **Vite** - Lightning-fast build tool
+- 🎯 **Modular Architecture** - Clean, extensible project structure
+- 🔧 **Smart Defaults** - Intelligent feature detection and configuration
 
-## Options
-
-### Interactive Prompts
-
-The CLI will guide you through:
-1. **Project name** (skipped if provided as argument)
-2. **Project type**:
-   - Full-stack app (Hono API + React with TanStack Router)
-   - API server only (Hono)
-3. **Include D1 Database?**
-4. **Include Better Auth?** (only if database is included)
-5. **Install dependencies?** 
-6. **Initialize project?** (generates types, routes, sets up database if included)
-7. **Initialize git repository?**
-
-### Architecture Options
-
-You can create projects with different combinations:
-- ✅ **Full Featured** - D1 Database + Better Auth (default)
-- 📊 **Database Only** - D1 Database without auth
-- ⚡ **Minimal API** - No database, no auth (pure API server)
-
-### Command Line Flags
+## Quick Start
 
 ```bash
-create-vino-app my-app --no-install  # Skip dependency installation
-create-vino-app my-app --no-git      # Skip git initialization
+# Interactive mode (recommended)
+bunx create-vino-app my-app
+
+# Non-interactive with defaults
+bunx create-vino-app my-app -y
+
+# API-only without database
+bunx create-vino-app my-api --type=api-only --no-db -y
+
+# Full-stack with database but no auth
+bunx create-vino-app my-app --no-auth -y
 ```
+
+### Package Manager Support
+
+```bash
+# Using npm
+npx create-vino-app@latest my-app
+
+# Using bun (recommended)
+bunx create-vino-app@latest my-app
+
+# Using pnpm
+pnpm create vino-app@latest my-app
+
+# Using yarn
+yarn create vino-app my-app
+```
+
+## Command-Line Options
+
+```
+-y, --yes              Skip all prompts and use defaults
+--type=<type>          Project type: full-stack or api-only (default: full-stack)
+--no-db                Skip D1 Database integration
+--no-auth              Skip Better Auth (requires database)
+--no-install           Skip dependency installation
+--no-git               Skip git repository initialization
+--skip-init            Skip project initialization (type generation, etc.)
+--pm=<pm>              Force package manager: npm, yarn, pnpm, or bun
+-h, --help             Show help message
+```
+
+## Interactive Options
+
+When running in interactive mode, you'll be prompted to configure:
+
+1. **Project name** - Your application name
+2. **Project type** - Full-stack app or API server only
+3. **D1 Database** - Include Cloudflare D1 database integration
+4. **Better Auth** - Include authentication (requires database)
+5. **Install dependencies** - Install packages automatically
+6. **Initialize project** - Generate types and run setup commands
+7. **Git repository** - Initialize git and create first commit
+
+All options are collected upfront before any actions are executed, with a confirmation summary.
+
+## Project Configurations
+
+### Full-stack with All Features (default)
+- Hono API + React frontend
+- D1 Database with Drizzle ORM
+- Better Auth with Discord OAuth
+- Posts module example
+- Protected routes
+
+### Full-stack with Database Only
+- Hono API + React frontend
+- D1 Database with Drizzle ORM
+- No authentication
+- Public API endpoints
+
+### Full-stack Minimal
+- Hono API + React frontend
+- No database or authentication
+- Simple hello endpoint
+- Minimal dependencies
+
+### API-only Variants
+- Same options as full-stack
+- No React frontend
+- Optimized for API development
+- Smaller deployment size
 
 ## Development
 
+After creating your project:
+
 ```bash
-# Install dependencies
-bun install
-
-# Build the CLI
-bun build
-
-# Link for local testing
-bun link
-
-# Test locally
-create-vino-app test-app
+cd my-app
+bun run dev
 ```
 
-## Templates
+Your app will be available at:
+- Frontend: http://localhost:5173 (full-stack only)
+- API: http://localhost:5173/api
+- API Docs: http://localhost:5173/api/docs
 
-### Full-stack
-Complete application with:
-- Hono backend on Cloudflare Workers
-- React frontend with TanStack Router
-- Better Auth for authentication (optional)
-- Drizzle ORM with D1 database (optional)
-- OpenAPI documentation
-- TypeScript, Biome, Vitest
+### Available Scripts
 
-### API-only
-Hono API server with:
-- Cloudflare Workers runtime
-- Better Auth for authentication (optional)
-- Drizzle ORM with D1 database (optional)
-- OpenAPI documentation
-- TypeScript, Biome, Vitest
+```bash
+bun run dev          # Start development server
+bun run build        # Build for production
+bun run deploy       # Deploy to Cloudflare Workers
+bun run typecheck    # Run TypeScript type checking
+bun run lint         # Run linter
+bun run format       # Format code
+
+# If database is included:
+bun run db:generate  # Generate database migrations
+bun run db:push      # Apply migrations
+bun run db:studio    # Open Drizzle Studio
+
+# If full-stack:
+bun run gen:routes   # Generate TanStack Router types
+```
+
+## Project Structure
+
+```
+my-app/
+├── src/
+│   ├── client/          # React frontend (full-stack only)
+│   │   ├── components/
+│   │   ├── lib/
+│   │   └── routes/
+│   └── server/          # Hono API
+│       ├── config/
+│       ├── db/          # Database (if included)
+│       ├── lib/
+│       ├── middleware/
+│       ├── modules/     # API modules
+│       ├── openapi/
+│       ├── schemas/
+│       └── types/
+├── public/
+├── scripts/
+├── .dev.vars           # Environment variables
+├── drizzle.config.ts   # Database config (if included)
+├── package.json
+├── tsconfig.json
+├── vite.config.ts
+└── wrangler.toml       # Cloudflare Workers config
+```
 
 ## Architecture Details
 
@@ -96,7 +171,8 @@ Based on your choices, the CLI will automatically:
 - Remove Drizzle ORM configuration
 - Remove database middleware
 - Remove `db:*` commands from package.json
-- Simplify the project to a pure API server
+- Use minimal type definitions (BaseEnv)
+- Include only simple API endpoints
 
 ### Without Auth (when database is included)
 - Remove Better Auth integration
@@ -104,3 +180,57 @@ Based on your choices, the CLI will automatically:
 - Remove auth-related API endpoints
 - Remove login/profile pages (full-stack)
 - Keep database for other features
+- Update type definitions accordingly
+
+### Smart File Processing
+- Updates imports and exports automatically
+- Removes unused dependencies from package.json
+- Adjusts TypeScript types based on features
+- Maintains clean, working code for any configuration
+
+## Testing
+
+Run the included test script to validate all combinations:
+
+```bash
+cd create-vino-app
+./test-all-combinations.sh
+```
+
+This will create and build all possible project configurations.
+
+## Local Development
+
+To work on the CLI itself:
+
+```bash
+# Clone the repository
+git clone <repo-url>
+cd create-vino-app
+
+# Install dependencies
+bun install
+
+# Build the CLI
+bun run build
+
+# Link for local testing
+bun link
+
+# Test locally
+bunx create-vino-app test-app
+```
+
+## Contributing
+
+Contributions are welcome! The codebase features:
+- Modular architecture for easy extension
+- Comprehensive type definitions
+- Extensive testing support
+- Clear separation of concerns
+
+See [ARCHITECTURE.md](./ARCHITECTURE.md) for details on the codebase structure.
+
+## License
+
+MIT

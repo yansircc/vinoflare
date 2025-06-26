@@ -14,16 +14,7 @@
           "src/server/modules/posts/**",
           "drizzle.config.ts",
           "scripts/link-db.ts"
-        ],
-        "transform": {
-          "package.json": "removeDatabaseDeps",
-          "src/server/lib/types.ts": "updateTypesForNoDb",
-          "wrangler.toml": "removeD1Config",
-          "src/server/routes/api.ts": "removePostsModule"
-        }
-      },
-      "dependencies": {
-        "remove": ["drizzle-orm", "drizzle-zod", "drizzle-kit", "better-sqlite3"]
+        ]
       }
     },
     {
@@ -39,18 +30,8 @@
           "src/server/db/tables/auth.ts",
           "src/server/schemas/database/auth.ts",
           "src/client/lib/auth.ts",
-          "src/client/components/auth/**",
-          "src/client/routes/login.tsx",
-          "src/client/routes/profile.tsx"
-        ],
-        "transform": {
-          "src/server/routes/api.ts": "removeAuthModule",
-          "src/index.ts": "removeAuthMiddleware",
-          "src/server/config/routes.ts": "updateRoutesForNoAuth"
-        }
-      },
-      "dependencies": {
-        "remove": ["better-auth"]
+          "src/client/components/auth/**"
+        ]
       }
     }
   ],
