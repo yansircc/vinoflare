@@ -1,26 +1,44 @@
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import transformRules from "../../config/transform-rules.json";
 import type { Template } from "../types";
-import type { TemplateConfig } from "../types/config";
-import { isValidTemplateConfig } from "../types/config";
+import type { TransformRulesConfig } from "../types/config";
+import type { TemplateConfig, UnifiedTemplateConfig } from "../types/template-config";
+import { ConfigMerger } from "../utils/config-merger";
 import { pathExists, readJSON } from "../utils/fs";
+import { getLogger } from "../utils/logger";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 /**
- * Load and manage templates
+ * Template loader that supports unified configuration and inheritance
  */
 export class TemplateLoader {
 	private templatesDir: string;
+	private logger = getLogger();
+	private templateCache = new Map<string, UnifiedTemplateConfig>();
 
 	constructor(templatesDir?: string) {
 		this.templatesDir = templatesDir || path.join(__dirname, "../../templates");
 	}
 
 	/**
-	 * Load a template by name
+	 * Load a template with unified configuration
 	 */
 	async loadTemplate(templateName: string): Promise<Template> {
+		const unifiedConfig = await this.loadUnifiedTemplate(templateName);
+		return this.toTemplate(unifiedConfig);
+	}
+
+	/**
+	 * Load a template with unified configuration
+	 */
+	async loadUnifiedTemplate(templateName: string): Promise<UnifiedTemplateConfig> {
+		// Check cache
+		if (this.templateCache.has(templateName)) {
+			return this.templateCache.get(templateName)!;
+		}
+
 		const templatePath = path.join(this.templatesDir, templateName);
 		const configPath = path.join(templatePath, "template.json");
 
@@ -29,52 +47,95 @@ export class TemplateLoader {
 			throw new Error(`Template '${templateName}' not found`);
 		}
 
-		// Load template configuration if exists
-		let config: TemplateConfig | Record<string, any> = {};
+		// Load template configuration
+		let templateConfig: TemplateConfig = {
+			name: templateName,
+			description: `${templateName} template`,
+		};
+
 		if (await pathExists(configPath)) {
-			const rawConfig = await readJSON(configPath);
-			if (isValidTemplateConfig(rawConfig)) {
-				config = rawConfig;
-			} else {
-				console.warn(`Invalid template config for '${templateName}', using defaults`);
+			try {
+				const rawConfig = await readJSON(configPath);
+				templateConfig = rawConfig as TemplateConfig;
+			} catch (error) {
+				this.logger.warn(`Failed to load template config for '${templateName}'`);
 			}
 		}
 
-		// Build template object
-		const template: Template = {
-			name: templateName,
-			description: config.description || `${templateName} template`,
-			path: templatePath,
-			features: config.features || [],
-			scripts: config.scripts || {},
-		};
+		// Handle template inheritance
+		if (templateConfig.extends) {
+			templateConfig = await this.resolveInheritance(templateConfig);
+		}
 
-		return this.validateTemplate(template);
+		// Merge with transform rules
+		const unifiedConfig = ConfigMerger.merge(
+			templateConfig,
+			transformRules as TransformRulesConfig,
+		);
+
+		// Add template path
+		(unifiedConfig as any).path = templatePath;
+
+		// Cache the result
+		this.templateCache.set(templateName, unifiedConfig);
+
+		return unifiedConfig;
 	}
 
 	/**
-	 * Validate template configuration
+	 * Resolve template inheritance
 	 */
-	private validateTemplate(template: Template): Template {
-		// Ensure features have required fields
-		template.features = template.features.map((feature) => ({
-			name: feature.name,
-			enabled: feature.enabled !== false,
-			optional: feature.optional !== false,
-			requires: feature.requires || [],
-			conflicts: feature.conflicts || [],
-			files: {
-				remove: feature.files?.remove || [],
-				add: feature.files?.add || {},
-				transform: feature.files?.transform || {},
-			},
-			dependencies: {
-				add: feature.dependencies?.add || {},
-				remove: feature.dependencies?.remove || [],
-			},
-		}));
+	private async resolveInheritance(
+		templateConfig: TemplateConfig,
+	): Promise<TemplateConfig> {
+		if (!templateConfig.extends) {
+			return templateConfig;
+		}
 
-		return template;
+		const baseTemplates = Array.isArray(templateConfig.extends)
+			? templateConfig.extends
+			: [templateConfig.extends];
+
+		let mergedConfig = templateConfig;
+
+		// Load and merge each base template
+		for (const baseTemplateName of baseTemplates) {
+			const baseTemplate = await this.loadUnifiedTemplate(baseTemplateName);
+			mergedConfig = ConfigMerger.mergeInheritance(baseTemplate, mergedConfig);
+		}
+
+		// Remove extends property from final config
+		delete mergedConfig.extends;
+
+		return mergedConfig;
+	}
+
+	/**
+	 * Convert unified config to legacy Template format for compatibility
+	 */
+	toTemplate(unifiedConfig: UnifiedTemplateConfig): Template {
+		return {
+			name: unifiedConfig.name,
+			description: unifiedConfig.description,
+			path: (unifiedConfig as any).path,
+			features: unifiedConfig.features?.map((feature) => ({
+				name: feature.name,
+				enabled: feature.enabled,
+				optional: feature.optional,
+				requires: feature.requires || [],
+				conflicts: [],
+				files: {
+					remove: feature.files?.remove || [],
+					add: {},
+					transform: feature.files?.transform || {},
+				},
+				dependencies: {
+					add: {},
+					remove: feature.dependencies?.remove || [],
+				},
+			})) || [],
+			scripts: unifiedConfig.scripts || {},
+		};
 	}
 
 	/**
@@ -88,6 +149,7 @@ export class TemplateLoader {
 
 		return entries
 			.filter((entry) => entry.isDirectory())
+			.filter((entry) => entry.name !== "shared") // Exclude shared template from user selection
 			.map((entry) => entry.name);
 	}
 }

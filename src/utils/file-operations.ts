@@ -130,6 +130,40 @@ export class FileOperations {
 	}
 
 	/**
+	 * Update a text file
+	 */
+	async updateTextFile(
+		filePath: string,
+		updater: (content: string) => string | Promise<string>,
+	): Promise<void> {
+		const content = await this.read(filePath);
+		const updated = await updater(content);
+		await this.write(filePath, updated);
+	}
+
+	/**
+	 * Remove multiple files with glob support
+	 */
+	async removeFiles(patterns: string[]): Promise<void> {
+		for (const pattern of patterns) {
+			if (pattern.includes("*")) {
+				// Handle glob patterns
+				const files = await this.glob(pattern);
+				for (const file of files) {
+					await this.remove(file);
+				}
+			} else {
+				// Handle regular paths
+				try {
+					await this.remove(pattern);
+				} catch (error) {
+					// Ignore errors for non-existent files
+				}
+			}
+		}
+	}
+
+	/**
 	 * Resolve path relative to base path
 	 */
 	private resolvePath(filePath: string): string {

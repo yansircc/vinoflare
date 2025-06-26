@@ -159,7 +159,7 @@ export class ConfigValidator {
 		}
 
 		// Validate known transformers
-		const knownTransformers = {
+		const knownTransformers: Record<string, string[]> = {
 			json: ["removeKeys", "addKeys", "updateValues"],
 			function: [
 				"removeImport",
@@ -170,6 +170,8 @@ export class ConfigValidator {
 				"addImport",
 				"updateImport"
 			],
+			replace: [],
+			regex: []
 		};
 
 		if (rule.type && knownTransformers[rule.type]) {

@@ -30,6 +30,7 @@ export class ProjectBuilder {
 
 		// Load template
 		const template = await this.templateLoader.loadTemplate(config.type);
+		const unifiedConfig = await this.templateLoader.loadUnifiedTemplate(config.type);
 
 		// Create execution context
 		const context = new ProjectContext(
@@ -38,6 +39,10 @@ export class ProjectBuilder {
 			template,
 			this.logger,
 		);
+		
+		// Add unified config to context
+		context.setState("unifiedConfig", unifiedConfig);
+		context.setState("templatePath", template.path);
 
 		// Execute processors in order
 		const processors = this.processorRegistry.getOrderedProcessors();

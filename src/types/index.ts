@@ -31,7 +31,6 @@ export interface CommandFlags {
 	skipInit: boolean;
 	packageManager?: string;
 	help: boolean;
-	modular?: boolean;
 }
 
 export interface ParsedArgs {
@@ -57,7 +56,7 @@ export interface TemplateFeature {
 	files: {
 		remove?: string[];
 		add?: Record<string, string>;
-		transform?: Record<string, TransformRule>;
+		transform?: Record<string, string>;
 	};
 	dependencies?: {
 		add?: Record<string, string>;
@@ -66,9 +65,10 @@ export interface TemplateFeature {
 }
 
 export interface TransformRule {
-	type: "function" | "replace" | "regex";
+	type: "function" | "replace" | "regex" | "json";
 	transformer: string;
 	options?: any;
+	condition?: string;
 }
 
 export interface TemplateScripts {

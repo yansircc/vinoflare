@@ -2,6 +2,8 @@
  * Template configuration schema
  */
 
+import type { TransformRule } from "./index";
+
 export interface TemplateConfig {
 	/**
 	 * Template name
@@ -109,27 +111,8 @@ export interface FileTransformConfig {
 	rules: TransformRule[];
 }
 
-export interface TransformRule {
-	/**
-	 * Type of transformation
-	 */
-	type: "json" | "function";
-
-	/**
-	 * Name of the transformer to use
-	 */
-	transformer: string;
-
-	/**
-	 * Options to pass to the transformer
-	 */
-	options?: any;
-
-	/**
-	 * Condition for applying this rule
-	 */
-	condition?: string;
-}
+// Re-export TransformRule from index to avoid duplication
+export type { TransformRule } from "./index";
 
 /**
  * Unified configuration that merges template config and transform rules

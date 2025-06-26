@@ -13,7 +13,6 @@ const TEST_OUTPUT_DIR = path.join(process.cwd(), "test-output");
 const KEEP_FAILED = process.argv.includes("--keep-failed");
 const RUN_PARALLEL = process.argv.includes("--parallel");
 const DEBUG = process.argv.includes("--debug");
-const USE_MODULAR = process.argv.includes("--modular");
 const SAVE_LOGS = process.argv.includes("--save-logs");
 const LOG_DIR = path.join(process.cwd(), "test-logs");
 
@@ -26,27 +25,26 @@ interface TestScenario {
 	projectType: "api-only" | "full-stack";
 }
 
-const modularFlag = USE_MODULAR ? " --modular" : "";
 const scenarios: TestScenario[] = [
 	// API-only scenarios
 	{
 		name: "API-only: DB + Auth",
 		projectName: "test-api-db-auth",
-		command: `bunx create-vino-app test-api-db-auth --type=api-only -y${modularFlag}`,
+		command: `bunx create-vino-app test-api-db-auth --type=api-only -y`,
 		needsDevVars: true,
 		projectType: "api-only",
 	},
 	{
 		name: "API-only: DB, No Auth",
 		projectName: "test-api-db-noauth",
-		command: `bunx create-vino-app test-api-db-noauth --type=api-only --no-auth -y${modularFlag}`,
+		command: `bunx create-vino-app test-api-db-noauth --type=api-only --no-auth -y`,
 		needsDevVars: false,
 		projectType: "api-only",
 	},
 	{
 		name: "API-only: No DB, No Auth",
 		projectName: "test-api-nodb-noauth",
-		command: `bunx create-vino-app test-api-nodb-noauth --type=api-only --no-db -y${modularFlag}`,
+		command: `bunx create-vino-app test-api-nodb-noauth --type=api-only --no-db -y`,
 		needsDevVars: false,
 		projectType: "api-only",
 	},
@@ -54,21 +52,21 @@ const scenarios: TestScenario[] = [
 	{
 		name: "Full-stack: DB + Auth",
 		projectName: "test-full-db-auth",
-		command: `bunx create-vino-app test-full-db-auth -y${modularFlag}`,
+		command: `bunx create-vino-app test-full-db-auth -y`,
 		needsDevVars: true,
 		projectType: "full-stack",
 	},
 	{
 		name: "Full-stack: DB, No Auth",
 		projectName: "test-full-db-noauth",
-		command: `bunx create-vino-app test-full-db-noauth --no-auth -y${modularFlag}`,
+		command: `bunx create-vino-app test-full-db-noauth --no-auth -y`,
 		needsDevVars: false,
 		projectType: "full-stack",
 	},
 	{
 		name: "Full-stack: No DB, No Auth",
 		projectName: "test-full-nodb-noauth",
-		command: `bunx create-vino-app test-full-nodb-noauth --no-db -y${modularFlag}`,
+		command: `bunx create-vino-app test-full-nodb-noauth --no-db -y`,
 		needsDevVars: false,
 		projectType: "full-stack",
 	},

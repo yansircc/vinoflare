@@ -1,6 +1,7 @@
 import path from "node:path";
 import type { ExecutionContext } from "../types";
-import { pathExists, writeFile } from "../utils/fs";
+import { pathExists } from "../utils/fs";
+import { createFileOperations } from "../utils/file-operations";
 import { BaseProcessor } from "./types";
 
 /**
@@ -35,12 +36,13 @@ export class EnvVarsProcessor extends BaseProcessor {
 		}
 
 		// Only create .dev.vars if it doesn't exist
+		const fileOps = createFileOperations(context.projectPath);
 		if (!(await pathExists(devVarsPath))) {
-			await writeFile(devVarsPath, content);
+			await fileOps.write(".dev.vars", content);
 		}
 
 		// Always update .dev.vars.example
-		await writeFile(devVarsExamplePath, content);
+		await fileOps.write(".dev.vars.example", content);
 
 		context.logger.debug("Environment variable files created");
 	}

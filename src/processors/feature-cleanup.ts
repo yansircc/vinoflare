@@ -2,13 +2,12 @@ import type { ExecutionContext, Processor } from "../types";
 import type { UnifiedTemplateConfig } from "../types/template-config";
 import { createFileOperations } from "../utils/file-operations";
 import { getLogger } from "../utils/logger";
-import { removeFiles } from "../utils/fs";
 
 /**
- * Enhanced feature cleanup processor that uses rules from unified configuration
+ * Feature cleanup processor that uses rules from unified configuration
  */
-export class RuleBasedFeatureCleanupProcessor implements Processor {
-	name = "rule-based-feature-cleanup";
+export class FeatureCleanupProcessor implements Processor {
+	name = "feature-cleanup";
 	order = 30; // Run after package.json update
 	private logger = getLogger();
 
@@ -63,7 +62,7 @@ export class RuleBasedFeatureCleanupProcessor implements Processor {
 
 		// Remove all files at once
 		if (allFilesToRemove.length > 0) {
-			await removeFiles(context.projectPath, allFilesToRemove);
+			await fileOps.removeFiles(allFilesToRemove);
 		}
 
 		// Add replacement files
@@ -137,20 +136,7 @@ export class RuleBasedFeatureCleanupProcessor implements Processor {
 	}
 
 	private async handleSpecialCases(context: ExecutionContext): Promise<void> {
-		// Handle client-side updates for no-db in full-stack projects
-		if (
-			context.config.type === "full-stack" &&
-			!context.hasFeature("database")
-		) {
-			// This logic should ideally be moved to configuration
-			// For now, keeping it here for compatibility
-			const clientProcessor = context
-				.getState<Processor[]>("processors")
-				?.find((p) => p.name === "client-no-db");
-			
-			if (clientProcessor && clientProcessor.shouldRun(context)) {
-				this.logger.debug("Delegating to client-no-db processor for special handling");
-			}
-		}
+		// Special cases are now handled through configuration
+		// This method is kept for future extensibility
 	}
 }

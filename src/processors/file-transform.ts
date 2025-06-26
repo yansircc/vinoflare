@@ -7,10 +7,10 @@ import { createFileOperations } from "../utils/file-operations";
 import { getLogger } from "../utils/logger";
 
 /**
- * Enhanced file transformation processor that uses unified configuration
+ * File transformation processor that uses unified configuration
  */
-export class UnifiedFileTransformProcessor implements Processor {
-	name = "unified-file-transform";
+export class FileTransformProcessor implements Processor {
+	name = "file-transform";
 	order = 40; // Run after feature cleanup
 	private logger = getLogger();
 

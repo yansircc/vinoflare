@@ -54,11 +54,7 @@ export class TemplateInheritanceProcessor implements Processor {
 		if (await fileOps.exists(path.relative(context.projectPath, srcPath))) {
 			await fileOps.copy(
 				path.relative(context.projectPath, srcPath),
-				"src",
-				{
-					// Don't overwrite files that already exist in the child template
-					overwrite: false
-				}
+				"src"
 			);
 		}
 
@@ -76,8 +72,7 @@ export class TemplateInheritanceProcessor implements Processor {
 			if (await fileOps.exists(path.relative(context.projectPath, sourcePath))) {
 				await fileOps.copy(
 					path.relative(context.projectPath, sourcePath),
-					file,
-					{ overwrite: false }
+					file
 				);
 			}
 		}

@@ -43,8 +43,8 @@ export class ConfigMerger {
 		const projectTypes = (transformRules as any).projectTypes;
 		if (projectTypes) {
 			for (const [projectType, typeConfig] of Object.entries(projectTypes)) {
-				if (typeConfig.files?.transform) {
-					for (const transformConfig of typeConfig.files.transform) {
+				if ((typeConfig as any).files?.transform) {
+					for (const transformConfig of (typeConfig as any).files.transform) {
 						// Add project type condition
 						const modifiedTransform: FileTransformConfig = {
 							...transformConfig,

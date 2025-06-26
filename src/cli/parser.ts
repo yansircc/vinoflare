@@ -23,7 +23,6 @@ export function parseArgs(argv: string[] = process.argv): ParsedArgs {
 		skipInit: args.includes("--skip-init"),
 		packageManager: getArgValue(args, "--pm"),
 		help: args.includes("--help") || args.includes("-h"),
-		modular: args.includes("--modular"),
 	};
 
 	return { projectName, flags };

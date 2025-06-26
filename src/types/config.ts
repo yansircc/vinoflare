@@ -2,12 +2,7 @@
  * Type definitions for transform rules and template configuration
  */
 
-// Transform Rules Types
-export interface TransformRule {
-	type: "function" | "replace";
-	transformer: string;
-	options?: Record<string, any>;
-}
+import type { TransformRule } from "./index";
 
 // Specific transformer options
 export interface RemoveDependencyOptions {
@@ -94,7 +89,7 @@ export function isValidTransformRule(rule: any): rule is TransformRule {
 	return (
 		rule &&
 		typeof rule === "object" &&
-		["function", "replace"].includes(rule.type) &&
+		["function", "replace", "regex", "json"].includes(rule.type) &&
 		typeof rule.transformer === "string"
 	);
 }
