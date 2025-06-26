@@ -113,6 +113,11 @@ const DB_FILES_TO_REMOVE = [
   'scripts/link-db.ts',
 ];
 
+// Files specific to full-stack that should be removed in api-only
+const FULLSTACK_ONLY_FILES = [
+  'src/utils/manifest.ts',
+];
+
 // Remove files from project
 async function removeFiles(projectPath: string, files: string[]) {
   for (const file of files) {
@@ -231,7 +236,8 @@ async function updateNoAuthFiles(projectPath: string, options: { includeDb: bool
     const dbSchemaIndexPath = path.join(projectPath, 'src/server/schemas/database/index.ts');
     if (await fs.pathExists(dbSchemaIndexPath)) {
       let content = await fs.readFile(dbSchemaIndexPath, 'utf-8');
-      content = content.replace(/export \* from "\.\/auth";\n/g, '');
+      // Remove auth export block completely
+      content = content.replace(/\/\/ Authentication schemas[\s\S]*?from "\.\/auth";\n\n/g, '');
       await fs.writeFile(dbSchemaIndexPath, content);
     }
 
@@ -250,6 +256,30 @@ async function updateNoAuthFiles(projectPath: string, options: { includeDb: bool
     let content = await fs.readFile(middlewareIndexPath, 'utf-8');
     content = content.replace(/export { authGuard } from.*\n/g, '');
     await fs.writeFile(middlewareIndexPath, content);
+  }
+
+  // Update openapi/schemas.ts to remove user schema references
+  if (options.includeDb) {
+    const openapiSchemasPath = path.join(projectPath, 'src/server/openapi/schemas.ts');
+    if (await fs.pathExists(openapiSchemasPath)) {
+      let content = await fs.readFile(openapiSchemasPath, 'utf-8');
+      // Remove user schema import
+      content = content.replace(/,?\s*selectUserSchema/g, '');
+      // Remove user schema definitions
+      content = content.replace(/\s*\/\/ User schemas[\s\S]*?User: z\.toJSONSchema\(selectUserSchema\),?\n/g, '');
+      await fs.writeFile(openapiSchemasPath, content);
+    }
+
+    // Update types/index.ts to remove auth-related types
+    const typesIndexPath = path.join(projectPath, 'src/server/types/index.ts');
+    if (await fs.pathExists(typesIndexPath)) {
+      let content = await fs.readFile(typesIndexPath, 'utf-8');
+      // Remove user type exports
+      content = content.replace(/export type SelectUser[\s\S]*?;\n/g, '');
+      content = content.replace(/export type InsertUser[\s\S]*?;\n/g, '');
+      content = content.replace(/export type SelectSession[\s\S]*?;\n/g, '');
+      await fs.writeFile(typesIndexPath, content);
+    }
   }
 }
 
@@ -408,14 +438,44 @@ export const STATIC_ROUTES = [
   await fs.writeFile(routesConfigPath, simpleRoutesConfig);
 }
 
+// Create or update .dev.vars file based on features
+async function createDevVarsFile(projectPath: string, options: { includeDb: boolean; includeAuth: boolean }) {
+  const devVarsPath = path.join(projectPath, '.dev.vars');
+  const devVarsExamplePath = path.join(projectPath, '.dev.vars.example');
+  
+  let content = '# Environment variables for local development\n';
+  content += 'ENVIRONMENT=development\n';
+  
+  if (options.includeAuth) {
+    content += '\n# Better Auth Configuration\n';
+    content += 'BETTER_AUTH_SECRET=your-secret-key-here\n';
+    content += '\n# OAuth Providers\n';
+    content += 'DISCORD_CLIENT_ID=your-discord-client-id\n';
+    content += 'DISCORD_CLIENT_SECRET=your-discord-client-secret\n';
+  }
+  
+  // Only create .dev.vars if it doesn't exist
+  if (!await fs.pathExists(devVarsPath)) {
+    await fs.writeFile(devVarsPath, content);
+  }
+  
+  // Always update .dev.vars.example
+  await fs.writeFile(devVarsExamplePath, content);
+}
+
 // Process template based on options
 async function processTemplate(
   projectPath: string,
   projectType: string,
   options: { includeDb: boolean; includeAuth: boolean }
 ) {
-  // If everything is included, no processing needed
-  if (options.includeDb && options.includeAuth) return;
+  // Remove files specific to project type
+  if (projectType === 'api-only') {
+    await removeFiles(projectPath, FULLSTACK_ONLY_FILES);
+  }
+
+  // If everything is included, no more processing needed
+  if (options.includeDb && options.includeAuth && projectType === 'api-only') return;
 
   const filesToRemove = options.includeDb 
     ? AUTH_FILES_TO_REMOVE 
@@ -432,6 +492,7 @@ async function processTemplate(
   await updateNoAuthFiles(projectPath, options);
   await updateNoDbFiles(projectPath, options);
   await updateRoutesConfig(projectPath, options.includeAuth);
+  await createDevVarsFile(projectPath, options);
 
   // Update other files based on project type
   if (projectType === 'full-stack' && !options.includeAuth) {
