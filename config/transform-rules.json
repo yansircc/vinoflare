@@ -107,6 +107,25 @@
 								}
 							}
 						]
+					},
+					{
+						"file": "src/index.tsx",
+						"rules": [
+							{
+								"type": "function",
+								"transformer": "removeImport",
+								"options": {
+									"module": "@/server/middleware/auth-guard"
+								}
+							},
+							{
+								"type": "function",
+								"transformer": "removeStatement",
+								"options": {
+									"pattern": "app.use(\"/api/*\", authGuard);"
+								}
+							}
+						]
 					}
 				]
 			}
@@ -175,6 +194,119 @@
 								"transformer": "replaceFile",
 								"options": {
 									"template": "templates/replacements/lib-types-minimal.ts"
+								}
+							}
+						]
+					},
+					{
+						"file": "src/client/routes/index.tsx",
+						"condition": "!hasDatabase",
+						"rules": [
+							{
+								"type": "replace",
+								"transformer": "replaceFile",
+								"options": {
+									"template": "templates/replacements/index-no-db.tsx"
+								}
+							}
+						]
+					},
+					{
+						"file": "src/server/routes/api.ts",
+						"condition": "!hasDatabase",
+						"rules": [
+							{
+								"type": "function",
+								"transformer": "removeImport",
+								"options": {
+									"module": "../modules/posts/index"
+								}
+							},
+							{
+								"type": "replace",
+								"transformer": "removeExport",
+								"options": {
+									"pattern": "postsModule"
+								}
+							}
+						]
+					},
+					{
+						"file": "src/server/schemas/index.ts",
+						"condition": "!hasDatabase",
+						"rules": [
+							{
+								"type": "function",
+								"transformer": "removeImport",
+								"options": {
+									"module": "./database"
+								}
+							}
+						]
+					},
+					{
+						"file": "src/server/types/index.ts",
+						"condition": "!hasDatabase",
+						"rules": [
+							{
+								"type": "function",
+								"transformer": "removeImport",
+								"options": {
+									"module": "../schemas/database"
+								}
+							}
+						]
+					},
+					{
+						"file": "src/server/openapi/schemas.ts",
+						"condition": "!hasDatabase",
+						"rules": [
+							{
+								"type": "function",
+								"transformer": "removeImport",
+								"options": {
+									"module": "@/server/schemas",
+									"imports": ["selectPostSchema", "insertPostSchema"]
+								}
+							},
+							{
+								"type": "function",
+								"transformer": "removeExport",
+								"options": {
+									"pattern": "Post:"
+								}
+							},
+							{
+								"type": "function",
+								"transformer": "removeExport",
+								"options": {
+									"pattern": "CreatePost:"
+								}
+							}
+						]
+					},
+					{
+						"file": "src/server/middleware/index.ts",
+						"condition": "!hasDatabase",
+						"rules": [
+							{
+								"type": "function",
+								"transformer": "removeImport",
+								"options": {
+									"module": "./database"
+								}
+							}
+						]
+					},
+					{
+						"file": "src/client/routes/__root.tsx",
+						"condition": "!hasAuth",
+						"rules": [
+							{
+								"type": "function",
+								"transformer": "removeImport",
+								"options": {
+									"module": "@client/components/auth/user-menu"
 								}
 							}
 						]

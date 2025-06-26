@@ -14,6 +14,7 @@ import { InteractivePrompts } from "./cli/prompts";
 import { ProjectBuilder } from "./core/project-builder";
 import { TemplateLoader } from "./templates/template-loader";
 
+import { ClientNoDbProcessor } from "./processors/client-no-db.processor";
 import { CopyTemplateProcessor } from "./processors/copy-template.processor";
 import { EnvVarsProcessor } from "./processors/env-vars.processor";
 import { FeatureCleanupProcessor } from "./processors/feature-cleanup.processor";
@@ -169,6 +170,7 @@ async function main() {
 			new CopyTemplateProcessor(),
 			new PackageJsonProcessor(),
 			new FeatureCleanupProcessor(),
+			new ClientNoDbProcessor(),
 			new FileTransformProcessor(),
 			new EnvVarsProcessor(),
 			new InstallDependenciesProcessor(),
@@ -210,8 +212,13 @@ ${kleur.dim("For more commands, check the README.md file.")}
 	}
 }
 
-// Run main function
-main().catch((error) => {
-	console.error("An unexpected error occurred:", error);
-	process.exit(1);
-});
+// Export main for programmatic use
+export { main };
+
+// Run main function if called directly
+if (import.meta.url === `file://${process.argv[1]}`) {
+	main().catch((error) => {
+		console.error("An unexpected error occurred:", error);
+		process.exit(1);
+	});
+}

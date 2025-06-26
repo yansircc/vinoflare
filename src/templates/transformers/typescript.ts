@@ -1,5 +1,12 @@
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import fs from "fs-extra";
 import type { ExecutionContext, TransformRule } from "../../types";
+import { createFileOperations } from "../../utils/file-operations";
 import { BaseTransformer } from "./base";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 /**
  * Transformer for TypeScript files
@@ -25,6 +32,12 @@ export class TypeScriptTransformer extends BaseTransformer {
 				return this.removeFunction(content, rule.options);
 			case "replaceInterface":
 				return this.replaceInterface(content, rule.options);
+			case "replaceFile":
+				return this.replaceFile(content, rule.options, context);
+			case "removeStatement":
+				return this.removeStatement(content, rule.options);
+			case "removeBlock":
+				return this.removeBlockTransform(content, rule.options);
 			case "custom":
 				return this.customTransform(content, rule.options, context);
 			default:
@@ -83,6 +96,49 @@ export class TypeScriptTransformer extends BaseTransformer {
 			"g",
 		);
 		return content.replace(interfacePattern, newDefinition);
+	}
+
+	private removeStatement(content: string, options: any): string {
+		const { pattern } = options;
+		// Escape special regex characters in the pattern
+		const escapedPattern = pattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+		const statementPattern = new RegExp(`${escapedPattern}\\s*\\n?`, "g");
+		return content.replace(statementPattern, "");
+	}
+
+	private removeBlockTransform(content: string, options: any): string {
+		const { startPattern, endPattern } = options;
+		const blockPattern = new RegExp(
+			`${startPattern}[\\s\\S]*?${endPattern}\\s*\\n?`,
+			"g",
+		);
+		return content.replace(blockPattern, "");
+	}
+
+	private replaceFile(
+		content: string,
+		options: any,
+		context: ExecutionContext,
+	): string {
+		// Replace entire file content with template file
+		const { template } = options;
+		if (!template) {
+			return content;
+		}
+
+		try {
+			// In the bundled version, we need to find the project root
+			// Start from the current working directory where the CLI is executed
+			const cliRoot = process.cwd();
+			const templatePath = path.join(cliRoot, template);
+			
+			// Read template file synchronously for transformation
+			const templateContent = fs.readFileSync(templatePath, "utf-8");
+			return templateContent;
+		} catch (error) {
+			console.error(`Failed to read template file: ${template}`, error);
+			return content;
+		}
 	}
 
 	private customTransform(

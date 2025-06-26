@@ -27,7 +27,7 @@ const scenarios: TestScenario[] = [
 	{
 		name: "API-only: DB + Auth",
 		projectName: "test-api-db-auth",
-		command: "bunx create-vino-app test-api-db-auth --type=api-only -y",
+		command: "bunx create-vino-app test-api-db-auth --type=api-only -y --modular",
 		needsDevVars: true,
 		projectType: "api-only",
 	},
@@ -35,7 +35,7 @@ const scenarios: TestScenario[] = [
 		name: "API-only: DB, No Auth",
 		projectName: "test-api-db-noauth",
 		command:
-			"bunx create-vino-app test-api-db-noauth --type=api-only --no-auth -y",
+			"bunx create-vino-app test-api-db-noauth --type=api-only --no-auth -y --modular",
 		needsDevVars: false,
 		projectType: "api-only",
 	},
@@ -43,7 +43,7 @@ const scenarios: TestScenario[] = [
 		name: "API-only: No DB, No Auth",
 		projectName: "test-api-nodb-noauth",
 		command:
-			"bunx create-vino-app test-api-nodb-noauth --type=api-only --no-db -y",
+			"bunx create-vino-app test-api-nodb-noauth --type=api-only --no-db -y --modular",
 		needsDevVars: false,
 		projectType: "api-only",
 	},
@@ -51,21 +51,21 @@ const scenarios: TestScenario[] = [
 	{
 		name: "Full-stack: DB + Auth",
 		projectName: "test-full-db-auth",
-		command: "bunx create-vino-app test-full-db-auth -y",
+		command: "bunx create-vino-app test-full-db-auth -y --modular",
 		needsDevVars: true,
 		projectType: "full-stack",
 	},
 	{
 		name: "Full-stack: DB, No Auth",
 		projectName: "test-full-db-noauth",
-		command: "bunx create-vino-app test-full-db-noauth --no-auth -y",
+		command: "bunx create-vino-app test-full-db-noauth --no-auth -y --modular",
 		needsDevVars: false,
 		projectType: "full-stack",
 	},
 	{
 		name: "Full-stack: No DB, No Auth",
 		projectName: "test-full-nodb-noauth",
-		command: "bunx create-vino-app test-full-nodb-noauth --no-db -y",
+		command: "bunx create-vino-app test-full-nodb-noauth --no-db -y --modular",
 		needsDevVars: false,
 		projectType: "full-stack",
 	},

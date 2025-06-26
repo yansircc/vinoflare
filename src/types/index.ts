@@ -31,6 +31,7 @@ export interface CommandFlags {
 	skipInit: boolean;
 	packageManager?: string;
 	help: boolean;
+	modular?: boolean;
 }
 
 export interface ParsedArgs {

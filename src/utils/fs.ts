@@ -9,10 +9,40 @@ export async function removeFiles(
 	projectPath: string,
 	files: string[],
 ): Promise<void> {
+	// Debug log to file
+	await fs.appendFile(
+		"removeFiles-debug.log",
+		`\n[${new Date().toISOString()}] removeFiles called with projectPath: ${projectPath}\n`
+	);
+	await fs.appendFile(
+		"removeFiles-debug.log",
+		`Files to remove: ${files.join(", ")}\n`
+	);
+	
+	const { glob } = await import("glob");
+	
 	for (const file of files) {
-		const fullPath = path.join(projectPath, file);
-		if (await fs.pathExists(fullPath)) {
-			await fs.remove(fullPath);
+		// Handle glob patterns
+		if (file.includes("*")) {
+			const matches = await glob(file, {
+				cwd: projectPath,
+				absolute: true,
+			});
+			for (const match of matches) {
+				if (await fs.pathExists(match)) {
+					await fs.remove(match);
+					await fs.appendFile("removeFiles-debug.log", `[DEBUG] Removed (glob): ${match}\n`);
+				}
+			}
+		} else {
+			// Handle regular files
+			const fullPath = path.join(projectPath, file);
+			if (await fs.pathExists(fullPath)) {
+				await fs.remove(fullPath);
+				await fs.appendFile("removeFiles-debug.log", `[DEBUG] Removed: ${fullPath}\n`);
+			} else {
+				await fs.appendFile("removeFiles-debug.log", `[DEBUG] File not found: ${fullPath}\n`);
+			}
 		}
 	}
 }

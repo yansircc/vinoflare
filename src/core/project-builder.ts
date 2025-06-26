@@ -1,4 +1,5 @@
 import path from "node:path";
+import fs from "fs-extra";
 import type { ProcessorRegistry } from "../processors/registry";
 import type { TemplateLoader } from "../templates/template-loader";
 import { type ProjectConfig, Template } from "../types";
@@ -41,13 +42,34 @@ export class ProjectBuilder {
 		// Execute processors in order
 		const processors = this.processorRegistry.getOrderedProcessors();
 		const executedProcessors: string[] = [];
+		
+		// Debug log
+		await fs.appendFile(
+			"project-builder-debug.log",
+			`\n[${new Date().toISOString()}] Starting build for project: ${config.name}\n`
+		);
+		await fs.appendFile(
+			"project-builder-debug.log",
+			`Processors: ${processors.map(p => p.name).join(", ")}\n`
+		);
 
 		try {
 			for (const processor of processors) {
 				if (processor.shouldRun(context)) {
+					await fs.appendFile(
+						"project-builder-debug.log", 
+						`Running processor: ${processor.name}\n`
+					);
+					console.log(`[PROJECT-BUILDER] Running processor: ${processor.name}`);
 					this.logger.info(`Running ${processor.name}...`);
 					await processor.process(context);
 					executedProcessors.push(processor.name);
+				} else {
+					await fs.appendFile(
+						"project-builder-debug.log", 
+						`Skipping processor: ${processor.name}\n`
+					);
+					console.log(`[PROJECT-BUILDER] Skipping processor: ${processor.name}`);
 				}
 			}
 		} catch (error) {
