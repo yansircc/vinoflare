@@ -4,8 +4,8 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import kleur from "kleur";
 import transformRules from "../config/transform-rules.json";
-import type { TemplateConfig } from "../src/types/template-config";
 import type { TransformRulesConfig } from "../src/types/config";
+import type { TemplateConfig } from "../src/types/template-config";
 import { ConfigValidator } from "../src/utils/config-validator";
 import { pathExists, readJSON } from "../src/utils/fs";
 
@@ -21,7 +21,7 @@ async function validateAllTemplates() {
 	// Validate transform rules
 	console.log(kleur.blue("Validating transform-rules.json..."));
 	const transformRulesResult = validator.validateTransformRules(
-		transformRules as TransformRulesConfig
+		transformRules as TransformRulesConfig,
 	);
 	validator.logValidationResult(transformRulesResult, "transform-rules.json");
 	if (!transformRulesResult.valid) hasErrors = true;
@@ -48,23 +48,26 @@ async function validateAllTemplates() {
 
 		try {
 			// Load and validate template config
-			const config = await readJSON(configPath) as TemplateConfig;
+			const config = (await readJSON(configPath)) as TemplateConfig;
 			const configResult = validator.validateTemplateConfig(config);
-			validator.logValidationResult(configResult, `${templateName}/template.json`);
+			validator.logValidationResult(
+				configResult,
+				`${templateName}/template.json`,
+			);
 			if (!configResult.valid) hasErrors = true;
 
 			// Validate template files
-			const filesResult = await validator.validateTemplateFiles(templatePath, config);
+			const filesResult = await validator.validateTemplateFiles(
+				templatePath,
+				config,
+			);
 			if (filesResult.errors.length > 0 || filesResult.warnings.length > 0) {
 				validator.logValidationResult(filesResult, `${templateName} files`);
 			}
 			if (!filesResult.valid) hasErrors = true;
 
 			// Check for required files
-			const requiredFiles = [
-				"package.json",
-				"tsconfig.json",
-			];
+			const requiredFiles = ["package.json", "tsconfig.json"];
 
 			for (const file of requiredFiles) {
 				const filePath = path.join(templatePath, file);
@@ -79,12 +82,14 @@ async function validateAllTemplates() {
 				for (const feature of config.features) {
 					if (feature.requires) {
 						for (const required of feature.requires) {
-							const requiredFeature = config.features.find(f => f.name === required);
+							const requiredFeature = config.features.find(
+								(f) => f.name === required,
+							);
 							if (!requiredFeature) {
 								console.log(
 									kleur.red(
-										`  ✗ Feature '${feature.name}' requires '${required}' which is not defined`
-									)
+										`  ✗ Feature '${feature.name}' requires '${required}' which is not defined`,
+									),
 								);
 								hasErrors = true;
 							}
@@ -92,7 +97,6 @@ async function validateAllTemplates() {
 					}
 				}
 			}
-
 		} catch (error) {
 			console.log(kleur.red(`  ✗ Failed to validate: ${error}`));
 			hasErrors = true;

@@ -18,7 +18,8 @@ export class FeatureCleanupProcessor implements Processor {
 	async process(context: ExecutionContext): Promise<void> {
 		this.logger.info("Cleaning up disabled features...");
 
-		const unifiedConfig = context.getState<UnifiedTemplateConfig>("unifiedConfig");
+		const unifiedConfig =
+			context.getState<UnifiedTemplateConfig>("unifiedConfig");
 		if (!unifiedConfig?.features) {
 			this.logger.debug("No features found in unified config");
 			return;
@@ -32,13 +33,17 @@ export class FeatureCleanupProcessor implements Processor {
 		for (const feature of unifiedConfig.features) {
 			// Skip if feature is enabled
 			if (context.hasFeature(feature.name)) {
-				this.logger.debug(`Feature '${feature.name}' is enabled - skipping cleanup`);
+				this.logger.debug(
+					`Feature '${feature.name}' is enabled - skipping cleanup`,
+				);
 				continue;
 			}
 
 			// Skip if feature is not optional
 			if (!feature.optional) {
-				this.logger.debug(`Feature '${feature.name}' is required - skipping cleanup`);
+				this.logger.debug(
+					`Feature '${feature.name}' is required - skipping cleanup`,
+				);
 				continue;
 			}
 
@@ -116,7 +121,10 @@ export class FeatureCleanupProcessor implements Processor {
 		}
 	}
 
-	private resolveReplacementPath(context: ExecutionContext, from: string): string {
+	private resolveReplacementPath(
+		context: ExecutionContext,
+		from: string,
+	): string {
 		// Resolve replacement file path
 		// Could be from templates/replacements or templates/shared/replacements
 		const templatePath = context.getState<string>("templatePath");
@@ -135,7 +143,7 @@ export class FeatureCleanupProcessor implements Processor {
 		return possiblePaths[0];
 	}
 
-	private async handleSpecialCases(context: ExecutionContext): Promise<void> {
+	private async handleSpecialCases(_context: ExecutionContext): Promise<void> {
 		// Special cases are now handled through configuration
 		// This method is kept for future extensibility
 	}

@@ -1,200 +1,200 @@
 {
-  "features": {
-    "database": {
-      "description": "D1 Database with Drizzle ORM",
-      "files": {
-        "remove": [
-          "src/server/db/**",
-          "src/server/middleware/database.ts",
-          "src/server/schemas/database/**",
-          "src/server/modules/posts/**",
-          "drizzle.config.ts",
-          "scripts/link-db.ts"
-        ],
-        "removeFromClient": [
-          "src/client/hooks/use-posts.ts",
-          "src/client/components/posts-list.tsx"
-        ],
-        "addReplacements": [
-          {
-            "from": "lib-types-minimal.ts",
-            "to": "src/server/lib/types.ts"
-          },
-          {
-            "from": "hello/",
-            "to": "src/server/modules/hello/"
-          }
-        ]
-      },
-      "transforms": [
-        {
-          "file": "package.json",
-          "rules": [
-            {
-              "type": "json",
-              "transformer": "removeKeys",
-              "options": {
-                "paths": [
-                  "scripts.db:generate",
-                  "scripts.db:push:local",
-                  "scripts.db:push:remote",
-                  "scripts.db:studio",
-                  "scripts.db:reset:local",
-                  "scripts.db:reset:remote"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "file": "wrangler.toml",
-          "rules": [
-            {
-              "type": "function",
-              "transformer": "removeBlock",
-              "options": {
-                "startPattern": "\\[\\[d1_databases\\]\\]",
-                "endPattern": "^\\[",
-                "inclusive": true
-              }
-            }
-          ]
-        },
-        {
-          "file": "src/server/routes/api.ts",
-          "rules": [
-            {
-              "type": "function",
-              "transformer": "removeImport",
-              "options": {
-                "module": "../modules/posts/index"
-              }
-            },
-            {
-              "type": "function",
-              "transformer": "replaceCode",
-              "options": {
-                "search": "postsModule",
-                "replace": "helloModule"
-              }
-            }
-          ]
-        }
-      ],
-      "dependencies": {
-        "remove": [
-          "drizzle-orm",
-          "drizzle-zod",
-          "drizzle-kit",
-          "better-sqlite3",
-          "@types/better-sqlite3"
-        ]
-      }
-    },
-    "auth": {
-      "description": "Better Auth with Discord OAuth",
-      "requires": ["database"],
-      "files": {
-        "remove": [
-          "src/server/lib/auth.ts",
-          "src/server/middleware/auth-guard.ts",
-          "src/server/modules/auth/**",
-          "src/server/db/tables/auth.ts",
-          "src/server/schemas/database/auth.ts"
-        ],
-        "removeFromClient": [
-          "src/client/lib/auth.ts",
-          "src/client/components/auth/**",
-          "src/client/routes/login.tsx",
-          "src/client/routes/profile.tsx"
-        ]
-      },
-      "transforms": [
-        {
-          "file": "src/server/routes/api.ts",
-          "rules": [
-            {
-              "type": "function",
-              "transformer": "removeImport",
-              "options": {
-                "module": "../modules/auth/index"
-              }
-            },
-            {
-              "type": "function",
-              "transformer": "removeStatement",
-              "options": {
-                "pattern": "authModule"
-              }
-            }
-          ]
-        },
-        {
-          "file": "src/server/config/routes.ts",
-          "rules": [
-            {
-              "type": "function",
-              "transformer": "replaceCode",
-              "options": {
-                "search": "PUBLIC_API_ROUTES = ['/api/health']",
-                "replace": "PUBLIC_API_ROUTES = ['/api/health', '/api/**']"
-              }
-            }
-          ]
-        },
-        {
-          "file": "src/client/components/layout/header.tsx",
-          "rules": [
-            {
-              "type": "function",
-              "transformer": "removeImport",
-              "options": {
-                "module": "../auth/user-menu"
-              }
-            },
-            {
-              "type": "function",
-              "transformer": "removeJSXElement",
-              "options": {
-                "element": "UserMenu"
-              }
-            }
-          ]
-        }
-      ],
-      "dependencies": {
-        "remove": ["better-auth", "@better-auth/client"]
-      }
-    }
-  },
-  "projectTypes": {
-    "api-only": {
-      "files": {
-        "remove": [
-          "src/client/**",
-          "orval.config.ts",
-          "postcss.config.js",
-          "tsr.config.json"
-        ]
-      },
-      "transforms": [
-        {
-          "file": "package.json",
-          "rules": [
-            {
-              "type": "json",
-              "transformer": "removeKeys",
-              "options": {
-                "paths": [
-                  "scripts.gen:routes",
-                  "scripts.build:client",
-                  "scripts.preview"
-                ]
-              }
-            }
-          ]
-        }
-      ]
-    }
-  }
+	"features": {
+		"database": {
+			"description": "D1 Database with Drizzle ORM",
+			"files": {
+				"remove": [
+					"src/server/db/**",
+					"src/server/middleware/database.ts",
+					"src/server/schemas/database/**",
+					"src/server/modules/posts/**",
+					"drizzle.config.ts",
+					"scripts/link-db.ts"
+				],
+				"removeFromClient": [
+					"src/client/hooks/use-posts.ts",
+					"src/client/components/posts-list.tsx"
+				],
+				"addReplacements": [
+					{
+						"from": "lib-types-minimal.ts",
+						"to": "src/server/lib/types.ts"
+					},
+					{
+						"from": "hello/",
+						"to": "src/server/modules/hello/"
+					}
+				]
+			},
+			"transforms": [
+				{
+					"file": "package.json",
+					"rules": [
+						{
+							"type": "json",
+							"transformer": "removeKeys",
+							"options": {
+								"paths": [
+									"scripts.db:generate",
+									"scripts.db:push:local",
+									"scripts.db:push:remote",
+									"scripts.db:studio",
+									"scripts.db:reset:local",
+									"scripts.db:reset:remote"
+								]
+							}
+						}
+					]
+				},
+				{
+					"file": "wrangler.toml",
+					"rules": [
+						{
+							"type": "function",
+							"transformer": "removeBlock",
+							"options": {
+								"startPattern": "\\[\\[d1_databases\\]\\]",
+								"endPattern": "^\\[",
+								"inclusive": true
+							}
+						}
+					]
+				},
+				{
+					"file": "src/server/routes/api.ts",
+					"rules": [
+						{
+							"type": "function",
+							"transformer": "removeImport",
+							"options": {
+								"module": "../modules/posts/index"
+							}
+						},
+						{
+							"type": "function",
+							"transformer": "replaceCode",
+							"options": {
+								"search": "postsModule",
+								"replace": "helloModule"
+							}
+						}
+					]
+				}
+			],
+			"dependencies": {
+				"remove": [
+					"drizzle-orm",
+					"drizzle-zod",
+					"drizzle-kit",
+					"better-sqlite3",
+					"@types/better-sqlite3"
+				]
+			}
+		},
+		"auth": {
+			"description": "Better Auth with Discord OAuth",
+			"requires": ["database"],
+			"files": {
+				"remove": [
+					"src/server/lib/auth.ts",
+					"src/server/middleware/auth-guard.ts",
+					"src/server/modules/auth/**",
+					"src/server/db/tables/auth.ts",
+					"src/server/schemas/database/auth.ts"
+				],
+				"removeFromClient": [
+					"src/client/lib/auth.ts",
+					"src/client/components/auth/**",
+					"src/client/routes/login.tsx",
+					"src/client/routes/profile.tsx"
+				]
+			},
+			"transforms": [
+				{
+					"file": "src/server/routes/api.ts",
+					"rules": [
+						{
+							"type": "function",
+							"transformer": "removeImport",
+							"options": {
+								"module": "../modules/auth/index"
+							}
+						},
+						{
+							"type": "function",
+							"transformer": "removeStatement",
+							"options": {
+								"pattern": "authModule"
+							}
+						}
+					]
+				},
+				{
+					"file": "src/server/config/routes.ts",
+					"rules": [
+						{
+							"type": "function",
+							"transformer": "replaceCode",
+							"options": {
+								"search": "PUBLIC_API_ROUTES = ['/api/health']",
+								"replace": "PUBLIC_API_ROUTES = ['/api/health', '/api/**']"
+							}
+						}
+					]
+				},
+				{
+					"file": "src/client/components/layout/header.tsx",
+					"rules": [
+						{
+							"type": "function",
+							"transformer": "removeImport",
+							"options": {
+								"module": "../auth/user-menu"
+							}
+						},
+						{
+							"type": "function",
+							"transformer": "removeJSXElement",
+							"options": {
+								"element": "UserMenu"
+							}
+						}
+					]
+				}
+			],
+			"dependencies": {
+				"remove": ["better-auth", "@better-auth/client"]
+			}
+		}
+	},
+	"projectTypes": {
+		"api-only": {
+			"files": {
+				"remove": [
+					"src/client/**",
+					"orval.config.ts",
+					"postcss.config.js",
+					"tsr.config.json"
+				]
+			},
+			"transforms": [
+				{
+					"file": "package.json",
+					"rules": [
+						{
+							"type": "json",
+							"transformer": "removeKeys",
+							"options": {
+								"paths": [
+									"scripts.gen:routes",
+									"scripts.build:client",
+									"scripts.preview"
+								]
+							}
+						}
+					]
+				}
+			]
+		}
+	}
 }

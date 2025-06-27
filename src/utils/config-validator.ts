@@ -1,10 +1,10 @@
-import type { 
-	TemplateConfig, 
-	FeatureConfig, 
-	FileTransformConfig,
-	TransformRule 
-} from "../types/template-config";
 import type { TransformRulesConfig } from "../types/config";
+import type {
+	FeatureConfig,
+	FileTransformConfig,
+	TemplateConfig,
+	TransformRule,
+} from "../types/template-config";
 import { getLogger } from "./logger";
 
 export interface ValidationResult {
@@ -46,10 +46,10 @@ export class ConfigValidator {
 
 		// Validate inheritance
 		if (config.extends) {
-			const extendsArray = Array.isArray(config.extends) 
-				? config.extends 
+			const extendsArray = Array.isArray(config.extends)
+				? config.extends
 				: [config.extends];
-			
+
 			for (const base of extendsArray) {
 				if (!base || typeof base !== "string") {
 					errors.push("Invalid extends value - must be a string");
@@ -95,7 +95,9 @@ export class ConfigValidator {
 		if (feature.files?.remove) {
 			for (const pattern of feature.files.remove) {
 				if (typeof pattern !== "string") {
-					errors.push(`Feature ${feature.name}: remove patterns must be strings`);
+					errors.push(
+						`Feature ${feature.name}: remove patterns must be strings`,
+					);
 				}
 			}
 		}
@@ -104,7 +106,9 @@ export class ConfigValidator {
 		if (feature.files?.add) {
 			for (const replacement of feature.files.add) {
 				if (!replacement.from || !replacement.to) {
-					errors.push(`Feature ${feature.name}: replacements must have 'from' and 'to' fields`);
+					errors.push(
+						`Feature ${feature.name}: replacements must have 'from' and 'to' fields`,
+					);
 				}
 			}
 		}
@@ -112,7 +116,9 @@ export class ConfigValidator {
 		// Validate dependencies to remove
 		if (feature.dependencies?.remove) {
 			if (!Array.isArray(feature.dependencies.remove)) {
-				errors.push(`Feature ${feature.name}: dependencies.remove must be an array`);
+				errors.push(
+					`Feature ${feature.name}: dependencies.remove must be an array`,
+				);
 			}
 		}
 
@@ -146,7 +152,10 @@ export class ConfigValidator {
 	/**
 	 * Validate a transform rule
 	 */
-	private validateTransformRule(rule: TransformRule, file: string): ValidationResult {
+	private validateTransformRule(
+		rule: TransformRule,
+		file: string,
+	): ValidationResult {
 		const errors: string[] = [];
 		const warnings: string[] = [];
 
@@ -168,16 +177,16 @@ export class ConfigValidator {
 				"replaceCode",
 				"removeJSXElement",
 				"addImport",
-				"updateImport"
+				"updateImport",
 			],
 			replace: [],
-			regex: []
+			regex: [],
 		};
 
 		if (rule.type && knownTransformers[rule.type]) {
 			if (!knownTransformers[rule.type].includes(rule.transformer)) {
 				warnings.push(
-					`Transform ${file}: unknown ${rule.type} transformer '${rule.transformer}'`
+					`Transform ${file}: unknown ${rule.type} transformer '${rule.transformer}'`,
 				);
 			}
 		}
@@ -194,12 +203,18 @@ export class ConfigValidator {
 
 		// Validate features
 		if (config.features) {
-			for (const [featureName, featureConfig] of Object.entries(config.features)) {
+			for (const [featureName, featureConfig] of Object.entries(
+				config.features,
+			)) {
 				if (featureConfig.files?.transform) {
 					for (const transform of featureConfig.files.transform) {
 						const result = this.validateTransform(transform);
-						errors.push(...result.errors.map(e => `Feature ${featureName}: ${e}`));
-						warnings.push(...result.warnings.map(w => `Feature ${featureName}: ${w}`));
+						errors.push(
+							...result.errors.map((e) => `Feature ${featureName}: ${e}`),
+						);
+						warnings.push(
+							...result.warnings.map((w) => `Feature ${featureName}: ${w}`),
+						);
 					}
 				}
 			}
@@ -217,7 +232,7 @@ export class ConfigValidator {
 	 */
 	async validateTemplateFiles(
 		templatePath: string,
-		config: TemplateConfig
+		config: TemplateConfig,
 	): Promise<ValidationResult> {
 		const errors: string[] = [];
 		const warnings: string[] = [];
@@ -249,7 +264,7 @@ export class ConfigValidator {
 							`${templatePath}/../replacements/${replacement.from}`,
 							`${templatePath}/replacements/${replacement.from}`,
 						];
-						
+
 						let found = false;
 						for (const path of possiblePaths) {
 							if (await pathExists(path)) {
@@ -257,10 +272,10 @@ export class ConfigValidator {
 								break;
 							}
 						}
-						
+
 						if (!found) {
 							warnings.push(
-								`Feature ${feature.name}: replacement source not found: ${replacement.from}`
+								`Feature ${feature.name}: replacement source not found: ${replacement.from}`,
 							);
 						}
 					}
@@ -281,12 +296,12 @@ export class ConfigValidator {
 	logValidationResult(result: ValidationResult, name: string): void {
 		if (result.errors.length > 0) {
 			this.logger.error(`Validation failed for ${name}:`);
-			result.errors.forEach(error => this.logger.error(`  - ${error}`));
+			result.errors.forEach((error) => this.logger.error(`  - ${error}`));
 		}
 
 		if (result.warnings.length > 0) {
 			this.logger.warn(`Validation warnings for ${name}:`);
-			result.warnings.forEach(warning => this.logger.warn(`  - ${warning}`));
+			result.warnings.forEach((warning) => this.logger.warn(`  - ${warning}`));
 		}
 
 		if (result.valid && result.warnings.length === 0) {

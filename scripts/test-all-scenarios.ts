@@ -109,7 +109,7 @@ async function runCommand(
 		return { stdout, stderr };
 	} catch (error: any) {
 		// Include stderr in the error message for better debugging
-		const errorDetails = error.stderr || error.message || 'Unknown error';
+		const errorDetails = error.stderr || error.message || "Unknown error";
 		throw new Error(`Command failed: ${command}\n${errorDetails}`);
 	}
 }
@@ -130,9 +130,12 @@ async function testScenario(scenario: TestScenario): Promise<TestResult> {
 		// Step 1: Create project
 		console.log(`  ${kleur.dim("→")} Creating project...`);
 		logs.push(`Creating project with command: ${scenario.command}`);
-		
+
 		try {
-			const { stdout, stderr } = await runCommand(scenario.command, TEST_OUTPUT_DIR);
+			const { stdout, stderr } = await runCommand(
+				scenario.command,
+				TEST_OUTPUT_DIR,
+			);
 			if (stdout) logs.push(`STDOUT: ${stdout}`);
 			if (stderr) logs.push(`STDERR: ${stderr}`);
 		} catch (createError: any) {
@@ -140,15 +143,18 @@ async function testScenario(scenario: TestScenario): Promise<TestResult> {
 			logs.push(`ERROR: Project creation failed`);
 			logs.push(`Command: ${scenario.command}`);
 			logs.push(`Error: ${createError.message}`);
-			
+
 			// Save logs if requested
 			if (SAVE_LOGS) {
-				const logFile = path.join(LOG_DIR, `${scenario.projectName}-create.log`);
+				const logFile = path.join(
+					LOG_DIR,
+					`${scenario.projectName}-create.log`,
+				);
 				await fs.ensureDir(LOG_DIR);
-				await fs.writeFile(logFile, logs.join('\n'));
+				await fs.writeFile(logFile, logs.join("\n"));
 				console.error(`  ${kleur.yellow("!")} Logs saved to: ${logFile}`);
 			}
-			
+
 			console.error(`  ${kleur.red("✗")} Project creation failed`);
 			console.error(`  ${kleur.gray("See logs for details")}`);
 			throw createError;
@@ -170,17 +176,19 @@ async function testScenario(scenario: TestScenario): Promise<TestResult> {
 				"src/server/routes/api.ts",
 				"src/server/openapi/schemas.ts",
 				"src/client/hooks/use-posts.ts",
-				"src/client/components/posts-list.tsx"
+				"src/client/components/posts-list.tsx",
 			];
-			
-			console.log(`  ${kleur.blue("[DEBUG]")} Checking files after project creation:`);
+
+			console.log(
+				`  ${kleur.blue("[DEBUG]")} Checking files after project creation:`,
+			);
 			for (const file of filesToCheck) {
 				const filePath = path.join(projectPath, file);
 				if (await fs.pathExists(filePath)) {
-					const content = await fs.readFile(filePath, 'utf-8');
-					const lines = content.split('\n').length;
+					const content = await fs.readFile(filePath, "utf-8");
+					const lines = content.split("\n").length;
 					console.log(`    ${kleur.gray(file)}: ${lines} lines`);
-					if (lines === 0 || content.trim() === '') {
+					if (lines === 0 || content.trim() === "") {
 						console.log(`      ${kleur.yellow("⚠ File is empty!")}`);
 					}
 				} else {
@@ -194,13 +202,18 @@ async function testScenario(scenario: TestScenario): Promise<TestResult> {
 			// For auth scenarios, we need to run gen:types first to generate worker-configuration.d.ts
 			await runCommand("bun run gen:types", projectPath);
 		}
-		
+
 		// For full-stack projects with database, we need to run the full initialization
 		// to generate the API client code that use-posts.ts depends on
-		if (scenario.projectType === "full-stack" && scenario.command.includes("--no-db") === false) {
-			console.log(`  ${kleur.dim("→")} Running project initialization for database setup...`);
+		if (
+			scenario.projectType === "full-stack" &&
+			scenario.command.includes("--no-db") === false
+		) {
+			console.log(
+				`  ${kleur.dim("→")} Running project initialization for database setup...`,
+			);
 			logs.push(`Running initialization for database project`);
-			
+
 			// Run the same initialization that would happen in ProjectInitProcessor
 			await runCommand("bun run gen:routes", projectPath);
 			await runCommand("bun run db:generate", projectPath);
@@ -211,9 +224,12 @@ async function testScenario(scenario: TestScenario): Promise<TestResult> {
 		// Step 4: Run lint:fix
 		console.log(`  ${kleur.dim("→")} Running lint:fix...`);
 		logs.push(`Running lint:fix in ${projectPath}`);
-		
+
 		try {
-			const { stdout, stderr } = await runCommand("bun run lint:fix", projectPath);
+			const { stdout, stderr } = await runCommand(
+				"bun run lint:fix",
+				projectPath,
+			);
 			if (stdout) logs.push(`Lint STDOUT: ${stdout}`);
 			if (stderr) logs.push(`Lint STDERR: ${stderr}`);
 			console.log(`  ${kleur.green("✓")} lint:fix passed`);
@@ -225,49 +241,76 @@ async function testScenario(scenario: TestScenario): Promise<TestResult> {
 		// Step 5: Run typecheck
 		console.log(`  ${kleur.dim("→")} Running typecheck...`);
 		logs.push(`Running typecheck in ${projectPath}`);
-		
+
 		try {
-			const { stdout, stderr } = await runCommand("bun run typecheck", projectPath);
+			const { stdout, stderr } = await runCommand(
+				"bun run typecheck",
+				projectPath,
+			);
 			if (stdout) logs.push(`Typecheck STDOUT: ${stdout}`);
 			if (stderr) logs.push(`Typecheck STDERR: ${stderr}`);
 			console.log(`  ${kleur.green("✓")} typecheck passed`);
 		} catch (error: any) {
 			// Get detailed typecheck errors
 			try {
-				const { stdout, stderr } = await execAsync("bun run typecheck 2>&1 || true", { 
-					cwd: projectPath,
-				});
-				const output = stdout || stderr || '';
+				const { stdout, stderr } = await execAsync(
+					"bun run typecheck 2>&1 || true",
+					{
+						cwd: projectPath,
+					},
+				);
+				const output = stdout || stderr || "";
 				logs.push(`Typecheck output:\n${output}`);
-				
-				const lines = output.split('\n').filter(line => line.trim());
-				const errorLines = lines.filter(line => line.includes('error TS'));
+
+				const lines = output.split("\n").filter((line) => line.trim());
+				const errorLines = lines.filter((line) => line.includes("error TS"));
 				const errors = errorLines.slice(0, 10); // Show first 10 errors
-				
+
 				// Also extract file paths with errors
-				const fileErrors = lines.filter(line => line.includes('.ts(') || line.includes('.tsx('));
-				const uniqueFiles = [...new Set(fileErrors.map(line => {
-					const match = line.match(/([^:]+\.tsx?)\(/);
-					return match ? match[1] : null;
-				}).filter(Boolean))];
-				
+				const fileErrors = lines.filter(
+					(line) => line.includes(".ts(") || line.includes(".tsx("),
+				);
+				const uniqueFiles = [
+					...new Set(
+						fileErrors
+							.map((line) => {
+								const match = line.match(/([^:]+\.tsx?)\(/);
+								return match ? match[1] : null;
+							})
+							.filter(Boolean),
+					),
+				];
+
 				if (errors.length > 0) {
-					console.error(`  ${kleur.red("✗")} TypeScript errors in ${uniqueFiles.length} files:`);
-					uniqueFiles.slice(0, 5).forEach(file => console.error(`    ${kleur.yellow(file)}`));
-					errors.forEach(err => console.error(`    ${kleur.gray(err.trim())}`));
+					console.error(
+						`  ${kleur.red("✗")} TypeScript errors in ${uniqueFiles.length} files:`,
+					);
+					uniqueFiles
+						.slice(0, 5)
+						.forEach((file) => console.error(`    ${kleur.yellow(file)}`));
+					errors.forEach((err) =>
+						console.error(`    ${kleur.gray(err.trim())}`),
+					);
 					if (errorLines.length > 10) {
-						console.error(`    ${kleur.gray(`... and ${errorLines.length - 10} more errors`)}`);
+						console.error(
+							`    ${kleur.gray(`... and ${errorLines.length - 10} more errors`)}`,
+						);
 					}
 				}
-				
+
 				// Save detailed typecheck log
 				if (SAVE_LOGS) {
-					const logFile = path.join(LOG_DIR, `${scenario.projectName}-typecheck.log`);
+					const logFile = path.join(
+						LOG_DIR,
+						`${scenario.projectName}-typecheck.log`,
+					);
 					await fs.ensureDir(LOG_DIR);
 					await fs.writeFile(logFile, output);
-					console.error(`  ${kleur.yellow("!")} Full typecheck output saved to: ${logFile}`);
+					console.error(
+						`  ${kleur.yellow("!")} Full typecheck output saved to: ${logFile}`,
+					);
 				}
-				
+
 				throw new Error(`typecheck failed with ${errorLines.length} errors`);
 			} catch (execError) {
 				logs.push(`Failed to get typecheck details: ${execError}`);
@@ -311,9 +354,12 @@ async function testScenario(scenario: TestScenario): Promise<TestResult> {
 		if (SAVE_LOGS) {
 			const logFile = path.join(LOG_DIR, `${scenario.projectName}-error.log`);
 			await fs.ensureDir(LOG_DIR);
-			await fs.writeFile(logFile, logs.join('\n') + '\n\nERROR:\n' + error.message);
+			await fs.writeFile(
+				logFile,
+				logs.join("\n") + "\n\nERROR:\n" + error.message,
+			);
 		}
-		
+
 		return {
 			scenario: scenario.name,
 			success: false,

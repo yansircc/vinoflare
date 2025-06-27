@@ -21,7 +21,8 @@ export class FileTransformProcessor implements Processor {
 	async process(context: ExecutionContext): Promise<void> {
 		this.logger.info("Applying file transformations...");
 
-		const unifiedConfig = context.getState<UnifiedTemplateConfig>("unifiedConfig");
+		const unifiedConfig =
+			context.getState<UnifiedTemplateConfig>("unifiedConfig");
 		if (!unifiedConfig?.transforms) {
 			this.logger.debug("No transformations found in unified config");
 			return;
@@ -64,9 +65,7 @@ export class FileTransformProcessor implements Processor {
 				await fileOps.write(transform.file, content);
 				this.logger.debug(`Transformed: ${transform.file}`);
 			} catch (error) {
-				this.logger.error(
-					`Failed to transform ${transform.file}: ${error}`,
-				);
+				this.logger.error(`Failed to transform ${transform.file}: ${error}`);
 			}
 		}
 

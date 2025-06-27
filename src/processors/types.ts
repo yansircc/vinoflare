@@ -10,7 +10,7 @@ export abstract class BaseProcessor implements Processor {
 	abstract shouldRun(context: any): boolean;
 	abstract process(context: any): Promise<void>;
 
-	async rollback?(context: any): Promise<void> {
+	async rollback?(_context: any): Promise<void> {
 		// Default: no rollback
 	}
 }

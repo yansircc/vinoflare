@@ -1,5 +1,4 @@
 import type { ExecutionContext } from "../types";
-import { createFileOperations } from "../utils/file-operations";
 import { BaseProcessor } from "./types";
 
 /**

@@ -54,12 +54,12 @@ export class ConditionEvaluator {
 
 		if (expression.includes("==")) {
 			const [left, right] = this.splitByOperator(expression, "==");
-			return this.getValue(left) == this.getValue(right);
+			return this.getValue(left) === this.getValue(right);
 		}
 
 		if (expression.includes("!=")) {
 			const [left, right] = this.splitByOperator(expression, "!=");
-			return this.getValue(left) != this.getValue(right);
+			return this.getValue(left) !== this.getValue(right);
 		}
 
 		// Simple variable lookup
@@ -116,7 +116,7 @@ export class ConditionEvaluator {
 
 		// Check if it's a number
 		const num = Number(key);
-		if (!isNaN(num)) {
+		if (!Number.isNaN(num)) {
 			return num;
 		}
 

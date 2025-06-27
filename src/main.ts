@@ -3,16 +3,14 @@
 import path from "node:path";
 import process from "node:process";
 import { cancel, intro, outro, spinner } from "@clack/prompts";
+import { pathExists } from "fs-extra";
 import kleur from "kleur";
-
 import { showHelp } from "./cli/help";
 // CLI components
 import { parseArgs, validateArgs } from "./cli/parser";
 import { InteractivePrompts } from "./cli/prompts";
-
 // Core components
 import { ProjectBuilder } from "./core/project-builder";
-import { TemplateLoader } from "./templates/template-loader";
 
 import { CopyTemplateProcessor } from "./processors/copy-template";
 import { EnvVarsProcessor } from "./processors/env-vars";
@@ -22,11 +20,10 @@ import { GitInitProcessor } from "./processors/git-init";
 import { InstallDependenciesProcessor } from "./processors/install-dependencies";
 import { PackageJsonProcessor } from "./processors/package-json";
 import { ProjectInitProcessor } from "./processors/project-init";
-import { TemplateInheritanceProcessor } from "./processors/template-inheritance";
 // Processors
 import { ProcessorRegistry } from "./processors/registry";
-
-import { pathExists } from "fs-extra";
+import { TemplateInheritanceProcessor } from "./processors/template-inheritance";
+import { TemplateLoader } from "./templates/template-loader";
 import type { ProjectConfig } from "./types";
 // Utils
 import {

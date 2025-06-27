@@ -2,7 +2,7 @@ import path from "node:path";
 import fs, { pathExists } from "fs-extra";
 import type { ProcessorRegistry } from "../processors/registry";
 import type { TemplateLoader } from "../templates/template-loader";
-import { type ProjectConfig, Template } from "../types";
+import type { ProjectConfig } from "../types";
 import { createLogger } from "../utils/logger";
 import { ProjectContext } from "./context";
 
@@ -29,7 +29,9 @@ export class ProjectBuilder {
 
 		// Load template
 		const template = await this.templateLoader.loadTemplate(config.type);
-		const unifiedConfig = await this.templateLoader.loadUnifiedTemplate(config.type);
+		const unifiedConfig = await this.templateLoader.loadUnifiedTemplate(
+			config.type,
+		);
 
 		// Create execution context
 		const context = new ProjectContext(
@@ -38,7 +40,7 @@ export class ProjectBuilder {
 			template,
 			this.logger,
 		);
-		
+
 		// Add unified config to context
 		context.setState("unifiedConfig", unifiedConfig);
 		context.setState("templatePath", template.path);
@@ -46,23 +48,23 @@ export class ProjectBuilder {
 		// Execute processors in order
 		const processors = this.processorRegistry.getOrderedProcessors();
 		const executedProcessors: string[] = [];
-		
+
 		// Debug log
 		await fs.appendFile(
 			"project-builder-debug.log",
-			`\n[${new Date().toISOString()}] Starting build for project: ${config.name}\n`
+			`\n[${new Date().toISOString()}] Starting build for project: ${config.name}\n`,
 		);
 		await fs.appendFile(
 			"project-builder-debug.log",
-			`Processors: ${processors.map(p => p.name).join(", ")}\n`
+			`Processors: ${processors.map((p) => p.name).join(", ")}\n`,
 		);
 
 		try {
 			for (const processor of processors) {
 				if (processor.shouldRun(context)) {
 					await fs.appendFile(
-						"project-builder-debug.log", 
-						`Running processor: ${processor.name}\n`
+						"project-builder-debug.log",
+						`Running processor: ${processor.name}\n`,
 					);
 					console.log(`[PROJECT-BUILDER] Running processor: ${processor.name}`);
 					this.logger.info(`Running ${processor.name}...`);
@@ -70,10 +72,12 @@ export class ProjectBuilder {
 					executedProcessors.push(processor.name);
 				} else {
 					await fs.appendFile(
-						"project-builder-debug.log", 
-						`Skipping processor: ${processor.name}\n`
+						"project-builder-debug.log",
+						`Skipping processor: ${processor.name}\n`,
 					);
-					console.log(`[PROJECT-BUILDER] Skipping processor: ${processor.name}`);
+					console.log(
+						`[PROJECT-BUILDER] Skipping processor: ${processor.name}`,
+					);
 				}
 			}
 		} catch (error) {

@@ -17,7 +17,7 @@ export class TemplateInheritanceProcessor implements Processor {
 
 	async process(context: ExecutionContext): Promise<void> {
 		const templateConfig = context.getState<any>("templateConfig");
-		
+
 		// Check if template extends another template
 		if (!templateConfig?.extends) {
 			return;
@@ -25,8 +25,8 @@ export class TemplateInheritanceProcessor implements Processor {
 
 		context.logger.info(`Inheriting from template: ${templateConfig.extends}`);
 
-		const baseTemplatePaths = Array.isArray(templateConfig.extends) 
-			? templateConfig.extends 
+		const baseTemplatePaths = Array.isArray(templateConfig.extends)
+			? templateConfig.extends
 			: [templateConfig.extends];
 
 		for (const baseTemplate of baseTemplatePaths) {
@@ -38,13 +38,13 @@ export class TemplateInheritanceProcessor implements Processor {
 
 	private async copyBaseTemplate(
 		context: ExecutionContext,
-		baseTemplate: string
+		baseTemplate: string,
 	): Promise<void> {
 		const fileOps = createFileOperations(context.projectPath);
 		const baseTemplatePath = path.join(
 			path.dirname(context.getState<string>("templatePath") || ""),
 			"..",
-			baseTemplate
+			baseTemplate,
 		);
 
 		context.logger.debug(`Copying from base template: ${baseTemplatePath}`);
@@ -52,10 +52,7 @@ export class TemplateInheritanceProcessor implements Processor {
 		// Copy all files from base template
 		const srcPath = path.join(baseTemplatePath, "src");
 		if (await fileOps.exists(path.relative(context.projectPath, srcPath))) {
-			await fileOps.copy(
-				path.relative(context.projectPath, srcPath),
-				"src"
-			);
+			await fileOps.copy(path.relative(context.projectPath, srcPath), "src");
 		}
 
 		// Copy other root files (configs, scripts, etc.)
@@ -64,15 +61,17 @@ export class TemplateInheritanceProcessor implements Processor {
 			"biome.jsonc",
 			"tsconfig.json",
 			"vitest.config.ts",
-			"scripts"
+			"scripts",
 		];
 
 		for (const file of rootFiles) {
 			const sourcePath = path.join(baseTemplatePath, file);
-			if (await fileOps.exists(path.relative(context.projectPath, sourcePath))) {
+			if (
+				await fileOps.exists(path.relative(context.projectPath, sourcePath))
+			) {
 				await fileOps.copy(
 					path.relative(context.projectPath, sourcePath),
-					file
+					file,
 				);
 			}
 		}

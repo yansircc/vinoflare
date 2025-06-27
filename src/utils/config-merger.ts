@@ -1,9 +1,9 @@
+import type { TransformRulesConfig } from "../types/config";
 import type {
+	FileTransformConfig,
 	TemplateConfig,
 	UnifiedTemplateConfig,
-	FileTransformConfig,
 } from "../types/template-config";
-import type { TransformRulesConfig } from "../types/config";
 
 /**
  * Merges template configuration with transform rules
@@ -16,7 +16,9 @@ export class ConfigMerger {
 		templateConfig: TemplateConfig,
 		transformRules: TransformRulesConfig,
 	): UnifiedTemplateConfig {
-		const transforms: FileTransformConfig[] = [...(templateConfig.transforms || [])];
+		const transforms: FileTransformConfig[] = [
+			...(templateConfig.transforms || []),
+		];
 
 		// Add transforms from feature-based rules
 		for (const [featureName, featureConfig] of Object.entries(
@@ -74,17 +76,17 @@ export class ConfigMerger {
 			...parent,
 			...child,
 			// Merge features
-			features: this.mergeFeatures(parent.features || [], child.features || []),
+			features: ConfigMerger.mergeFeatures(
+				parent.features || [],
+				child.features || [],
+			),
 			// Child scripts override parent scripts
 			scripts: {
 				...parent.scripts,
 				...child.scripts,
 			},
 			// Merge transforms
-			transforms: [
-				...(parent.transforms || []),
-				...(child.transforms || []),
-			],
+			transforms: [...(parent.transforms || []), ...(child.transforms || [])],
 		};
 	}
 

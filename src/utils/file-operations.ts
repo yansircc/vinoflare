@@ -42,7 +42,10 @@ export class FileOperations {
 		try {
 			await fs.copy(fromPath, toPath);
 		} catch (error: any) {
-			throw new FileOperationError(`Failed to copy from ${from} to ${to}`, error);
+			throw new FileOperationError(
+				`Failed to copy from ${from} to ${to}`,
+				error,
+			);
 		}
 	}
 
@@ -93,7 +96,10 @@ export class FileOperations {
 		try {
 			await fs.ensureDir(fullPath);
 		} catch (error: any) {
-			throw new FileOperationError(`Failed to ensure directory: ${dirPath}`, error);
+			throw new FileOperationError(
+				`Failed to ensure directory: ${dirPath}`,
+				error,
+			);
 		}
 	}
 
@@ -156,7 +162,7 @@ export class FileOperations {
 				// Handle regular paths
 				try {
 					await this.remove(pattern);
-				} catch (error) {
+				} catch (_error) {
 					// Ignore errors for non-existent files
 				}
 			}
@@ -167,7 +173,9 @@ export class FileOperations {
 	 * Resolve path relative to base path
 	 */
 	private resolvePath(filePath: string): string {
-		return path.isAbsolute(filePath) ? filePath : path.join(this.basePath, filePath);
+		return path.isAbsolute(filePath)
+			? filePath
+			: path.join(this.basePath, filePath);
 	}
 }
 
@@ -175,7 +183,10 @@ export class FileOperations {
  * Custom error class for file operations
  */
 export class FileOperationError extends Error {
-	constructor(message: string, public readonly cause?: Error) {
+	constructor(
+		message: string,
+		public readonly cause?: Error,
+	) {
 		super(message);
 		this.name = "FileOperationError";
 	}

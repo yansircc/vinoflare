@@ -6,7 +6,10 @@
 	"bin": {
 		"create-vino-app": "./dist/index.js"
 	},
-	"files": ["dist", "templates"],
+	"files": [
+		"dist",
+		"templates"
+	],
 	"scripts": {
 		"dev": "tsx src/index.ts",
 		"build": "tsup",

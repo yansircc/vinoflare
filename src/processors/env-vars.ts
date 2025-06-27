@@ -19,7 +19,7 @@ export class EnvVarsProcessor extends BaseProcessor {
 		context.logger.debug("Creating environment variable files...");
 
 		const devVarsPath = path.join(context.projectPath, ".dev.vars");
-		const devVarsExamplePath = path.join(
+		const _devVarsExamplePath = path.join(
 			context.projectPath,
 			".dev.vars.example",
 		);

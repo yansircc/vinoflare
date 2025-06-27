@@ -1,5 +1,5 @@
 {
-	"$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
+	"$schema": "https://biomejs.dev/schemas/2.0.5/schema.json",
 	"vcs": {
 		"enabled": true,
 		"clientKind": "git",
@@ -7,12 +7,29 @@
 	},
 	"files": {
 		"ignoreUnknown": false,
-		"ignore": ["./worker-configuration.d.ts"]
+		"includes": [
+			"**",
+			"!**/templates/**",
+			"!**/test-*/**",
+			"!**/node_modules/**",
+			"!**/dist/**"
+		]
 	},
-	"formatter": { "enabled": true },
-	"organizeImports": { "enabled": true },
+	"formatter": {
+		"enabled": true
+	},
 	"linter": {
 		"enabled": true,
+		"includes": [
+			"src/**/*.ts",
+			"src/**/*.tsx",
+			"src/**/*.js",
+			"src/**/*.jsx",
+			"scripts/**/*.ts",
+			"tests/**/*.ts",
+			"*.ts",
+			"*.js"
+		],
 		"rules": {
 			"suspicious": {
 				"noArrayIndexKey": "off",

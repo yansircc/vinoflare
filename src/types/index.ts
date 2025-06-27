@@ -85,7 +85,7 @@ export interface ExecutionContext {
 	template: Template;
 	logger: Logger;
 	state: Map<string, any>;
-	
+
 	// Methods
 	getState<T>(key: string): T | undefined;
 	setState(key: string, value: any): void;
