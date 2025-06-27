@@ -22,8 +22,11 @@ export class ProjectBuilder {
 	 */
 	async build(config: ProjectConfig): Promise<void> {
 		// Validate project path
-		const projectPath = config.name === "." ? process.cwd() : path.join(process.cwd(), config.name);
-		if (config.name !== "." && await pathExists(projectPath)) {
+		const projectPath =
+			config.name === "."
+				? process.cwd()
+				: path.join(process.cwd(), config.name);
+		if (config.name !== "." && (await pathExists(projectPath))) {
 			throw new Error(`Directory ${config.name} already exists`);
 		}
 

@@ -13,82 +13,85 @@ export class ConditionEvaluator {
 	 */
 	evaluate(expression: string): boolean {
 		// Remove whitespace
-		expression = expression.trim();
+		const trimmedExpression = expression.trim();
 
 		// Handle simple boolean values
-		if (expression === "true") return true;
-		if (expression === "false") return false;
+		if (trimmedExpression === "true") return true;
+		if (trimmedExpression === "false") return false;
 
 		// Handle negation
-		if (expression.startsWith("!")) {
-			return !this.evaluate(expression.substring(1));
+		if (trimmedExpression.startsWith("!")) {
+			return !this.evaluate(trimmedExpression.substring(1));
 		}
 
 		// Handle parentheses
-		if (expression.startsWith("(") && expression.endsWith(")")) {
-			return this.evaluate(expression.slice(1, -1));
+		if (trimmedExpression.startsWith("(") && trimmedExpression.endsWith(")")) {
+			return this.evaluate(trimmedExpression.slice(1, -1));
 		}
 
 		// Handle AND operations
-		if (expression.includes("&&")) {
-			const parts = this.splitByOperator(expression, "&&");
+		if (trimmedExpression.includes("&&")) {
+			const parts = this.splitByOperator(trimmedExpression, "&&");
 			return parts.every((part) => this.evaluate(part));
 		}
 
 		// Handle OR operations
-		if (expression.includes("||")) {
-			const parts = this.splitByOperator(expression, "||");
+		if (trimmedExpression.includes("||")) {
+			const parts = this.splitByOperator(trimmedExpression, "||");
 			return parts.some((part) => this.evaluate(part));
 		}
 
 		// Handle comparisons
-		if (expression.includes("===")) {
-			const [left, right] = this.splitByOperator(expression, "===");
+		if (trimmedExpression.includes("===")) {
+			const [left, right] = this.splitByOperator(trimmedExpression, "===");
 			return this.getValue(left) === this.getValue(right);
 		}
 
-		if (expression.includes("!==")) {
-			const [left, right] = this.splitByOperator(expression, "!==");
+		if (trimmedExpression.includes("!==")) {
+			const [left, right] = this.splitByOperator(trimmedExpression, "!==");
 			return this.getValue(left) !== this.getValue(right);
 		}
 
-		if (expression.includes("==")) {
-			const [left, right] = this.splitByOperator(expression, "==");
+		if (trimmedExpression.includes("==")) {
+			const [left, right] = this.splitByOperator(trimmedExpression, "==");
 			return this.getValue(left) === this.getValue(right);
 		}
 
-		if (expression.includes("!=")) {
-			const [left, right] = this.splitByOperator(expression, "!=");
+		if (trimmedExpression.includes("!=")) {
+			const [left, right] = this.splitByOperator(trimmedExpression, "!=");
 			return this.getValue(left) !== this.getValue(right);
 		}
 
 		// Simple variable lookup
-		return Boolean(this.getValue(expression));
+		return Boolean(this.getValue(trimmedExpression));
 	}
 
 	/**
-	 * Split expression by operator, respecting parentheses
+	 * Split trimmedExpression by operator, respecting parentheses
 	 */
-	private splitByOperator(expression: string, operator: string): string[] {
+	private splitByOperator(
+		trimmedExpression: string,
+		operator: string,
+	): string[] {
 		const parts: string[] = [];
 		let current = "";
 		let depth = 0;
 		let i = 0;
 
-		while (i < expression.length) {
-			if (expression[i] === "(") {
+		while (i < trimmedExpression.length) {
+			if (trimmedExpression[i] === "(") {
 				depth++;
-			} else if (expression[i] === ")") {
+			} else if (trimmedExpression[i] === ")") {
 				depth--;
 			} else if (
 				depth === 0 &&
-				expression.substring(i, i + operator.length) === operator
+				trimmedExpression.substring(i, i + operator.length) === operator
 			) {
 				parts.push(current.trim());
 				current = "";
 				i += operator.length - 1;
 			} else {
-				current += expression[i];
+				current += trimmedExpression[i];
 			}
 			i++;
 		}
@@ -104,31 +107,31 @@ export class ConditionEvaluator {
 	 * Get value from context or parse as literal
 	 */
 	private getValue(key: string): any {
-		key = key.trim();
+		const trimmedKey = key.trim();
 
 		// Remove quotes if string literal
 		if (
-			(key.startsWith('"') && key.endsWith('"')) ||
-			(key.startsWith("'") && key.endsWith("'"))
+			(trimmedKey.startsWith('"') && trimmedKey.endsWith('"')) ||
+			(trimmedKey.startsWith("'") && trimmedKey.endsWith("'"))
 		) {
-			return key.slice(1, -1);
+			return trimmedKey.slice(1, -1);
 		}
 
 		// Check if it's a number
-		const num = Number(key);
+		const num = Number(trimmedKey);
 		if (!Number.isNaN(num)) {
 			return num;
 		}
 
 		// Check if it's a boolean
-		if (key === "true") return true;
-		if (key === "false") return false;
-		if (key === "null") return null;
-		if (key === "undefined") return undefined;
+		if (trimmedKey === "true") return true;
+		if (trimmedKey === "false") return false;
+		if (trimmedKey === "null") return null;
+		if (trimmedKey === "undefined") return undefined;
 
 		// Handle function calls
-		if (key.includes("(") && key.endsWith(")")) {
-			const funcMatch = key.match(/^(\w+)\((.*)\)$/);
+		if (trimmedKey.includes("(") && trimmedKey.endsWith(")")) {
+			const funcMatch = trimmedKey.match(/^(\w+)\((.*)\)$/);
 			if (funcMatch) {
 				const [, funcName, args] = funcMatch;
 				const func = this.context[funcName];
@@ -154,6 +157,6 @@ export class ConditionEvaluator {
 		}
 
 		// Look up in context
-		return this.context[key];
+		return this.context[trimmedKey];
 	}
 }

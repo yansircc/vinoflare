@@ -17,14 +17,14 @@ export class CopyTemplateProcessor extends BaseProcessor {
 		context.logger.info("Copying template files...");
 
 		const fsExtra = await import("fs-extra");
-		const path = await import("path");
-		
+		const path = await import("node:path");
+
 		await fsExtra.copy(context.template.path, context.projectPath);
-		
+
 		// Rename gitignore to .gitignore if it exists
 		const gitignorePath = path.join(context.projectPath, "gitignore");
 		const dotGitignorePath = path.join(context.projectPath, ".gitignore");
-		
+
 		if (await fsExtra.pathExists(gitignorePath)) {
 			await fsExtra.move(gitignorePath, dotGitignorePath);
 		}

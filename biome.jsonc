@@ -40,7 +40,15 @@
 				"noNonNullAssertion": "off",
 				"useTemplate": "off",
 				"noUselessElse": "off",
-				"noUnusedTemplateLiteral": "off"
+				"noUnusedTemplateLiteral": "off",
+				"noParameterAssign": "error",
+				"useAsConstAssertion": "error",
+				"useDefaultParameterLast": "error",
+				"useEnumInitializers": "error",
+				"useSelfClosingElements": "error",
+				"useSingleVarDeclarator": "error",
+				"useNumberNamespace": "error",
+				"noInferrableTypes": "error"
 			},
 			"correctness": {
 				"useExhaustiveDependencies": {
@@ -64,11 +72,7 @@
 					"level": "warn",
 					"fix": "safe",
 					"options": {
-						"functions": [
-							"clsx",
-							"cva",
-							"cn"
-						]
+						"functions": ["clsx", "cva", "cn"]
 					}
 				}
 			},

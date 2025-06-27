@@ -1,8 +1,8 @@
+import transformRules from "../../config/transform-rules.json";
 import type { ExecutionContext, Processor } from "../types";
 import type { TransformRulesConfig } from "../types/config";
 import { createFileOperations } from "../utils/file-operations";
 import { getLogger } from "../utils/logger";
-import transformRules from "../../config/transform-rules.json";
 
 /**
  * Processor to handle project-type specific file cleanup
@@ -32,12 +32,17 @@ export class ProjectTypeCleanupProcessor implements Processor {
 		const filesToRemove = projectTypeRules.files.remove;
 
 		if (filesToRemove.length > 0) {
-			this.logger.info(`Removing ${filesToRemove.length} files for ${projectType} project`);
+			this.logger.info(
+				`Removing ${filesToRemove.length} files for ${projectType} project`,
+			);
 			await fileOps.removeFiles(filesToRemove);
 		}
 
 		// Handle conditional removals
-		if (projectTypeRules.files.removeWhenNoAuth && !context.hasFeature("auth")) {
+		if (
+			projectTypeRules.files.removeWhenNoAuth &&
+			!context.hasFeature("auth")
+		) {
 			this.logger.info("Removing auth-specific files for project without auth");
 			await fileOps.removeFiles(projectTypeRules.files.removeWhenNoAuth);
 		}

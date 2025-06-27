@@ -75,8 +75,9 @@ async function main() {
 	}
 
 	// Check if directory exists
-	const targetDir = projectName === "." ? process.cwd() : path.join(process.cwd(), projectName);
-	if (projectName !== "." && await pathExists(targetDir)) {
+	const targetDir =
+		projectName === "." ? process.cwd() : path.join(process.cwd(), projectName);
+	if (projectName !== "." && (await pathExists(targetDir))) {
 		cancel(`Directory ${projectName} already exists`);
 		process.exit(1);
 	}

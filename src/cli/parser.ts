@@ -53,7 +53,11 @@ export function validateArgs(args: ParsedArgs): string[] {
 		errors.push('Invalid project type. Use "full-stack" or "api-only"');
 	}
 
-	if (args.projectName && args.projectName !== "." && !/^[a-z0-9-_]+$/.test(args.projectName)) {
+	if (
+		args.projectName &&
+		args.projectName !== "." &&
+		!/^[a-z0-9-_]+$/.test(args.projectName)
+	) {
 		errors.push(
 			"Project name can only contain lowercase letters, numbers, hyphens and underscores",
 		);

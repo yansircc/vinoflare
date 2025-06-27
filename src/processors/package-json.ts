@@ -1,6 +1,6 @@
 import path from "node:path";
-import { readJSON, writeJSON } from "../utils/fs-extra-wrapper";
 import type { ExecutionContext } from "../types";
+import { readJSON, writeJSON } from "../utils/fs-extra-wrapper";
 import { BaseProcessor } from "./types";
 
 /**
@@ -22,9 +22,10 @@ export class PackageJsonProcessor extends BaseProcessor {
 
 		// Update project name
 		// If project name is ".", use the current directory name
-		const projectName = context.config.name === "." 
-			? path.basename(context.projectPath) 
-			: context.config.name;
+		const projectName =
+			context.config.name === "."
+				? path.basename(context.projectPath)
+				: context.config.name;
 		packageJson.name = projectName;
 
 		// Process features

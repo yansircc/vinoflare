@@ -11,7 +11,7 @@ const getFsExtra = async () => {
 
 export async function readJSON(file: PathLike): Promise<any> {
 	const fs = await getFsExtra();
-	return fs.readJSON(file);
+	return fs.readJSON(file.toString());
 }
 
 export async function writeJSON(
@@ -20,37 +20,41 @@ export async function writeJSON(
 	options?: any,
 ): Promise<void> {
 	const fs = await getFsExtra();
-	return fs.writeJSON(file, object, options);
+	return fs.writeJSON(file.toString(), object, options);
 }
 
 export async function pathExists(path: PathLike): Promise<boolean> {
 	const fs = await getFsExtra();
-	return fs.pathExists(path);
+	return await fs.pathExists(path.toString());
 }
 
 export async function ensureDir(path: PathLike): Promise<void> {
 	const fs = await getFsExtra();
-	return fs.ensureDir(path);
+	return fs.ensureDir(path.toString());
 }
 
 export async function remove(path: PathLike): Promise<void> {
 	const fs = await getFsExtra();
-	return fs.remove(path);
+	return fs.remove(path.toString());
 }
 
-export async function copy(src: string, dest: string, options?: any): Promise<void> {
+export async function copy(
+	src: string,
+	dest: string,
+	options?: any,
+): Promise<void> {
 	const fs = await getFsExtra();
 	return fs.copy(src, dest, options);
 }
 
 export async function emptyDir(path: PathLike): Promise<void> {
 	const fs = await getFsExtra();
-	return fs.emptyDir(path);
+	return fs.emptyDir(path.toString());
 }
 
 export async function readFile(path: PathLike, encoding?: any): Promise<any> {
 	const fs = await getFsExtra();
-	return fs.readFile(path, encoding);
+	return fs.readFile(path.toString(), encoding);
 }
 
 export async function writeFile(
@@ -59,5 +63,5 @@ export async function writeFile(
 	options?: any,
 ): Promise<void> {
 	const fs = await getFsExtra();
-	return fs.writeFile(path, data, options);
+	return fs.writeFile(path.toString(), data, options);
 }

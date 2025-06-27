@@ -1,9 +1,9 @@
+import { mkdirSync } from "node:fs";
+import { join } from "node:path";
 import type { ExecutionContext } from "../types";
 import { execute } from "../utils/exec";
 import { getRunCommand } from "../utils/package-manager";
 import { BaseProcessor } from "./types";
-import { mkdirSync } from "node:fs";
-import { join } from "node:path";
 
 /**
  * Processor for initializing the project (generate types, routes, etc.)
@@ -51,7 +51,7 @@ export class ProjectInitProcessor extends BaseProcessor {
 			const generatedDir = join(context.projectPath, "src", "generated");
 			try {
 				mkdirSync(generatedDir, { recursive: true });
-			} catch (error) {
+			} catch (_error) {
 				// Directory might already exist, ignore error
 			}
 		}
