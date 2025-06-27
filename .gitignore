@@ -1,0 +1,60 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+.wrangler/
+.vercel/
+.next/
+.nuxt/
+.cache/
+
+# Environment files
+.env
+.env.*
+!.env.example
+.dev.vars
+!.dev.vars.example
+.prod.vars
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Database
+*.sqlite
+*.sqlite3
+*.db
+db.sqlite
+
+# Testing
+coverage/
+.nyc_output/
+
+# Temporary files
+*.tmp
+*.temp
+.tmp/
+.temp/
+
+# Generated files
+src/generated/
+
+# Migrations (local state)
+.wrangler/state/
+drizzle/meta/_journal.json
