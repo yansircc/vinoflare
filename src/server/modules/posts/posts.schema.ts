@@ -1,6 +1,6 @@
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { z } from "zod/v4";
-import { posts } from "../../db/tables/posts";
+import { posts } from "./posts.table";
 
 /**
  * Post field validation schemas

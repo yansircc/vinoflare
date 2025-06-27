@@ -14,10 +14,6 @@ const { values, positionals } = parseArgs({
 			type: "string",
 			short: "n",
 		},
-		schema: {
-			type: "string",
-			short: "s",
-		},
 		help: {
 			type: "boolean",
 			short: "h",
@@ -28,29 +24,27 @@ const { values, positionals } = parseArgs({
 
 if (values.help || (!values.name && positionals.length === 0)) {
 	console.log(`
-Usage: bun run scaffold:module <module-name> [options]
+Usage: bun run gen:module <module-name> [options]
 
-Generate a complete CRUD module with handlers, routes, OpenAPI specs, and tests.
+Generate a CRUD module scaffold with handlers, routes, and OpenAPI specs.
 
 Arguments:
   module-name          Name of the module (e.g., "products", "user-profiles")
 
 Options:
   -n, --name          Module name (alternative to positional argument)
-  -s, --schema        Database schema name (defaults to module name)
   -h, --help          Show this help message
 
 Examples:
-  bun run scaffold:module products
-  bun run scaffold:module user-profiles --schema userProfiles
+  bun run gen:module products
+  bun run gen:module user-profiles
   
 This will generate:
-  - Full CRUD operations (Create, Read, Update, Delete)
-  - Type-safe handlers with error handling
+  - Full CRUD handlers with proper error handling
   - OpenAPI documentation
-  - Database integration with Drizzle ORM
-  - Complete test suite
-  - Automatic API registration
+  - Routes with validation
+  - Module configuration
+  - Integration checklist with step-by-step instructions
 `);
 	process.exit(0);
 }
@@ -81,12 +75,10 @@ if (existsSync(paths.base)) {
 	process.exit(1);
 }
 
-generateModuleFiles(paths, names, schemaName);
+generateModuleFiles(paths, names);
 updateApiRoutes(names);
 
-console.log(`\n⚠️  Remember to:
-   1. Create the "${schemaName}" table schema in src/server/db/schema.ts
-   2. Generate/update the database schemas with "bun run db:generate"
-   3. Run migrations if needed with "bun run db:migrate"
-`);
-console.log(`\n🚀 Your new module is ready to use at /api/${names.kebab}`);
+console.log(`\n📋 IMPORTANT: Check the CHECKLIST.md file in the module directory!`);
+console.log(`   ${paths.base}/CHECKLIST.md\n`);
+console.log(`This file contains step-by-step instructions to complete the integration.`);
+console.log(`\n🚀 Once integrated, your module will be available at /api/${names.kebab}`);

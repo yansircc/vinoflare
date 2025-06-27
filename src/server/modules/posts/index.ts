@@ -1,6 +1,14 @@
 import type { ModuleDefinition } from "../../core/module-loader";
 import { createPostsModule } from "./posts.routes";
 
+// Export all public APIs from this module
+export * from "./posts.table";
+export * from "./posts.schema";
+export * from "./posts.types";
+export * from "./posts.handlers";
+export * from "./posts.openapi";
+
+// Module definition
 const postsModule: ModuleDefinition = {
 	name: "posts",
 	basePath: "/posts",

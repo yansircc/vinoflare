@@ -8,11 +8,6 @@
 import type { z } from "zod/v4";
 import type * as schemas from "../schemas/database";
 
-// Post
-export type SelectPost = z.infer<typeof schemas.selectPostSchema>;
-export type InsertPost = z.infer<typeof schemas.insertPostSchema>;
-export type UpdatePost = z.infer<typeof schemas.updatePostSchema>;
-
 // User
 export type SelectUser = z.infer<typeof schemas.selectUserSchema>;
 export type InsertUser = z.infer<typeof schemas.insertUserSchema>;

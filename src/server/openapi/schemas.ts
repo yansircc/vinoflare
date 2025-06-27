@@ -2,11 +2,11 @@
 // All metadata is now defined in db/schemas.ts - true single source of truth!
 
 import { z } from "zod/v4";
+import { selectUserSchema } from "@/server/schemas";
 import {
 	insertPostSchema,
 	selectPostSchema,
-	selectUserSchema,
-} from "@/server/schemas";
+} from "@/server/modules/posts";
 
 // Generate OpenAPI schemas from Zod schemas
 // Since we've moved all metadata to the schema definitions,

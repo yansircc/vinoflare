@@ -1,6 +1,6 @@
 import { APIBuilder } from "@/server/lib/api-builder";
 import { database } from "@/server/middleware/database";
-import { insertPostSchema } from "@/server/schemas";
+import { insertPostSchema } from "./posts.schema";
 import {
 	createPostHandler,
 	getLatestPostHandler,

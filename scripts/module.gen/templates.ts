@@ -3,11 +3,10 @@ import type { NameVariations } from "./utils";
 export const getHandlersTemplate = ({
 	pascal,
 	camel,
-	schema,
-}: NameVariations & { schema: string }) => `import type { Context } from "hono";
+	kebab,
+}: NameVariations) => `import type { Context } from "hono";
 import { eq } from "drizzle-orm";
-import { db } from "@/server/db";
-import { ${schema} } from "@/server/db";
+import { ${camel} } from "@/server/db/tables";
 import type { BaseContext } from "@/server/lib/types";
 import {
 	NotFoundError,
@@ -19,7 +18,11 @@ import {
  * Get all ${camel}
  */
 export async function getAll${pascal}(c: Context<BaseContext>) {
-	const ${camel}List = await db.select().from(${schema});
+	const db = c.get("db");
+	
+	// TODO: Add filtering, pagination, and sorting as needed
+	const ${camel}List = await db.select().from(${camel});
+	
 	return c.json({ ${camel}: ${camel}List });
 }
 
@@ -27,6 +30,7 @@ export async function getAll${pascal}(c: Context<BaseContext>) {
  * Get ${camel} by ID
  */
 export async function get${pascal}ById(c: Context<BaseContext>) {
+	const db = c.get("db");
 	const id = Number(c.req.param("id"));
 	
 	if (isNaN(id)) {
@@ -35,30 +39,33 @@ export async function get${pascal}ById(c: Context<BaseContext>) {
 
 	const result = await db
 		.select()
-		.from(${schema})
-		.where(eq(${schema}.id, id))
+		.from(${camel})
+		.where(eq(${camel}.id, id))
 		.limit(1);
 
 	if (!result[0]) {
-		throw new NotFoundError("${pascal}");
+		throw new NotFoundError("${pascal} not found");
 	}
 
-	return c.json({ ${camel}: result[0] });
+	return c.json({ ${kebab.includes('-') ? 'item' : camel}: result[0] });
 }
 
 /**
  * Create a new ${camel}
  */
 export async function create${pascal}(c: Context<BaseContext>) {
-	const data = c.req.valid("json");
+	const db = c.get("db");
+	const data = await c.req.json();
 
 	try {
+		// TODO: Add validation logic here
+		
 		const [new${pascal}] = await db
-			.insert(${schema})
+			.insert(${camel})
 			.values(data)
 			.returning();
 
-		return c.json({ ${camel}: new${pascal} }, 201);
+		return c.json({ ${kebab.includes('-') ? 'item' : camel}: new${pascal} }, 201);
 	} catch (error) {
 		// Handle unique constraint violations
 		if (error instanceof Error && error.message.includes("UNIQUE")) {
@@ -72,33 +79,34 @@ export async function create${pascal}(c: Context<BaseContext>) {
  * Update ${camel} by ID
  */
 export async function update${pascal}(c: Context<BaseContext>) {
+	const db = c.get("db");
 	const id = Number(c.req.param("id"));
-	const data = c.req.valid("json");
+	const data = await c.req.json();
 	
 	if (isNaN(id)) {
 		throw new ValidationError("Invalid ID format");
 	}
 
+	// TODO: Add validation and data transformation logic here
+
 	const [updated${pascal}] = await db
-		.update(${schema})
-		.set({
-			...data,
-			updatedAt: new Date(),
-		})
-		.where(eq(${schema}.id, id))
+		.update(${camel})
+		.set(data)
+		.where(eq(${camel}.id, id))
 		.returning();
 
 	if (!updated${pascal}) {
-		throw new NotFoundError("${pascal}");
+		throw new NotFoundError("${pascal} not found");
 	}
 
-	return c.json({ ${camel}: updated${pascal} });
+	return c.json({ ${kebab.includes('-') ? 'item' : camel}: updated${pascal} });
 }
 
 /**
  * Delete ${camel} by ID
  */
 export async function delete${pascal}(c: Context<BaseContext>) {
+	const db = c.get("db");
 	const id = Number(c.req.param("id"));
 	
 	if (isNaN(id)) {
@@ -106,12 +114,12 @@ export async function delete${pascal}(c: Context<BaseContext>) {
 	}
 
 	const [deleted${pascal}] = await db
-		.delete(${schema})
-		.where(eq(${schema}.id, id))
+		.delete(${camel})
+		.where(eq(${camel}.id, id))
 		.returning();
 
 	if (!deleted${pascal}) {
-		throw new NotFoundError("${pascal}");
+		throw new NotFoundError("${pascal} not found");
 	}
 
 	return c.json({ message: "${pascal} deleted successfully" });
@@ -120,20 +128,22 @@ export async function delete${pascal}(c: Context<BaseContext>) {
 export const getOpenAPITemplate = ({
 	pascal,
 	camel,
+	kebab,
 }: NameVariations) => `import { StatusCodes } from "http-status-codes";
 import { z } from "zod/v4";
-import { insert${pascal}Schema, select${pascal}Schema } from "@/server/db";
+import { insert${pascal}Schema, select${pascal}Schema } from "@/server/schemas/database";
 
+// Convert Zod schemas to JSON Schema
 const ${camel}Schema = z.toJSONSchema(select${pascal}Schema);
 const insert${pascal}JSONSchema = z.toJSONSchema(insert${pascal}Schema);
 
 // Response wrapper schemas
-const ${camel}ResponseSchema = {
+const ${kebab.includes('-') ? 'item' : camel}ResponseSchema = {
 	type: "object",
 	properties: {
-		${camel}: ${camel}Schema,
+		${kebab.includes('-') ? 'item' : camel}: ${camel}Schema,
 	},
-	required: ["${camel}"],
+	required: ["${kebab.includes('-') ? 'item' : camel}"],
 };
 
 const ${camel}ListResponseSchema = {
@@ -151,6 +161,7 @@ export const getAll${pascal}OpenAPI = {
 	tags: ["${pascal}"],
 	summary: "Get all ${camel}",
 	description: "Retrieves all ${camel} from the database",
+	// TODO: Add query parameters for filtering, pagination, sorting
 	responses: {
 		[StatusCodes.OK]: {
 			description: "${pascal} list retrieved successfully",
@@ -176,7 +187,7 @@ export const get${pascal}ByIdOpenAPI = {
 	responses: {
 		[StatusCodes.OK]: {
 			description: "${pascal} retrieved successfully",
-			schema: ${camel}ResponseSchema,
+			schema: ${kebab.includes('-') ? 'item' : camel}ResponseSchema,
 		},
 		[StatusCodes.BAD_REQUEST]: {
 			description: "Invalid ID format",
@@ -200,7 +211,7 @@ export const create${pascal}OpenAPI = {
 	responses: {
 		[StatusCodes.CREATED]: {
 			description: "${pascal} created successfully",
-			schema: ${camel}ResponseSchema,
+			schema: ${kebab.includes('-') ? 'item' : camel}ResponseSchema,
 		},
 		[StatusCodes.BAD_REQUEST]: {
 			description: "Validation error",
@@ -226,13 +237,14 @@ export const update${pascal}OpenAPI = {
 		],
 		body: {
 			description: "Updated ${camel} data",
+			// TODO: Consider using a partial schema for updates
 			schema: insert${pascal}JSONSchema,
 		},
 	},
 	responses: {
 		[StatusCodes.OK]: {
 			description: "${pascal} updated successfully",
-			schema: ${camel}ResponseSchema,
+			schema: ${kebab.includes('-') ? 'item' : camel}ResponseSchema,
 		},
 		[StatusCodes.BAD_REQUEST]: {
 			description: "Validation error",
@@ -284,8 +296,8 @@ export const getRoutesTemplate = ({
 	camel,
 	kebab,
 }: NameVariations) => `import { APIBuilder } from "@/server/lib/api-builder";
-import type { BaseContext } from "@/server/lib/types";
-import { insert${pascal}Schema } from "@/server/db";
+import { database } from "@/server/middleware/database";
+import { insert${pascal}Schema, update${pascal}Schema } from "@/server/schemas/database";
 import {
 	getAll${pascal},
 	get${pascal}ById,
@@ -302,151 +314,257 @@ import {
 } from "./${kebab}.openapi";
 
 export function create${pascal}Module() {
-	return new APIBuilder<BaseContext>()
-		// Get all ${camel}
-		.get("/", getAll${pascal}, getAll${pascal}OpenAPI)
-		// Get ${camel} by ID
-		.get("/:id", get${pascal}ById, get${pascal}ByIdOpenAPI)
-		// Create new ${camel}
-		.post(
-			"/",
-			create${pascal},
-			create${pascal}OpenAPI,
-			insert${pascal}Schema,
-		)
-		// Update ${camel}
-		.put(
-			"/:id",
-			update${pascal},
-			update${pascal}OpenAPI,
-			insert${pascal}Schema,
-		)
-		// Delete ${camel}
-		.delete("/:id", delete${pascal}, delete${pascal}OpenAPI);
+	const builder = new APIBuilder({
+		middleware: [database()],
+	});
+
+	// Get all ${camel}
+	builder.addRoute({
+		method: "get",
+		path: "/",
+		handler: getAll${pascal},
+		openapi: getAll${pascal}OpenAPI,
+	});
+
+	// Get ${camel} by ID
+	builder.addRoute({
+		method: "get",
+		path: "/:id",
+		handler: get${pascal}ById,
+		openapi: get${pascal}ByIdOpenAPI,
+	});
+
+	// Create new ${camel}
+	builder.addRoute({
+		method: "post",
+		path: "/",
+		validation: {
+			body: insert${pascal}Schema,
+		},
+		handler: create${pascal},
+		openapi: create${pascal}OpenAPI,
+	});
+
+	// Update ${camel}
+	builder.addRoute({
+		method: "put",
+		path: "/:id",
+		validation: {
+			body: update${pascal}Schema,
+		},
+		handler: update${pascal},
+		openapi: update${pascal}OpenAPI,
+	});
+
+	// Delete ${camel}
+	builder.addRoute({
+		method: "delete",
+		path: "/:id",
+		handler: delete${pascal},
+		openapi: delete${pascal}OpenAPI,
+	});
+
+	return builder;
 }`;
 
-export const getTestTemplate = ({
+export const getIndexTemplate = ({
+	pascal,
+	kebab,
+}: NameVariations) => `import type { ModuleDefinition } from "../../core/module-loader";
+import { create${pascal}Module } from "./${kebab}.routes";
+
+const ${kebab}Module: ModuleDefinition = {
+	name: "${kebab}",
+	basePath: "/${kebab}",
+	createModule: create${pascal}Module,
+	metadata: {
+		version: "1.0.0",
+		tags: ["${pascal}"],
+		// Add security: ["public"] if you want this module to be publicly accessible
+	},
+};
+
+export default ${kebab}Module;`;
+
+export const getChecklistTemplate = ({
 	pascal,
 	camel,
 	kebab,
-}: NameVariations) => `/**
- * @vitest-environment workers
- */
-import { beforeAll, describe, expect, it } from "vitest";
-import { testClient } from "@/test/test-client";
-import type { Insert${pascal} } from "@/server/db";
+}: NameVariations) => `# ${pascal} Module Integration Checklist
 
-describe("${pascal} API", () => {
-	let created${pascal}Id: number;
+This checklist will guide you through integrating the ${kebab} module into your application.
 
-	const test${pascal}: Insert${pascal} = {
-		// TODO: Add your test data here
-		// Example: name: "Test ${pascal}",
-	};
+## ✅ Required Steps
 
-	beforeAll(async () => {
-		// TODO: Setup test data if needed
-	});
+### 1. Create Database Table
 
-	describe("POST /${kebab}", () => {
-		it("should create a new ${camel}", async () => {
-			const response = await testClient.${kebab}.\$post({
-				json: test${pascal},
-			});
+Create the file \`/src/server/db/tables/${kebab}.table.ts\`:
 
-			expect(response.status).toBe(201);
-			const data = await response.json();
-			expect(data.${camel}).toBeDefined();
-			expect(data.${camel}.id).toBeDefined();
-			created${pascal}Id = data.${camel}.id;
-		});
+\`\`\`typescript
+import { sql } from "drizzle-orm";
+import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 
-		it("should return 400 for invalid data", async () => {
-			const response = await testClient.${kebab}.\$post({
-				json: {},
-			});
+export const ${camel} = sqliteTable("${camel}", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  // TODO: Add your fields here
+  name: text("name").notNull(),
+  description: text("description"),
+  // Add timestamps
+  createdAt: integer("created_at", { mode: "timestamp" })
+    .notNull()
+    .default(sql\`(unixepoch())\`),
+  updatedAt: integer("updated_at", { mode: "timestamp" })
+    .notNull()
+    .default(sql\`(unixepoch())\`)
+    .\$onUpdate(() => new Date()),
+});
+\`\`\`
 
-			expect(response.status).toBe(400);
-		});
-	});
+### 2. Export the Table
 
-	describe("GET /${kebab}", () => {
-		it("should return all ${camel}", async () => {
-			const response = await testClient.${kebab}.\$get();
+Add the export to \`/src/server/db/tables/index.ts\`:
 
-			expect(response.status).toBe(200);
-			const data = await response.json();
-			expect(Array.isArray(data.${camel})).toBe(true);
-			expect(data.${camel}.length).toBeGreaterThan(0);
-		});
-	});
+\`\`\`typescript
+export * from "./${kebab}.table";
+\`\`\`
 
-	describe("GET /${kebab}/:id", () => {
-		it("should return a specific ${camel}", async () => {
-			const response = await testClient.${kebab}[":id"].\$get({
-				param: { id: created${pascal}Id.toString() },
-			});
+### 3. Create Zod Schemas
 
-			expect(response.status).toBe(200);
-			const data = await response.json();
-			expect(data.${camel}).toBeDefined();
-			expect(data.${camel}.id).toBe(created${pascal}Id);
-		});
+Create the file \`/src/server/schemas/database/${kebab}.ts\`:
 
-		it("should return 404 for non-existent ${camel}", async () => {
-			const response = await testClient.${kebab}[":id"].\$get({
-				param: { id: "999999" },
-			});
+\`\`\`typescript
+import { createInsertSchema, createSelectSchema } from "drizzle-zod";
+import { z } from "zod/v4";
+import { ${camel} } from "../../db/tables/${kebab}.table";
 
-			expect(response.status).toBe(404);
-		});
-	});
+// Create base schemas from the database table
+export const select${pascal}Schema = createSelectSchema(${camel});
+export const insert${pascal}Schema = createInsertSchema(${camel})
+  .omit({
+    id: true,
+    createdAt: true,
+    updatedAt: true,
+  });
 
-	describe("PUT /${kebab}/:id", () => {
-		it("should update an existing ${camel}", async () => {
-			const updatedData = {
-				...test${pascal},
-				// TODO: Add updated fields
-			};
+// Create update schema (all fields optional)
+export const update${pascal}Schema = insert${pascal}Schema.partial();
 
-			const response = await testClient.${kebab}[":id"].\$put({
-				param: { id: created${pascal}Id.toString() },
-				json: updatedData,
-			});
+// You can also define field-specific schemas for reuse
+export const ${camel}NameSchema = z
+  .string()
+  .min(1, "Name is required")
+  .max(255, "Name must be 255 characters or less");
+\`\`\`
 
-			expect(response.status).toBe(200);
-			const data = await response.json();
-			expect(data.${camel}).toBeDefined();
-			// TODO: Add assertions for updated fields
-		});
+### 4. Export the Schemas
 
-		it("should return 404 for non-existent ${camel}", async () => {
-			const response = await testClient.${kebab}[":id"].\$put({
-				param: { id: "999999" },
-				json: test${pascal},
-			});
+Add the exports to \`/src/server/schemas/database/index.ts\`:
 
-			expect(response.status).toBe(404);
-		});
-	});
+\`\`\`typescript
+export {
+  insert${pascal}Schema,
+  select${pascal}Schema,
+  update${pascal}Schema,
+} from "./${kebab}";
+\`\`\`
 
-	describe("DELETE /${kebab}/:id", () => {
-		it("should delete an existing ${camel}", async () => {
-			const response = await testClient.${kebab}[":id"].\$delete({
-				param: { id: created${pascal}Id.toString() },
-			});
+### 5. Generate and Apply Migrations
 
-			expect(response.status).toBe(200);
-			const data = await response.json();
-			expect(data.message).toBe("${pascal} deleted successfully");
-		});
+Run these commands in order:
 
-		it("should return 404 for non-existent ${camel}", async () => {
-			const response = await testClient.${kebab}[":id"].\$delete({
-				param: { id: "999999" },
-			});
+\`\`\`bash
+# Generate the migration
+bun run db:generate
 
-			expect(response.status).toBe(404);
-		});
-	});
-});`;
+# Apply to local database
+bun run db:push:local
+
+# (Optional) Apply to remote database
+bun run db:push:remote
+\`\`\`
+
+### 6. Customize Business Logic
+
+Review and update the generated handlers in \`${kebab}.handlers.ts\`:
+- Add validation logic
+- Implement filtering, pagination, and sorting for the list endpoint
+- Add any business-specific logic
+- Handle special fields (e.g., price conversions, file uploads)
+
+### 7. Update OpenAPI Documentation
+
+Review \`${kebab}.openapi.ts\` and:
+- Add query parameters for list filtering
+- Update descriptions to match your business domain
+- Consider using partial schemas for updates
+
+### 8. Generate Client Types
+
+\`\`\`bash
+bun run gen:api
+\`\`\`
+
+### 9. Verify Everything Works
+
+\`\`\`bash
+# Check TypeScript types
+bun run typecheck
+
+# Start the dev server
+bun run dev
+
+# Test the endpoints at http://localhost:5173/api/${kebab}
+\`\`\`
+
+## 📝 Optional Steps
+
+### Add Authentication
+
+By default, all routes require authentication. To make routes public:
+
+\`\`\`typescript
+// In index.ts, add:
+metadata: {
+  security: ["public"],
+}
+\`\`\`
+
+### Add Tests
+
+Create a test file \`${kebab}.test.ts\` following the pattern in \`posts.test.ts\`.
+
+### Add Complex Queries
+
+For filtering, pagination, and sorting, update the \`getAll${pascal}\` handler:
+
+\`\`\`typescript
+const { search, sortBy = "createdAt", order = "desc", limit = "50", offset = "0" } = c.req.query();
+
+let query = db.select().from(${camel});
+
+if (search) {
+  query = query.where(like(${camel}.name, \`%\${search}%\`));
+}
+
+query = query
+  .orderBy(order === "asc" ? asc(${camel}[sortBy]) : desc(${camel}[sortBy]))
+  .limit(parseInt(limit))
+  .offset(parseInt(offset));
+
+const results = await query;
+\`\`\`
+
+## 🚨 Common Issues
+
+1. **Import errors**: Make sure all imports use the correct paths
+2. **Type errors**: Run \`bun run typecheck\` to catch issues early
+3. **Schema mismatch**: Ensure your Zod schemas match your database schema
+4. **API generation fails**: This might be due to Zod v4 limitations - the API will still work
+
+## 🎉 Done!
+
+Your ${kebab} module is now ready to use at \`/api/${kebab}\`!
+`;
+
+// Remove the test template since we won't generate test files
+export const getTestTemplate = null;

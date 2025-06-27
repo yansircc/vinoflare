@@ -9,5 +9,5 @@
 export * from "./auth";
 
 // Application tables
-export * from "./posts";
-export * from "./books.table";
+// Note: posts table is now self-contained in the posts module
+// export * from "./posts"; // Moved to @/server/modules/posts

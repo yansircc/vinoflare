@@ -1,35 +1,31 @@
 import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { getSchemaTemplate } from "./schema-template";
 import {
 	getHandlersTemplate,
 	getOpenAPITemplate,
 	getRoutesTemplate,
-	getTestTemplate,
+	getIndexTemplate,
+	getChecklistTemplate,
 } from "./templates";
 import type { NameVariations, Paths } from "./utils";
 
 export function generateModuleFiles(
 	paths: Paths,
 	names: NameVariations,
-	schemaName: string,
 ) {
 	mkdirSync(paths.base, { recursive: true });
 
 	const indexPath = join(paths.base, "index.ts");
 
+	// Core module files
 	writeFileSync(indexPath, getIndexTemplate(names));
-	writeFileSync(
-		paths.handlers,
-		getHandlersTemplate({ ...names, schema: schemaName }),
-	);
+	writeFileSync(paths.handlers, getHandlersTemplate(names));
 	writeFileSync(paths.openapi, getOpenAPITemplate(names));
 	writeFileSync(paths.routes, getRoutesTemplate(names));
-	writeFileSync(paths.test, getTestTemplate(names));
-
-	// Generate schema template file
-	const schemaPath = join(paths.base, `${names.kebab}.schema.example.ts`);
-	writeFileSync(schemaPath, getSchemaTemplate(names));
+	
+	// Generate checklist
+	const checklistPath = join(paths.base, "CHECKLIST.md");
+	writeFileSync(checklistPath, getChecklistTemplate(names));
 
 	console.log(`✅ Module "${names.kebab}" scaffolded successfully!`);
 	console.log(`📁 Created files:`);
@@ -37,8 +33,7 @@ export function generateModuleFiles(
 	console.log(`   - ${paths.handlers}`);
 	console.log(`   - ${paths.openapi}`);
 	console.log(`   - ${paths.routes}`);
-	console.log(`   - ${paths.test}`);
-	console.log(`   - ${schemaPath} (example schema)`);
+	console.log(`   - ${checklistPath} 📋 Integration checklist`);
 
 	console.log(`\n📋 CRUD Operations Generated:`);
 	console.log(`   - GET    /api/${names.kebab}      - Get all ${names.camel}`);
@@ -52,20 +47,3 @@ export function generateModuleFiles(
 	console.log(`   - DELETE /api/${names.kebab}/:id  - Delete ${names.camel}`);
 }
 
-function getIndexTemplate(names: NameVariations): string {
-	return `import type { ModuleDefinition } from "../../core/module-loader";
-import { create${names.pascal}Module } from "./${names.kebab}.routes";
-
-const ${names.camel}Module: ModuleDefinition = {
-	name: "${names.kebab}",
-	basePath: "/${names.kebab}",
-	createModule: create${names.pascal}Module,
-	metadata: {
-		version: "1.0.0",
-		tags: ["${names.pascal}"],
-		security: ["public"],
-	},
-};
-
-export default ${names.camel}Module;`;
-}

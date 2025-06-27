@@ -3,7 +3,7 @@ import { z } from "zod/v4";
 import {
 	insertPostSchema,
 	selectPostSchema,
-} from "@/server/schemas/database/posts";
+} from "./posts.schema";
 
 const postSchema = z.toJSONSchema(selectPostSchema);
 
