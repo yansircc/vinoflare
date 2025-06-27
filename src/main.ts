@@ -75,8 +75,8 @@ async function main() {
 	}
 
 	// Check if directory exists
-	const targetDir = path.join(process.cwd(), projectName);
-	if (await pathExists(targetDir)) {
+	const targetDir = projectName === "." ? process.cwd() : path.join(process.cwd(), projectName);
+	if (projectName !== "." && await pathExists(targetDir)) {
 		cancel(`Directory ${projectName} already exists`);
 		process.exit(1);
 	}
@@ -196,7 +196,7 @@ async function main() {
 ${kleur.green("✓")} Project created at ${kleur.cyan(targetDir)}${featuresText}
 
 Next steps:
-  ${kleur.cyan(`cd ${config.name}`)}
+  ${config.name !== "." ? kleur.cyan(`cd ${config.name}`) : kleur.cyan("# Already in project directory")}
   ${kleur.cyan(`${config.packageManager} run dev`)}
 
 ${kleur.dim("For more commands, check the README.md file.")}

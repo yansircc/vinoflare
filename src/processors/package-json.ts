@@ -21,7 +21,11 @@ export class PackageJsonProcessor extends BaseProcessor {
 		const packageJson = await readJSON(packageJsonPath);
 
 		// Update project name
-		packageJson.name = context.config.name;
+		// If project name is ".", use the current directory name
+		const projectName = context.config.name === "." 
+			? path.basename(context.projectPath) 
+			: context.config.name;
+		packageJson.name = projectName;
 
 		// Process features
 		for (const feature of context.template.features) {
