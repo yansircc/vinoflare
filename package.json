@@ -1,6 +1,6 @@
 {
 	"name": "create-vinoflare",
-	"version": "0.0.3",
+	"version": "0.0.4",
 	"description": "Create modern full-stack apps with Hono + TanStack Router",
 	"type": "module",
 	"bin": {
