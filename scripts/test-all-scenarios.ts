@@ -376,7 +376,7 @@ async function testScenario(scenario: TestScenario): Promise<TestResult> {
 }
 
 async function runAllTests() {
-	console.log(kleur.bold("\n🧪 Testing all create-vino-app scenarios\n"));
+	console.log(kleur.bold("\n🧪 Testing all create-vinoflare scenarios\n"));
 	console.log(`Output directory: ${kleur.cyan(TEST_OUTPUT_DIR)}`);
 	console.log(`Keep failed tests: ${kleur.cyan(KEEP_FAILED ? "Yes" : "No")}`);
 	console.log(`Keep all tests: ${kleur.cyan(KEEP_ALL ? "Yes" : "No")}`);

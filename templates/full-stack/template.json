@@ -22,6 +22,14 @@
 					{
 						"from": "hello-demo.tsx",
 						"to": "src/client/components/hello-demo.tsx"
+					},
+					{
+						"from": "hello-list.tsx",
+						"to": "src/client/components/hello-list.tsx"
+					},
+					{
+						"from": "use-hello.ts",
+						"to": "src/client/hooks/use-hello.ts"
 					}
 				]
 			}
@@ -39,7 +47,9 @@
 					"src/server/db/tables/auth.ts",
 					"src/server/schemas/database/auth.ts",
 					"src/client/lib/auth.ts",
-					"src/client/components/auth/**"
+					"src/client/components/auth/**",
+					"src/client/routes/login.tsx",
+					"src/client/routes/profile.tsx"
 				]
 			}
 		}

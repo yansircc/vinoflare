@@ -2,7 +2,7 @@
   "lockfileVersion": 1,
   "workspaces": {
     "": {
-      "name": "create-vino-app",
+      "name": "create-vinoflare",
       "dependencies": {
         "@clack/prompts": "^0.8.2",
         "fs-extra": "^11.2.0",

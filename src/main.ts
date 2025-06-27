@@ -34,7 +34,7 @@ import {
 
 async function main() {
 	console.log();
-	intro(kleur.bgCyan().black(" create-vino-app "));
+	intro(kleur.bgCyan().black(" create-vinoflare "));
 
 	// Parse arguments
 	const parsedArgs = parseArgs();

@@ -20,7 +20,7 @@ async function runTest() {
 	try {
 		// Step 1: Create project
 		console.log("📦 Creating project...");
-		const createResult = await $`bunx create-vino-app ${testName} --no-db -y`
+		const createResult = await $`bunx create-vinoflare ${testName} --no-db -y`
 			.cwd(TEST_DIR)
 			.quiet();
 

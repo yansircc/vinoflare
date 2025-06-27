@@ -2,6 +2,8 @@ import type { ExecutionContext } from "../types";
 import { execute } from "../utils/exec";
 import { getRunCommand } from "../utils/package-manager";
 import { BaseProcessor } from "./types";
+import { mkdirSync } from "node:fs";
+import { join } from "node:path";
 
 /**
  * Processor for initializing the project (generate types, routes, etc.)
@@ -25,6 +27,9 @@ export class ProjectInitProcessor extends BaseProcessor {
 		context.logger.info(message);
 
 		try {
+			// Create necessary directories
+			this.createRequiredDirectories(context);
+
 			const commands = this.getInitCommands(context);
 
 			for (const cmd of commands) {
@@ -37,6 +42,18 @@ export class ProjectInitProcessor extends BaseProcessor {
 			context.logger.warn(
 				"You can run the initialization commands manually later.",
 			);
+		}
+	}
+
+	private createRequiredDirectories(context: ExecutionContext): void {
+		// Create src/generated directory for TanStack Router
+		if (context.config.type === "full-stack") {
+			const generatedDir = join(context.projectPath, "src", "generated");
+			try {
+				mkdirSync(generatedDir, { recursive: true });
+			} catch (error) {
+				// Directory might already exist, ignore error
+			}
 		}
 	}
 

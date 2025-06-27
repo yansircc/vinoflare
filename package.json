@@ -1,10 +1,10 @@
 {
-	"name": "create-vino-app",
+	"name": "create-vinoflare",
 	"version": "0.0.3",
 	"description": "Create modern full-stack apps with Hono + TanStack Router",
 	"type": "module",
 	"bin": {
-		"create-vino-app": "./dist/index.js"
+		"create-vinoflare": "./dist/index.js"
 	},
 	"files": [
 		"dist",

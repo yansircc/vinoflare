@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-create-vino-app is a CLI tool that scaffolds modern full-stack TypeScript applications using:
+create-vinoflare is a CLI tool that scaffolds modern full-stack TypeScript applications using:
 - **Hono** - Fast web framework for Cloudflare Workers
 - **React + TanStack Router** - Type-safe routing for React applications (full-stack only)
 - **D1 Database** with Drizzle ORM (optional)

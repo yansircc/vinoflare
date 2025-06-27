@@ -9,12 +9,12 @@ export class InteractivePrompts {
 
 	async getProjectName(initial?: string): Promise<string | symbol> {
 		if (initial || this.flags.yes) {
-			return initial || "my-vino-app";
+			return initial || "my-vinoflare";
 		}
 
 		return text({
 			message: "Project name:",
-			placeholder: "my-vino-app",
+			placeholder: "my-vinoflare",
 			validate: (value) => {
 				if (!value) return "Project name is required";
 				if (!/^[a-z0-9-_]+$/.test(value)) {

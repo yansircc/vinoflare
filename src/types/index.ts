@@ -1,5 +1,5 @@
 /**
- * Core type definitions for create-vino-app
+ * Core type definitions for create-vinoflare
  */
 
 // Project configuration types

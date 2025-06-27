@@ -155,7 +155,7 @@ export class TypeScriptTransformer extends BaseTransformer {
 			// Since this is sync context, we'll use sync fs operations
 			let projectRoot = process.cwd();
 			
-			// Look for package.json with name "create-vino-app"
+			// Look for package.json with name "create-vinoflare"
 			let currentDir = __dirname;
 			while (currentDir !== path.dirname(currentDir)) {
 				const packageJsonPath = path.join(currentDir, "package.json");
@@ -163,7 +163,7 @@ export class TypeScriptTransformer extends BaseTransformer {
 				if (fs.existsSync(packageJsonPath)) {
 					try {
 						const packageJson = fs.readJSONSync(packageJsonPath);
-						if (packageJson.name === "create-vino-app") {
+						if (packageJson.name === "create-vinoflare") {
 							projectRoot = currentDir;
 							break;
 						}

@@ -9,7 +9,9 @@
 					"src/server/db/tables/auth.ts",
 					"src/server/schemas/database/auth.ts",
 					"src/client/lib/auth.ts",
-					"src/client/components/auth/**"
+					"src/client/components/auth/**",
+					"src/client/routes/login.tsx",
+					"src/client/routes/profile.tsx"
 				],
 				"transform": [
 					{
@@ -373,19 +375,6 @@
 								}
 							}
 						]
-					},
-					{
-						"file": "src/client/routes/index.tsx",
-						"condition": "!hasDatabase",
-						"rules": [
-							{
-								"type": "function",
-								"transformer": "removeImport",
-								"options": {
-									"module": "@/client/components/hello-list"
-								}
-							}
-						]
 					}
 				]
 			}
@@ -460,10 +449,6 @@
 		},
 		"full-stack": {
 			"files": {
-				"removeWhenNoAuth": [
-					"src/client/routes/login.tsx",
-					"src/client/routes/profile.tsx"
-				],
 				"transform": [
 					{
 						"file": "src/client/router.tsx",

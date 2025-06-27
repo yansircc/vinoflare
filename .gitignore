@@ -4,4 +4,6 @@ dist
 *.log
 test-outputtest-nodb/
 test-output/
+test-logs/
 docs/
+create-vinoflare-*.tgz

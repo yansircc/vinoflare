@@ -5,10 +5,10 @@ import kleur from "kleur";
  */
 export function showHelp(): void {
 	console.log(`
-${kleur.bold("create-vino-app")} - Create modern full-stack applications
+${kleur.bold("create-vinoflare")} - Create modern full-stack applications
 
 ${kleur.dim("Usage:")}
-  create-vino-app [project-name] [options]
+  create-vinoflare [project-name] [options]
 
 ${kleur.dim("Options:")}
   -y, --yes              Skip all prompts and use defaults
@@ -23,16 +23,16 @@ ${kleur.dim("Options:")}
 
 ${kleur.dim("Examples:")}
   # Interactive mode
-  create-vino-app my-app
+  create-vinoflare my-app
 
   # Non-interactive with defaults (full-stack with DB and auth)
-  create-vino-app my-app -y
+  create-vinoflare my-app -y
 
   # API-only without database
-  create-vino-app my-api --type=api-only --no-db -y
+  create-vinoflare my-api --type=api-only --no-db -y
 
   # Full-stack with DB but no auth
-  create-vino-app my-app --no-auth -y
+  create-vinoflare my-app --no-auth -y
 `);
 }
 
@@ -41,5 +41,5 @@ ${kleur.dim("Examples:")}
  */
 export function showVersion(): void {
 	const { version } = require("../../package.json");
-	console.log(`create-vino-app v${version}`);
+	console.log(`create-vinoflare v${version}`);
 }

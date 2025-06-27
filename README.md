@@ -1,4 +1,4 @@
-# create-vino-app
+# create-vinoflare
 
 A modern CLI tool to scaffold full-stack TypeScript applications with Hono and TanStack Router, featuring flexible architecture options and smart dependency management.
 
@@ -18,32 +18,32 @@ A modern CLI tool to scaffold full-stack TypeScript applications with Hono and T
 
 ```bash
 # Interactive mode (recommended)
-bunx create-vino-app my-app
+bunx create-vinoflare my-app
 
 # Non-interactive with defaults
-bunx create-vino-app my-app -y
+bunx create-vinoflare my-app -y
 
 # API-only without database
-bunx create-vino-app my-api --type=api-only --no-db -y
+bunx create-vinoflare my-api --type=api-only --no-db -y
 
 # Full-stack with database but no auth
-bunx create-vino-app my-app --no-auth -y
+bunx create-vinoflare my-app --no-auth -y
 ```
 
 ### Package Manager Support
 
 ```bash
 # Using npm
-npx create-vino-app@latest my-app
+npx create-vinoflare@latest my-app
 
 # Using bun (recommended)
-bunx create-vino-app@latest my-app
+bunx create-vinoflare@latest my-app
 
 # Using pnpm
-pnpm create vino-app@latest my-app
+pnpm create vinoflare@latest my-app
 
 # Using yarn
-yarn create vino-app my-app
+yarn create vinoflare my-app
 ```
 
 ## Command-Line Options
@@ -193,7 +193,7 @@ Based on your choices, the CLI will automatically:
 Run the included test script to validate all combinations:
 
 ```bash
-cd create-vino-app
+cd create-vinoflare
 ./test-all-combinations.sh
 ```
 
@@ -206,7 +206,7 @@ To work on the CLI itself:
 ```bash
 # Clone the repository
 git clone <repo-url>
-cd create-vino-app
+cd create-vinoflare
 
 # Install dependencies
 bun install
@@ -218,7 +218,7 @@ bun run build
 bun link
 
 # Test locally
-bunx create-vino-app test-app
+bunx create-vinoflare test-app
 ```
 
 ## Contributing

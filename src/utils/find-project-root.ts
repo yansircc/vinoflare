@@ -10,7 +10,7 @@ export async function findProjectRoot(startPath?: string): Promise<string> {
 	const currentFilePath = startPath || fileURLToPath(import.meta.url);
 	let currentDir = path.dirname(currentFilePath);
 	
-	// Look up the directory tree for package.json with name "create-vino-app"
+	// Look up the directory tree for package.json with name "create-vinoflare"
 	while (currentDir !== path.dirname(currentDir)) {
 		const packageJsonPath = path.join(currentDir, "package.json");
 		
@@ -19,7 +19,7 @@ export async function findProjectRoot(startPath?: string): Promise<string> {
 				const { readJSON } = await import("./fs-extra-wrapper");
 				const packageJson = await readJSON(packageJsonPath);
 				
-				if (packageJson.name === "create-vino-app") {
+				if (packageJson.name === "create-vinoflare") {
 					return currentDir;
 				}
 			} catch {
