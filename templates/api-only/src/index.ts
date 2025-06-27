@@ -1,8 +1,8 @@
-import { authGuard } from "@/server/middleware/auth-guard";
-import { createAPIApp } from "@/server/routes/api";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
+import { authGuard } from "@/server/middleware/auth-guard";
+import { createAPIApp } from "@/server/routes/api";
 
 interface Env {
 	Bindings: CloudflareBindings;

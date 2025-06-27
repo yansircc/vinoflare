@@ -126,6 +126,33 @@ export class ConditionEvaluator {
 		if (key === "null") return null;
 		if (key === "undefined") return undefined;
 
+		// Handle function calls
+		if (key.includes("(") && key.endsWith(")")) {
+			const funcMatch = key.match(/^(\w+)\((.*)\)$/);
+			if (funcMatch) {
+				const [, funcName, args] = funcMatch;
+				const func = this.context[funcName];
+				if (typeof func === "function") {
+					// Parse arguments
+					const argValues = args
+						.split(",")
+						.map((arg) => arg.trim())
+						.filter((arg) => arg)
+						.map((arg) => {
+							// Remove quotes from string arguments
+							if (
+								(arg.startsWith('"') && arg.endsWith('"')) ||
+								(arg.startsWith("'") && arg.endsWith("'"))
+							) {
+								return arg.slice(1, -1);
+							}
+							return arg;
+						});
+					return func(...argValues);
+				}
+			}
+		}
+
 		// Look up in context
 		return this.context[key];
 	}

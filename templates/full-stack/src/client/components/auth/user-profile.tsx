@@ -1,3 +1,4 @@
+import { signOut, useSession } from "@client/lib/auth";
 import {
 	cn,
 	colors,
@@ -6,7 +7,6 @@ import {
 	spacing,
 	text,
 } from "@/client/lib/design";
-import { signOut, useSession } from "@client/lib/auth";
 
 export function UserProfile() {
 	const { data: session } = useSession();

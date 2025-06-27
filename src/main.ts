@@ -20,6 +20,7 @@ import { GitInitProcessor } from "./processors/git-init";
 import { InstallDependenciesProcessor } from "./processors/install-dependencies";
 import { PackageJsonProcessor } from "./processors/package-json";
 import { ProjectInitProcessor } from "./processors/project-init";
+import { ProjectTypeCleanupProcessor } from "./processors/project-type-cleanup";
 // Processors
 import { ProcessorRegistry } from "./processors/registry";
 import { TemplateInheritanceProcessor } from "./processors/template-inheritance";
@@ -166,6 +167,7 @@ async function main() {
 		processorRegistry.registerAll([
 			new TemplateInheritanceProcessor(),
 			new CopyTemplateProcessor(),
+			new ProjectTypeCleanupProcessor(),
 			new PackageJsonProcessor(),
 			new FeatureCleanupProcessor(),
 			new FileTransformProcessor(),

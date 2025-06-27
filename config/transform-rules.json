@@ -23,8 +23,8 @@
 								}
 							},
 							{
-								"type": "replace",
-								"transformer": "removeExport",
+								"type": "function",
+								"transformer": "removeArrayElement",
 								"options": {
 									"pattern": "authModule"
 								}
@@ -58,21 +58,27 @@
 						]
 					},
 					{
-						"file": "src/server/openapi/schemas.ts",
+						"file": "src/server/types/index.ts",
+						"condition": "hasDatabase && !hasAuth",
 						"rules": [
 							{
-								"type": "function",
-								"transformer": "removeImport",
+								"type": "replace",
+								"transformer": "replaceFile",
 								"options": {
-									"module": "@/server/schemas",
-									"imports": ["selectUserSchema"]
+									"template": "templates/replacements/types-index-db-noauth.ts"
 								}
-							},
+							}
+						]
+					},
+					{
+						"file": "src/server/openapi/schemas.ts",
+						"condition": "hasDatabase && !hasAuth",
+						"rules": [
 							{
-								"type": "function",
-								"transformer": "removeExport",
+								"type": "replace",
+								"transformer": "replaceFile",
 								"options": {
-									"pattern": "User:"
+									"template": "templates/replacements/openapi-schemas-db-noauth.ts"
 								}
 							}
 						]
@@ -92,6 +98,27 @@
 								"transformer": "removeType",
 								"options": {
 									"typeName": "AuthSession"
+								}
+							},
+							{
+								"type": "function",
+								"transformer": "removeType",
+								"options": {
+									"typeName": "SelectUser"
+								}
+							},
+							{
+								"type": "function",
+								"transformer": "removeType",
+								"options": {
+									"typeName": "InsertUser"
+								}
+							},
+							{
+								"type": "function",
+								"transformer": "removeType",
+								"options": {
+									"typeName": "User"
 								}
 							}
 						]
@@ -123,6 +150,37 @@
 								"transformer": "removeStatement",
 								"options": {
 									"pattern": "app.use(\"/api/*\", authGuard);"
+								}
+							}
+						]
+					},
+					{
+						"file": "src/server/db/tables/index.ts",
+						"rules": [
+							{
+								"type": "function",
+								"transformer": "removeStatement",
+								"options": {
+									"pattern": "export * from \"./auth\";"
+								}
+							},
+							{
+								"type": "function",
+								"transformer": "removeStatement",
+								"options": {
+									"pattern": "// Authentication tables"
+								}
+							}
+						]
+					},
+					{
+						"file": "src/server/middleware/index.ts",
+						"rules": [
+							{
+								"type": "function",
+								"transformer": "removeStatement",
+								"options": {
+									"pattern": "export { authGuard } from \"./auth-guard\";"
 								}
 							}
 						]
@@ -223,8 +281,8 @@
 								}
 							},
 							{
-								"type": "replace",
-								"transformer": "removeExport",
+								"type": "function",
+								"transformer": "removeArrayElement",
 								"options": {
 									"pattern": "postsModule"
 								}
@@ -236,10 +294,10 @@
 						"condition": "!hasDatabase",
 						"rules": [
 							{
-								"type": "function",
-								"transformer": "removeImport",
+								"type": "replace",
+								"transformer": "replaceFile",
 								"options": {
-									"module": "./database"
+									"template": "templates/replacements/schemas-index-no-db.ts"
 								}
 							}
 						]
@@ -249,52 +307,10 @@
 						"condition": "!hasDatabase",
 						"rules": [
 							{
-								"type": "function",
-								"transformer": "removeImport",
+								"type": "replace",
+								"transformer": "replaceFile",
 								"options": {
-									"module": "../schemas/database"
-								}
-							},
-							{
-								"type": "function",
-								"transformer": "removeType",
-								"options": {
-									"typeName": "SelectPost"
-								}
-							},
-							{
-								"type": "function",
-								"transformer": "removeType",
-								"options": {
-									"typeName": "InsertPost"
-								}
-							},
-							{
-								"type": "function",
-								"transformer": "removeType",
-								"options": {
-									"typeName": "Post"
-								}
-							},
-							{
-								"type": "function",
-								"transformer": "removeType",
-								"options": {
-									"typeName": "SelectUser"
-								}
-							},
-							{
-								"type": "function",
-								"transformer": "removeType",
-								"options": {
-									"typeName": "InsertUser"
-								}
-							},
-							{
-								"type": "function",
-								"transformer": "removeType",
-								"options": {
-									"typeName": "User"
+									"template": "templates/replacements/types-index-no-db.ts"
 								}
 							}
 						]
@@ -304,25 +320,10 @@
 						"condition": "!hasDatabase",
 						"rules": [
 							{
-								"type": "function",
-								"transformer": "removeImport",
+								"type": "replace",
+								"transformer": "replaceFile",
 								"options": {
-									"module": "@/server/schemas",
-									"imports": ["selectPostSchema", "insertPostSchema"]
-								}
-							},
-							{
-								"type": "function",
-								"transformer": "removeExport",
-								"options": {
-									"pattern": "Post:"
-								}
-							},
-							{
-								"type": "function",
-								"transformer": "removeExport",
-								"options": {
-									"pattern": "CreatePost:"
+									"template": "templates/replacements/openapi-schemas-no-db.ts"
 								}
 							}
 						]
@@ -333,9 +334,9 @@
 						"rules": [
 							{
 								"type": "function",
-								"transformer": "removeImport",
+								"transformer": "removeStatement",
 								"options": {
-									"module": "./database"
+									"pattern": "export { database } from \"./database\";"
 								}
 							}
 						]
@@ -356,6 +357,32 @@
 								"transformer": "removeStatement",
 								"options": {
 									"pattern": "<UserMenu />"
+								}
+							}
+						]
+					},
+					{
+						"file": "src/client/components/hello-demo.tsx",
+						"condition": "!hasDatabase",
+						"rules": [
+							{
+								"type": "replace",
+								"transformer": "replaceFile",
+								"options": {
+									"template": "templates/replacements/hello-demo-no-db.tsx"
+								}
+							}
+						]
+					},
+					{
+						"file": "src/client/routes/index.tsx",
+						"condition": "!hasDatabase",
+						"rules": [
+							{
+								"type": "function",
+								"transformer": "removeImport",
+								"options": {
+									"module": "@/client/components/hello-list"
 								}
 							}
 						]
@@ -385,6 +412,45 @@
 								"transformer": "removeStatement",
 								"options": {
 									"pattern": "app.use(\"/api/*\", authGuard);"
+								}
+							}
+						]
+					},
+					{
+						"file": "src/client/components/auth/login-form.tsx",
+						"condition": "!hasAuth",
+						"rules": [
+							{
+								"type": "function",
+								"transformer": "removeImport",
+								"options": {
+									"module": "@client/lib/auth"
+								}
+							}
+						]
+					},
+					{
+						"file": "src/client/components/auth/user-menu.tsx",
+						"condition": "!hasAuth",
+						"rules": [
+							{
+								"type": "function",
+								"transformer": "removeImport",
+								"options": {
+									"module": "@client/lib/auth"
+								}
+							}
+						]
+					},
+					{
+						"file": "src/client/components/auth/user-profile.tsx",
+						"condition": "!hasAuth",
+						"rules": [
+							{
+								"type": "function",
+								"transformer": "removeImport",
+								"options": {
+									"module": "@client/lib/auth"
 								}
 							}
 						]

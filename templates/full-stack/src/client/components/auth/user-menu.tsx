@@ -1,7 +1,7 @@
-import { cn, colors, focus, interactive, text } from "@/client/lib/design";
 import { signOut, useSession } from "@client/lib/auth";
 import { Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
+import { cn, colors, focus, interactive, text } from "@/client/lib/design";
 
 export function UserMenu() {
 	const { data: session } = useSession();

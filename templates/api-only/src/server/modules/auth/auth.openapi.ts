@@ -1,6 +1,6 @@
-import { selectUserSchema } from "@/server/schemas";
 import { StatusCodes } from "http-status-codes";
 import { z } from "zod/v4";
+import { selectUserSchema } from "@/server/schemas";
 
 const userSchema = z.toJSONSchema(selectUserSchema);
 

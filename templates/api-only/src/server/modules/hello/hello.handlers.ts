@@ -1,6 +1,6 @@
-import type { BaseContext } from "@/server/lib/types";
 import type { Context } from "hono";
 import { StatusCodes } from "http-status-codes";
+import type { BaseContext } from "@/server/lib/types";
 
 export const helloHandler = async (c: Context<BaseContext>) => {
 	return c.json(

@@ -1,5 +1,5 @@
-import { cn, colors, interactive, layout, text } from "@/client/lib/design";
 import { Link } from "@tanstack/react-router";
+import { cn, colors, interactive, layout, text } from "@/client/lib/design";
 
 interface NavItem {
 	path: string;

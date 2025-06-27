@@ -11,6 +11,7 @@ const execAsync = promisify(exec);
 // Configuration
 const TEST_OUTPUT_DIR = path.join(process.cwd(), "test-output");
 const KEEP_FAILED = process.argv.includes("--keep-failed");
+const KEEP_ALL = process.argv.includes("--keep-all");
 const RUN_PARALLEL = process.argv.includes("--parallel");
 const DEBUG = process.argv.includes("--debug");
 const SAVE_LOGS = process.argv.includes("--save-logs");
@@ -25,26 +26,30 @@ interface TestScenario {
 	projectType: "api-only" | "full-stack";
 }
 
+// Determine the CLI command to use
+const CLI_PATH = path.join(process.cwd(), "src", "index.ts");
+const CLI_COMMAND = `bun run ${CLI_PATH}`;
+
 const scenarios: TestScenario[] = [
 	// API-only scenarios
 	{
 		name: "API-only: DB + Auth",
 		projectName: "test-api-db-auth",
-		command: `bunx create-vino-app test-api-db-auth --type=api-only -y`,
+		command: `${CLI_COMMAND} test-api-db-auth --type=api-only -y --no-git`,
 		needsDevVars: true,
 		projectType: "api-only",
 	},
 	{
 		name: "API-only: DB, No Auth",
 		projectName: "test-api-db-noauth",
-		command: `bunx create-vino-app test-api-db-noauth --type=api-only --no-auth -y`,
+		command: `${CLI_COMMAND} test-api-db-noauth --type=api-only --no-auth -y --no-git`,
 		needsDevVars: false,
 		projectType: "api-only",
 	},
 	{
 		name: "API-only: No DB, No Auth",
 		projectName: "test-api-nodb-noauth",
-		command: `bunx create-vino-app test-api-nodb-noauth --type=api-only --no-db -y`,
+		command: `${CLI_COMMAND} test-api-nodb-noauth --type=api-only --no-db -y --no-git`,
 		needsDevVars: false,
 		projectType: "api-only",
 	},
@@ -52,21 +57,21 @@ const scenarios: TestScenario[] = [
 	{
 		name: "Full-stack: DB + Auth",
 		projectName: "test-full-db-auth",
-		command: `bunx create-vino-app test-full-db-auth -y`,
+		command: `${CLI_COMMAND} test-full-db-auth -y --no-git`,
 		needsDevVars: true,
 		projectType: "full-stack",
 	},
 	{
 		name: "Full-stack: DB, No Auth",
 		projectName: "test-full-db-noauth",
-		command: `bunx create-vino-app test-full-db-noauth --no-auth -y`,
+		command: `${CLI_COMMAND} test-full-db-noauth --no-auth -y --no-git`,
 		needsDevVars: false,
 		projectType: "full-stack",
 	},
 	{
 		name: "Full-stack: No DB, No Auth",
 		projectName: "test-full-nodb-noauth",
-		command: `bunx create-vino-app test-full-nodb-noauth --no-db -y`,
+		command: `${CLI_COMMAND} test-full-nodb-noauth --no-db -y --no-git`,
 		needsDevVars: false,
 		projectType: "full-stack",
 	},
@@ -325,7 +330,7 @@ async function testScenario(scenario: TestScenario): Promise<TestResult> {
 		);
 
 		// Clean up successful test
-		if (!KEEP_FAILED) {
+		if (!KEEP_FAILED && !KEEP_ALL) {
 			await fs.remove(projectPath);
 		}
 
@@ -341,7 +346,7 @@ async function testScenario(scenario: TestScenario): Promise<TestResult> {
 		console.error(`  ${kleur.red(error.message)}`);
 
 		// Keep failed test output for debugging
-		if (KEEP_FAILED) {
+		if (KEEP_FAILED || KEEP_ALL) {
 			console.log(
 				`  ${kleur.yellow("!")} Failed test output kept at: ${projectPath}`,
 			);
@@ -374,6 +379,7 @@ async function runAllTests() {
 	console.log(kleur.bold("\n🧪 Testing all create-vino-app scenarios\n"));
 	console.log(`Output directory: ${kleur.cyan(TEST_OUTPUT_DIR)}`);
 	console.log(`Keep failed tests: ${kleur.cyan(KEEP_FAILED ? "Yes" : "No")}`);
+	console.log(`Keep all tests: ${kleur.cyan(KEEP_ALL ? "Yes" : "No")}`);
 	console.log(`Save logs: ${kleur.cyan(SAVE_LOGS ? "Yes" : "No")}`);
 	console.log(
 		`Run mode: ${kleur.cyan(RUN_PARALLEL ? "Parallel" : "Sequential")}\n`,
@@ -419,7 +425,7 @@ async function runAllTests() {
 	);
 
 	// Clean up test output directory if all tests passed and not keeping
-	if (failCount === 0 && !KEEP_FAILED) {
+	if (failCount === 0 && !KEEP_FAILED && !KEEP_ALL) {
 		await fs.remove(TEST_OUTPUT_DIR);
 	}
 

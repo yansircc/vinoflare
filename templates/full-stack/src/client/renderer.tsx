@@ -1,7 +1,7 @@
 /** @jsxImportSource hono/jsx */
 
-import { getAssetPaths } from "@/utils/manifest";
 import { jsxRenderer } from "hono/jsx-renderer";
+import { getAssetPaths } from "@/utils/manifest";
 
 export const renderer = jsxRenderer(async ({ children }, c) => {
 	// 获取资源路径

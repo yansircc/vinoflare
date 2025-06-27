@@ -4,6 +4,7 @@ import fs from "fs-extra";
 import type { ExecutionContext, TransformRule } from "../../types";
 import { createFileOperations } from "../../utils/file-operations";
 import { BaseTransformer } from "./base";
+import { findProjectRoot } from "../../utils/find-project-root";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -36,6 +37,8 @@ export class TypeScriptTransformer extends BaseTransformer {
 				return this.replaceFile(content, rule.options, context);
 			case "removeStatement":
 				return this.removeStatement(content, rule.options);
+			case "removeArrayElement":
+				return this.removeArrayElement(content, rule.options);
 			case "removeBlock":
 				return this.removeBlockTransform(content, rule.options);
 			case "custom":
@@ -106,6 +109,27 @@ export class TypeScriptTransformer extends BaseTransformer {
 		return content.replace(statementPattern, "");
 	}
 
+	private removeArrayElement(content: string, options: any): string {
+		const { pattern } = options;
+		// Remove pattern from arrays, handling various cases:
+		// - [module1, pattern, module2] -> [module1, module2]
+		// - [module1, pattern] -> [module1]
+		// - [pattern, module2] -> [module2]
+		// - [pattern] -> []
+		let result = content;
+		
+		// First, try to remove with comma after
+		result = result.replace(new RegExp(`${pattern}\\s*,\\s*`, "g"), "");
+		
+		// Then, try to remove with comma before
+		result = result.replace(new RegExp(`,\\s*${pattern}`, "g"), "");
+		
+		// Finally, remove standalone (for single-element arrays)
+		result = result.replace(new RegExp(`\\[\\s*${pattern}\\s*\\]`, "g"), "[]");
+		
+		return result;
+	}
+
 	private removeBlockTransform(content: string, options: any): string {
 		const { startPattern, endPattern } = options;
 		const blockPattern = new RegExp(
@@ -127,24 +151,51 @@ export class TypeScriptTransformer extends BaseTransformer {
 		}
 
 		try {
-			// The template path is relative to the project being created
-			// We need to go up from the project path to find the CLI's templates
-			const cliRoot = path.resolve(context.projectPath, "..");
-			const templatePath = path.join(cliRoot, template);
+			// First try to find the project root using our utility
+			// Since this is sync context, we'll use sync fs operations
+			let projectRoot = process.cwd();
 			
-			// Read template file synchronously for transformation
-			const templateContent = fs.readFileSync(templatePath, "utf-8");
-			return templateContent;
+			// Look for package.json with name "create-vino-app"
+			let currentDir = __dirname;
+			while (currentDir !== path.dirname(currentDir)) {
+				const packageJsonPath = path.join(currentDir, "package.json");
+				
+				if (fs.existsSync(packageJsonPath)) {
+					try {
+						const packageJson = fs.readJSONSync(packageJsonPath);
+						if (packageJson.name === "create-vino-app") {
+							projectRoot = currentDir;
+							break;
+						}
+					} catch {
+						// Continue searching
+					}
+				}
+				
+				currentDir = path.dirname(currentDir);
+			}
+			
+			// Try multiple possible paths
+			const possiblePaths = [
+				path.join(projectRoot, template),
+				path.join(projectRoot, "templates", "replacements", path.basename(template)),
+				path.join(__dirname, "../../../", template),
+				path.join(process.cwd(), template),
+			];
+			
+			for (const templatePath of possiblePaths) {
+				if (fs.existsSync(templatePath)) {
+					const templateContent = fs.readFileSync(templatePath, "utf-8");
+					return templateContent;
+				}
+			}
+			
+			console.error(`Failed to find template file: ${template}`);
+			console.error(`Searched paths:`, possiblePaths);
+			return content;
 		} catch (error) {
 			console.error(`Failed to read template file: ${template}`, error);
-			// As a fallback, try the current working directory
-			try {
-				const fallbackPath = path.join(process.cwd(), template);
-				const templateContent = fs.readFileSync(fallbackPath, "utf-8");
-				return templateContent;
-			} catch {
-				return content;
-			}
+			return content;
 		}
 	}
 

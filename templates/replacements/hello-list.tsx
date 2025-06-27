@@ -22,9 +22,7 @@ export function HelloList() {
 	return (
 		<div className="max-w-2xl mx-auto p-6">
 			<div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-				<h2 className="text-2xl font-bold text-gray-900 mb-4">
-					API Response
-				</h2>
+				<h2 className="text-2xl font-bold text-gray-900 mb-4">API Response</h2>
 				<div className="bg-gray-50 rounded-md p-4">
 					<p className="text-lg text-gray-700">
 						{data?.message || "No message received"}

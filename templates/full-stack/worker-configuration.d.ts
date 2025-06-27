@@ -7225,9 +7225,7 @@ declare abstract class D1PreparedStatement {
 	raw<T = unknown[]>(options: {
 		columnNames: true;
 	}): Promise<[string[], ...T[]]>;
-	raw<T = unknown[]>(options?: {
-		columnNames?: false;
-	}): Promise<T[]>;
+	raw<T = unknown[]>(options?: { columnNames?: false }): Promise<T[]>;
 }
 // `Disposable` was added to TypeScript's standard lib types in version 5.2.
 // To support older TypeScript versions, define an empty `Disposable` interface.

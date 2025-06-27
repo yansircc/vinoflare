@@ -158,6 +158,15 @@ export class FileOperations {
 				for (const file of files) {
 					await this.remove(file);
 				}
+				// Also try to remove the directory itself if it's a ** pattern
+				if (pattern.endsWith("/**")) {
+					const dirPath = pattern.slice(0, -3); // Remove /** suffix
+					try {
+						await this.remove(dirPath);
+					} catch (_error) {
+						// Ignore if directory is not empty or doesn't exist
+					}
+				}
 			} else {
 				// Handle regular paths
 				try {

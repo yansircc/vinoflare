@@ -32,14 +32,14 @@ export class FileTransformProcessor implements Processor {
 
 		for (const transform of unifiedConfig.transforms) {
 			// Check transformation condition
-			if (
-				transform.condition &&
-				!this.evaluateCondition(transform.condition, context)
-			) {
-				this.logger.debug(
-					`Skipping transformation for ${transform.file} - condition not met: ${transform.condition}`,
-				);
-				continue;
+			if (transform.condition) {
+				const conditionMet = this.evaluateCondition(transform.condition, context);
+				if (!conditionMet) {
+					this.logger.debug(
+						`Skipping transformation for ${transform.file} - condition not met: ${transform.condition}`,
+					);
+					continue;
+				}
 			}
 
 			// Check if file exists

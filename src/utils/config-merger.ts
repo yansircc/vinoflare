@@ -26,10 +26,16 @@ export class ConfigMerger {
 		)) {
 			if (featureConfig.files?.transform) {
 				for (const transformConfig of featureConfig.files.transform) {
-					// Add feature condition to each rule
+					// Feature transforms should be applied when the feature is NOT present
+					// (e.g., database transforms remove DB-related code when no DB)
+					// Unless the transform already has a condition specified
+					const defaultCondition = `!hasFeature("${featureName}")`;
+					const finalCondition = transformConfig.condition || defaultCondition;
+					
+					
 					const modifiedTransform: FileTransformConfig = {
 						...transformConfig,
-						condition: `!hasFeature("${featureName}")`,
+						condition: finalCondition,
 						rules: transformConfig.rules.map((rule) => ({
 							...rule,
 							// Preserve existing conditions

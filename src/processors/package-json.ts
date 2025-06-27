@@ -1,5 +1,5 @@
 import path from "node:path";
-import { readJSON, writeJSON } from "fs-extra";
+import { readJSON, writeJSON } from "../utils/fs-extra-wrapper";
 import type { ExecutionContext } from "../types";
 import { BaseProcessor } from "./types";
 

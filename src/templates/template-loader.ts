@@ -1,12 +1,13 @@
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { pathExists, readJSON } from "fs-extra";
+import { pathExists, readJSON } from "../utils/fs-extra-wrapper";
 import transformRules from "../../config/transform-rules.json";
 import type { Template } from "../types";
 import type { TransformRulesConfig } from "../types/config";
 import type { TemplateConfig, UnifiedTemplateConfig } from "../types/template-config";
 import { ConfigMerger } from "../utils/config-merger";
 import { getLogger } from "../utils/logger";
+import { getTemplatesDir } from "../utils/find-project-root";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -17,9 +18,25 @@ export class TemplateLoader {
 	private templatesDir: string;
 	private logger = getLogger();
 	private templateCache = new Map<string, UnifiedTemplateConfig>();
+	private templatesDirPromise: Promise<string> | null = null;
 
 	constructor(templatesDir?: string) {
-		this.templatesDir = templatesDir || path.join(__dirname, "../../templates");
+		this.templatesDir = templatesDir || "";
+		if (!templatesDir) {
+			// Initialize templates directory asynchronously
+			this.templatesDirPromise = getTemplatesDir();
+		}
+	}
+
+	/**
+	 * Ensure templates directory is resolved
+	 */
+	private async ensureTemplatesDir(): Promise<string> {
+		if (!this.templatesDir && this.templatesDirPromise) {
+			this.templatesDir = await this.templatesDirPromise;
+			this.templatesDirPromise = null;
+		}
+		return this.templatesDir || path.join(__dirname, "../../templates");
 	}
 
 	/**
@@ -39,7 +56,8 @@ export class TemplateLoader {
 			return this.templateCache.get(templateName)!;
 		}
 
-		const templatePath = path.join(this.templatesDir, templateName);
+		const templatesDir = await this.ensureTemplatesDir();
+		const templatePath = path.join(templatesDir, templateName);
 		const configPath = path.join(templatePath, "template.json");
 
 		// Check if template exists
@@ -143,7 +161,8 @@ export class TemplateLoader {
 	 */
 	async getAvailableTemplates(): Promise<string[]> {
 		const fs = await import("node:fs/promises");
-		const entries = await fs.readdir(this.templatesDir, {
+		const templatesDir = await this.ensureTemplatesDir();
+		const entries = await fs.readdir(templatesDir, {
 			withFileTypes: true,
 		});
 

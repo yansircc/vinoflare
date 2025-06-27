@@ -2,7 +2,7 @@ import { UserMenu } from "@client/components/auth/user-menu";
 import { Header } from "@client/components/layout/header";
 import { queryClient } from "@client/lib/query-client";
 import { QueryClientProvider } from "@tanstack/react-query";
-import { Outlet, createRootRoute } from "@tanstack/react-router";
+import { createRootRoute, Outlet } from "@tanstack/react-router";
 import { Toaster } from "sonner";
 
 export const Route = createRootRoute({

@@ -1,6 +1,6 @@
-import { cn, colors, focus, interactive, text } from "@/client/lib/design";
 import { signIn } from "@client/lib/auth";
 import { useLocation } from "@tanstack/react-router";
+import { cn, colors, focus, interactive, text } from "@/client/lib/design";
 
 export function LoginForm() {
 	const location = useLocation();
