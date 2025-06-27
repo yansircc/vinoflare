@@ -4,8 +4,12 @@ import {
 	getHandlersTemplate,
 	getOpenAPITemplate,
 	getRoutesTemplate,
+	getTableTemplate,
+	getSchemaTemplate,
+	getTypesTemplate,
 	getIndexTemplate,
-	getChecklistTemplate,
+	getReadmeTemplate,
+	getTestTemplate,
 } from "./templates";
 import type { NameVariations, Paths } from "./utils";
 
@@ -17,23 +21,31 @@ export function generateModuleFiles(
 
 	const indexPath = join(paths.base, "index.ts");
 
-	// Core module files
+	// Core module files - Self-contained architecture
 	writeFileSync(indexPath, getIndexTemplate(names));
+	writeFileSync(join(paths.base, `${names.kebab}.table.ts`), getTableTemplate(names));
+	writeFileSync(join(paths.base, `${names.kebab}.schema.ts`), getSchemaTemplate(names));
+	writeFileSync(join(paths.base, `${names.kebab}.types.ts`), getTypesTemplate(names));
 	writeFileSync(paths.handlers, getHandlersTemplate(names));
 	writeFileSync(paths.openapi, getOpenAPITemplate(names));
 	writeFileSync(paths.routes, getRoutesTemplate(names));
+	writeFileSync(paths.test, getTestTemplate(names));
 	
-	// Generate checklist
-	const checklistPath = join(paths.base, "CHECKLIST.md");
-	writeFileSync(checklistPath, getChecklistTemplate(names));
+	// Generate README
+	const readmePath = join(paths.base, "README.md");
+	writeFileSync(readmePath, getReadmeTemplate(names));
 
 	console.log(`✅ Module "${names.kebab}" scaffolded successfully!`);
 	console.log(`📁 Created files:`);
 	console.log(`   - ${indexPath}`);
+	console.log(`   - ${names.kebab}.table.ts`);
+	console.log(`   - ${names.kebab}.schema.ts`);
+	console.log(`   - ${names.kebab}.types.ts`);
 	console.log(`   - ${paths.handlers}`);
 	console.log(`   - ${paths.openapi}`);
 	console.log(`   - ${paths.routes}`);
-	console.log(`   - ${checklistPath} 📋 Integration checklist`);
+	console.log(`   - ${paths.test}`);
+	console.log(`   - ${readmePath} 📚 Module documentation`);
 
 	console.log(`\n📋 CRUD Operations Generated:`);
 	console.log(`   - GET    /api/${names.kebab}      - Get all ${names.camel}`);

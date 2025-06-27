@@ -39,12 +39,16 @@ Examples:
   bun run gen:module products
   bun run gen:module user-profiles
   
-This will generate:
-  - Full CRUD handlers with proper error handling
+This will generate a self-contained module with:
+  - Database table definition
+  - Zod validation schemas  
+  - TypeScript type definitions
+  - CRUD handlers with error handling
   - OpenAPI documentation
   - Routes with validation
   - Module configuration
-  - Integration checklist with step-by-step instructions
+  - README with documentation
+  - Test file structure
 `);
 	process.exit(0);
 }
@@ -78,7 +82,13 @@ if (existsSync(paths.base)) {
 generateModuleFiles(paths, names);
 updateApiRoutes(names);
 
-console.log(`\n📋 IMPORTANT: Check the CHECKLIST.md file in the module directory!`);
-console.log(`   ${paths.base}/CHECKLIST.md\n`);
-console.log(`This file contains step-by-step instructions to complete the integration.`);
-console.log(`\n🚀 Once integrated, your module will be available at /api/${names.kebab}`);
+console.log(`\n🎆 Next Steps:`);
+console.log(`   1. Update the table definition in ${names.kebab}.table.ts`);
+console.log(`   2. Adjust the schemas in ${names.kebab}.schema.ts`);
+console.log(`   3. Run database migrations:`);
+console.log(`      bun run db:generate`);
+console.log(`      bun run db:push:local`);
+console.log(`   4. Update src/server/db/index.ts to include the ${names.camel} table`);
+console.log(`   5. Import the module in src/server/routes/api.ts`);
+console.log(`\n📚 See ${paths.base}/README.md for detailed documentation`);
+console.log(`\n🚀 Your module will be available at /api/${names.kebab}`);
