@@ -31,3 +31,27 @@ export {
 	selectPostSchema,
 	updatePostSchema,
 } from "./posts";
+
+// Book schemas
+export {
+	insertBooksSchema,
+	selectBooksSchema,
+	updateBooksSchema,
+	// Field schemas
+	bookIdSchema,
+	bookTitleSchema,
+	bookAuthorSchema,
+	bookIsbnSchema,
+	bookPublishedYearSchema,
+	bookGenreSchema,
+	bookDescriptionSchema,
+	bookPageCountSchema,
+	bookLanguageSchema,
+	bookPublisherSchema,
+	bookCoverImageUrlSchema,
+	bookPriceSchema,
+	bookStockSchema,
+	bookIsAvailableSchema,
+	bookCreatedAtSchema,
+	bookUpdatedAtSchema,
+} from "./books";

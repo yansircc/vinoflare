@@ -6,6 +6,7 @@ import type { BaseContext } from "../lib/types";
 import authModule from "../modules/auth/index";
 import helloModule from "../modules/hello/index";
 import postsModule from "../modules/posts/index";
+import booksModule from "../modules/books/index";
 import { createDocsRoutes } from "./docs";
 
 // Create API app with new architecture
@@ -13,7 +14,7 @@ export const createAPIApp = () => {
 	const app = new Hono<BaseContext>();
 
 	// Module registry (will be replaced with dynamic loading in the future)
-	const modules = [helloModule, postsModule, authModule];
+	const modules = [helloModule, postsModule, authModule, booksModule];
 
 	// Register all modules
 	registerModules(app, modules);

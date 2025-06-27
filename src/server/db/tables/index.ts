@@ -10,3 +10,4 @@ export * from "./auth";
 
 // Application tables
 export * from "./posts";
+export * from "./books.table";

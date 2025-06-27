@@ -13,16 +13,9 @@ const endpoints = [
 		description: "Returns the health status of the application",
 	},
 	{
-		title: "Current User",
-		method: "GET",
-		path: "/api/me",
-		description: "Returns information about the currently authenticated user",
-		auth: true,
-	},
-	{
 		title: "Get Posts",
 		method: "GET",
-		path: "/api/posts",
+		path: "/api/posts/latest",
 		description: "Returns a list of posts with pagination",
 	},
 	{
