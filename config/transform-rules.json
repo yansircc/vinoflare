@@ -371,7 +371,7 @@
 								"type": "replace",
 								"transformer": "replaceFile",
 								"options": {
-									"template": "templates/replacements/hello-demo-no-db.tsx"
+									"template": "templates/replacements/hello-demo.tsx"
 								}
 							}
 						]
