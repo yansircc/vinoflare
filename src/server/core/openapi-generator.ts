@@ -51,7 +51,7 @@ export async function generateOpenAPISpec(
 		servers: finalConfig.servers,
 		paths: collectModulePaths(modules),
 		components: {
-			schemas: await collectSchemas(),
+			schemas: {}, // Schemas are now defined in individual module openapi files
 		},
 	};
 }
@@ -117,19 +117,6 @@ function collectModulePaths(modules: ModuleDefinition[]): Record<string, any> {
 	return paths;
 }
 
-/**
- * Collect schemas from all modules
- */
-async function collectSchemas(): Promise<Record<string, any>> {
-	try {
-		// Import schemas directly from the generated openapi schemas
-		const { openAPISchemas } = await import("../openapi/schemas");
-		return openAPISchemas;
-	} catch (error) {
-		console.warn("Failed to load OpenAPI schemas:", error);
-		return {};
-	}
-}
 
 /**
  * Create OpenAPI endpoint handler

@@ -1,8 +1,19 @@
 import { StatusCodes } from "http-status-codes";
-import { z } from "zod/v4";
-import { selectUserSchema } from "@/server/schemas";
 
-const userSchema = z.toJSONSchema(selectUserSchema);
+// Define user schema manually to avoid z.toJSONSchema issues
+const userSchema = {
+	type: "object",
+	properties: {
+		id: { type: "string", example: "123e4567-e89b-12d3-a456-426614174000" },
+		name: { type: "string", example: "John Doe" },
+		email: { type: "string", format: "email", example: "john@example.com" },
+		emailVerified: { type: "boolean", example: true },
+		image: { type: "string", nullable: true, example: "https://example.com/image.png" },
+		createdAt: { type: "string", format: "date-time" },
+		updatedAt: { type: "string", format: "date-time" },
+	},
+	required: ["id", "name", "email", "emailVerified", "createdAt", "updatedAt"],
+};
 
 // Define the response wrapper schema
 const userResponseSchema = {

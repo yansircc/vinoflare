@@ -1,11 +1,29 @@
 import { StatusCodes } from "http-status-codes";
-import { z } from "zod/v4";
-import {
-	insertPostSchema,
-	selectPostSchema,
-} from "./posts.schema";
 
-const postSchema = z.toJSONSchema(selectPostSchema);
+// Define post schema manually to avoid z.toJSONSchema issues
+const postSchema = {
+	type: "object",
+	properties: {
+		id: { type: "integer", example: 1 },
+		title: { type: "string", example: "My First Post" },
+		createdAt: { type: "string", format: "date-time", example: "2024-01-01T00:00:00.000Z" },
+		updatedAt: { type: "string", format: "date-time", example: "2024-01-01T00:00:00.000Z" },
+	},
+	required: ["id", "title", "createdAt", "updatedAt"],
+};
+
+const insertPostBodySchema = {
+	type: "object",
+	properties: {
+		title: { 
+			type: "string", 
+			minLength: 1,
+			maxLength: 255,
+			example: "My First Post" 
+		},
+	},
+	required: ["title"],
+};
 
 // Define the response wrapper schema
 const postResponseSchema = {
@@ -35,7 +53,7 @@ export const createPostOpenAPI = {
 	request: {
 		body: {
 			description: "Post data",
-			schema: z.toJSONSchema(insertPostSchema),
+			schema: insertPostBodySchema,
 		},
 	},
 	responses: {

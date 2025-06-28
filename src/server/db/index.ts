@@ -1,11 +1,18 @@
 import { drizzle } from "drizzle-orm/d1";
-import * as coreSchema from "./tables";
 import { posts } from "../modules/posts";
+import { user, session, account, verification, jwks } from "../modules/auth";
 
 // Combine core schema with module schemas
+// Note: We're importing auth tables from the module now
 const schema = {
-	...coreSchema,
-	posts, // Include posts table from the module
+	// Auth tables (from auth module)
+	user,
+	session,
+	account,
+	verification,
+	jwks,
+	// Other module tables
+	posts,
 };
 
 export function createDb(d1: D1Database) {
@@ -14,5 +21,4 @@ export function createDb(d1: D1Database) {
 
 export type Database = ReturnType<typeof createDb>;
 
-// Export tables for backward compatibility
-export * from "./tables";
+// Note: Tables are now exported from their respective modules

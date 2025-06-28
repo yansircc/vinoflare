@@ -2,7 +2,7 @@ import type { ModuleDefinition } from "../../core/module-loader";
 import { createPostsModule } from "./posts.routes";
 
 // Export all public APIs from this module
-export * from "./posts.table";
+export { posts } from "./posts.table";
 export * from "./posts.schema";
 export * from "./posts.types";
 export * from "./posts.handlers";
