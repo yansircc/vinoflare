@@ -2,7 +2,7 @@ import { createMiddleware } from "hono/factory";
 import { HTTPException } from "hono/http-exception";
 import { PUBLIC_API_ROUTES } from "../config/routes";
 import { createAuth } from "../lib/auth";
-import type { BaseContext } from "../lib/types";
+import type { BaseContext } from "../lib/worker-types";
 
 /**
  * Check if a path matches any of the public route patterns

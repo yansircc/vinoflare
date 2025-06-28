@@ -2,7 +2,7 @@ import type { Context } from "hono";
 import { HTTPException } from "hono/http-exception";
 import { StatusCodes } from "http-status-codes";
 import { posts } from "./posts.table";
-import type { BaseContext } from "@/server/lib/types";
+import type { BaseContext } from "@/server/lib/worker-types";
 import type { InsertPost } from "./posts.types";
 
 export const getLatestPostHandler = async (c: Context<BaseContext>) => {

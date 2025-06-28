@@ -2,7 +2,7 @@ import { Hono } from "hono";
 import { API_CONFIG } from "../config/api";
 import { errorHandler } from "../core/error-handler";
 import { registerModules } from "../core/module-loader";
-import type { BaseContext } from "../lib/types";
+import type { BaseContext } from "../lib/worker-types";
 import authModule from "../modules/auth/index";
 import helloModule from "../modules/hello/index";
 import postsModule from "../modules/posts/index";
