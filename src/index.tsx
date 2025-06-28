@@ -5,10 +5,10 @@ import { cors } from "hono/cors";
 import { logger } from "hono/logger";
 import { trimTrailingSlash } from "hono/trailing-slash";
 import { STATIC_ROUTES } from "@/server/config/routes";
-import { authGuard } from "@/server/middleware/auth-guard";
-import { database } from "@/server/middleware/database";
 import { createApp } from "@/server/core/app-factory";
 import { loadModules } from "@/server/core/module-loader";
+import { authGuard } from "@/server/middleware/auth-guard";
+import { database } from "@/server/middleware/database";
 import { renderer } from "./client/renderer";
 
 // Create the main app with proper middleware configuration
@@ -39,7 +39,7 @@ async function createMainApp() {
 		includeDocs: true,
 		includeHealthCheck: true,
 	});
-	
+
 	app.route("/api", apiApp);
 
 	// Frontend routes (React SPA) - must be after API routes

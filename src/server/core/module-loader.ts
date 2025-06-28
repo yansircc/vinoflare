@@ -39,7 +39,11 @@ export async function loadModules(): Promise<ModuleDefinition[]> {
 /**
  * Register all modules with the app
  */
-export function registerModules(app: any, modules: ModuleDefinition[], basePath = '') {
+export function registerModules(
+	app: any,
+	modules: ModuleDefinition[],
+	basePath = "",
+) {
 	for (const module of modules) {
 		const moduleInstance = module.createModule();
 		const fullPath = basePath + module.basePath;

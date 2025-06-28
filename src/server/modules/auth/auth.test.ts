@@ -2,10 +2,10 @@
  * @vitest-environment workers
  */
 
-import { describe, expect, it, beforeAll } from "vitest";
+import { env } from "cloudflare:test";
+import { beforeAll, describe, expect, it } from "vitest";
 import { createTestApp } from "@/server/tests/test-helpers";
 import authModule from "./index";
-import { env } from "cloudflare:test";
 
 describe("Auth API", () => {
 	let app: ReturnType<typeof createTestApp>;

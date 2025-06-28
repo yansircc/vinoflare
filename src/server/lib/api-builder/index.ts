@@ -30,10 +30,13 @@ export class APIBuilder {
 					let body: unknown;
 					try {
 						body = await c.req.json();
-					} catch (e) {
+					} catch (_e) {
 						throw new HTTPException(400, {
 							message: "Invalid request body",
-							cause: { code: "INVALID_REQUEST_BODY", details: "Failed to parse JSON" },
+							cause: {
+								code: "INVALID_REQUEST_BODY",
+								details: "Failed to parse JSON",
+							},
 						});
 					}
 					const result = definition.validation.body.safeParse(body);
