@@ -7,48 +7,48 @@ type HttpMethod = "get" | "create" | "update" | "delete" | "list";
  * 并修复 OpenAPI 3.0 兼容性问题
  */
 function cleanJSONSchema(schema: any): any {
-	if (!schema || typeof schema !== 'object') {
+	if (!schema || typeof schema !== "object") {
 		return schema;
 	}
-	
+
 	// 创建副本以避免修改原始对象
 	const cleaned = { ...schema };
-	
+
 	// 移除 $schema 字段
 	delete cleaned.$schema;
-	
+
 	// 修复 exclusiveMinimum 和 exclusiveMaximum
 	// OpenAPI 3.0 中这些应该是布尔值，而不是数字
-	if (typeof cleaned.exclusiveMinimum === 'number') {
+	if (typeof cleaned.exclusiveMinimum === "number") {
 		cleaned.minimum = cleaned.exclusiveMinimum;
 		cleaned.exclusiveMinimum = true;
 	}
-	if (typeof cleaned.exclusiveMaximum === 'number') {
+	if (typeof cleaned.exclusiveMaximum === "number") {
 		cleaned.maximum = cleaned.exclusiveMaximum;
 		cleaned.exclusiveMaximum = true;
 	}
-	
+
 	// 递归清理嵌套的 schema
 	if (cleaned.properties) {
 		cleaned.properties = Object.fromEntries(
 			Object.entries(cleaned.properties).map(([key, value]) => [
 				key,
 				cleanJSONSchema(value),
-			])
+			]),
 		);
 	}
-	
+
 	if (cleaned.items) {
 		cleaned.items = cleanJSONSchema(cleaned.items);
 	}
-	
+
 	// 处理 anyOf, oneOf, allOf
-	['anyOf', 'oneOf', 'allOf'].forEach(key => {
+	["anyOf", "oneOf", "allOf"].forEach((key) => {
 		if (Array.isArray(cleaned[key])) {
 			cleaned[key] = cleaned[key].map((s: any) => cleanJSONSchema(s));
 		}
 	});
-	
+
 	return cleaned;
 }
 
@@ -113,9 +113,13 @@ export function createOpenAPISpec(config: OpenAPIConfig) {
 		action === "create" ? StatusCodes.CREATED : StatusCodes.OK;
 
 	// 清理 schema（移除 $schema 等字段）
-	const cleanedResponseSchema = responseSchema ? cleanJSONSchema(responseSchema) : undefined;
-	const cleanedRequestSchema = requestSchema ? cleanJSONSchema(requestSchema) : undefined;
-	
+	const cleanedResponseSchema = responseSchema
+		? cleanJSONSchema(responseSchema)
+		: undefined;
+	const cleanedRequestSchema = requestSchema
+		? cleanJSONSchema(requestSchema)
+		: undefined;
+
 	// 构建响应 schema
 	let finalResponseSchema = cleanedResponseSchema;
 	if (responseWrapper && cleanedResponseSchema) {
@@ -148,9 +152,9 @@ export function createOpenAPISpec(config: OpenAPIConfig) {
 	// 添加请求参数
 	if (params && params.length > 0) {
 		// 清理参数的 schema
-		const cleanedParams = params.map(param => ({
+		const cleanedParams = params.map((param) => ({
 			...param,
-			schema: param.schema ? cleanJSONSchema(param.schema) : param.schema
+			schema: param.schema ? cleanJSONSchema(param.schema) : param.schema,
 		}));
 		spec.request = { params: cleanedParams };
 	}

@@ -1,5 +1,5 @@
-import { PostsList } from "@/client/components/latest-post";
 import { createFileRoute } from "@tanstack/react-router";
+import { PostsList } from "@/client/components/latest-post";
 import { layout, spacing } from "@/client/lib/design";
 
 export const Route = createFileRoute("/")({

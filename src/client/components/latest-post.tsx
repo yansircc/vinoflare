@@ -22,18 +22,14 @@ export function PostsList() {
 	// Extract the rendering logic for the latest post section
 	const renderLatestPost = () => {
 		if (isLoading) {
-			return (
-				<p className={cn(text.base, colors.text.secondary)}>Loading...</p>
-			);
+			return <p className={cn(text.base, colors.text.secondary)}>Loading...</p>;
 		}
 
 		if (error) {
 			// Handle 404 (no posts) vs other errors
 			if (error.response?.status === 404) {
 				return (
-					<p className={cn(text.base, colors.text.secondary)}>
-						No posts yet.
-					</p>
+					<p className={cn(text.base, colors.text.secondary)}>No posts yet.</p>
 				);
 			}
 			return (
@@ -58,9 +54,7 @@ export function PostsList() {
 
 		// Fallback case
 		return (
-			<p className={cn(text.base, colors.text.secondary)}>
-				No posts yet.
-			</p>
+			<p className={cn(text.base, colors.text.secondary)}>No posts yet.</p>
 		);
 	};
 
