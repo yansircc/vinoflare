@@ -1,6 +1,5 @@
 import { APIBuilder } from "@/server/lib/api-builder";
 import { database } from "@/server/middleware/database";
-import { insertPostSchema } from "./posts.schema";
 import {
 	createPostHandler,
 	getLatestPostHandler,
@@ -11,6 +10,7 @@ import {
 	getLatestPostOpenAPI,
 	getPostByIdOpenAPI,
 } from "./posts.openapi";
+import { insertPostSchema } from "./posts.schema";
 
 export const createPostsModule = () => {
 	const builder = new APIBuilder({

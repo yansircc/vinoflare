@@ -1,6 +1,6 @@
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { z } from "zod/v4";
-import { user, session, account, verification, jwks } from "./auth.table";
+import { account, jwks, session, user, verification } from "./auth.table";
 
 /**
  * User schemas

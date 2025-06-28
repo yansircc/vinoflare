@@ -1,5 +1,5 @@
 import type { Database } from "../db";
-import type { InsertUser, InsertSession } from "../modules/auth";
+import type { InsertSession, InsertUser } from "../modules/auth";
 
 export interface BaseContext {
 	Bindings: CloudflareBindings;

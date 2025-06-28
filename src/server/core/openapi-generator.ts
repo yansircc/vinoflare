@@ -94,19 +94,6 @@ function collectModulePaths(modules: ModuleDefinition[]): Record<string, any> {
 					if (!ops[method].security) {
 						ops[method].security = [{ bearerAuth: [] }];
 					}
-					// Add tag to indicate authentication required
-					if (!ops[method].tags) {
-						ops[method].tags = [];
-					}
-					ops[method].tags.push("🔒 Authenticated");
-				}
-			} else {
-				// Add tag to indicate public access
-				for (const method of Object.keys(ops)) {
-					if (!ops[method].tags) {
-						ops[method].tags = [];
-					}
-					ops[method].tags.push("🌐 Public");
 				}
 			}
 
@@ -116,7 +103,6 @@ function collectModulePaths(modules: ModuleDefinition[]): Record<string, any> {
 
 	return paths;
 }
-
 
 /**
  * Create OpenAPI endpoint handler

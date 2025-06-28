@@ -5,14 +5,14 @@ import { posts } from "./posts.table";
 /**
  * Post field validation schemas
  */
-const postIdSchema = z
+export const postIdSchema = z
 	.number()
 	.int()
 	.positive()
 	.meta({ example: 1 })
 	.describe("Unique identifier of the post");
 
-const postTitleSchema = z
+export const postTitleSchema = z
 	.string()
 	.min(1, "Title is required")
 	.max(255, "Title must be 255 characters or less")
@@ -20,12 +20,12 @@ const postTitleSchema = z
 	.meta({ example: "My First Post" })
 	.describe("Title of the post");
 
-const postCreatedAtSchema = z.iso
+export const postCreatedAtSchema = z.iso
 	.datetime({ offset: true })
 	.meta({ example: "2024-01-01T00:00:00.000Z" })
 	.describe("Creation timestamp");
 
-const postUpdatedAtSchema = z.iso
+export const postUpdatedAtSchema = z.iso
 	.datetime({ offset: true })
 	.meta({ example: "2024-01-01T00:00:00.000Z" })
 	.describe("Last update timestamp");
@@ -54,10 +54,6 @@ export const insertPostSchema = createInsertSchema(posts, {
 
 export const updatePostSchema = insertPostSchema.partial();
 
-// Export individual field schemas for reuse
-export {
-	postIdSchema,
-	postTitleSchema,
-	postCreatedAtSchema,
-	postUpdatedAtSchema,
-};
+export type SelectPost = z.infer<typeof selectPostSchema>;
+export type InsertPost = z.infer<typeof insertPostSchema>;
+export type UpdatePost = z.infer<typeof updatePostSchema>;

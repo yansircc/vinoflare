@@ -8,7 +8,11 @@ const userSchema = {
 		name: { type: "string", example: "John Doe" },
 		email: { type: "string", format: "email", example: "john@example.com" },
 		emailVerified: { type: "boolean", example: true },
-		image: { type: "string", nullable: true, example: "https://example.com/image.png" },
+		image: {
+			type: "string",
+			nullable: true,
+			example: "https://example.com/image.png",
+		},
 		createdAt: { type: "string", format: "date-time" },
 		updatedAt: { type: "string", format: "date-time" },
 	},

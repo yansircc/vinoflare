@@ -1,29 +1,14 @@
-import { StatusCodes } from "http-status-codes";
+import { z } from "zod/v4";
+import { createOpenAPISpec } from "@/server/lib/openapi-builder";
+import { helloResponseSchema } from "./hello.schema";
 
-export const helloOpenAPI = {
-	tags: ["Hello"],
-	summary: "Hello endpoint",
-	description: "Returns a greeting message with current timestamp",
-	responses: {
-		[StatusCodes.OK]: {
-			description: "Greeting message with current timestamp",
-			schema: {
-				type: "object",
-				properties: {
-					message: {
-						type: "string",
-						description: "Greeting message",
-						example: "Hello from API!",
-					},
-					time: {
-						type: "string",
-						format: "date-time",
-						description: "Current timestamp",
-						example: "2024-01-01T00:00:00.000Z",
-					},
-				},
-				required: ["message", "time"],
-			},
-		},
-	},
-};
+const helloResponseJSONSchema = z.toJSONSchema(helloResponseSchema);
+
+// 使用构建器创建 OpenAPI 定义
+export const helloOpenAPI = createOpenAPISpec({
+	operation: "Hello endpoint",
+	entity: "Greeting",
+	action: "get",
+	responseSchema: helloResponseJSONSchema,
+	skipStandardErrors: true, // Hello 端点不需要标准错误响应
+});

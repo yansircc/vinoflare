@@ -1,9 +1,9 @@
 import type { Context } from "hono";
 import { HTTPException } from "hono/http-exception";
 import { StatusCodes } from "http-status-codes";
-import { posts } from "./posts.table";
 import type { BaseContext } from "@/server/lib/worker-types";
-import type { InsertPost } from "./posts.types";
+import type { InsertPost } from "./posts.schema";
+import { posts } from "./posts.table";
 
 export const getLatestPostHandler = async (c: Context<BaseContext>) => {
 	const db = c.get("db");
@@ -12,8 +12,9 @@ export const getLatestPostHandler = async (c: Context<BaseContext>) => {
 	});
 
 	if (!post) {
-		// Return null instead of throwing error when no posts exist
-		return c.json({ post: null }, StatusCodes.OK);
+		throw new HTTPException(StatusCodes.NOT_FOUND, {
+			message: "Post not found",
+		});
 	}
 
 	return c.json({ post }, StatusCodes.OK);

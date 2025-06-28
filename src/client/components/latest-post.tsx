@@ -19,14 +19,56 @@ export function PostsList() {
 		createPost(title);
 	};
 
+	// Extract the rendering logic for the latest post section
+	const renderLatestPost = () => {
+		if (isLoading) {
+			return (
+				<p className={cn(text.base, colors.text.secondary)}>Loading...</p>
+			);
+		}
+
+		if (error) {
+			// Handle 404 (no posts) vs other errors
+			if (error.response?.status === 404) {
+				return (
+					<p className={cn(text.base, colors.text.secondary)}>
+						No posts yet.
+					</p>
+				);
+			}
+			return (
+				<p className={cn(text.base, "text-red-600")}>Failed to load posts</p>
+			);
+		}
+
+		if (post) {
+			return (
+				<article className="space-y-2">
+					<h3 className={cn(text.h3)}>{post.title}</h3>
+					<p className={cn(text.small, colors.text.muted)}>
+						{new Date(post.createdAt).toLocaleDateString("en-US", {
+							year: "numeric",
+							month: "long",
+							day: "numeric",
+						})}
+					</p>
+				</article>
+			);
+		}
+
+		// Fallback case
+		return (
+			<p className={cn(text.base, colors.text.secondary)}>
+				No posts yet.
+			</p>
+		);
+	};
+
 	return (
 		<div className="space-y-12">
 			<form onSubmit={handleSubmit} className="space-y-6">
 				<div>
 					<h2 className={cn(text.h2, "mb-2")}>Create Post</h2>
-					<p className={cn(text.base, colors.text.secondary)}>
-						Share your thoughts with the world
-					</p>
 				</div>
 
 				<div className="space-y-4">
@@ -62,27 +104,7 @@ export function PostsList() {
 
 			<div className="border-gray-100 border-t pt-12">
 				<h2 className={cn(text.h2, "mb-8")}>Latest Post</h2>
-
-				{isLoading ? (
-					<p className={cn(text.base, colors.text.secondary)}>Loading...</p>
-				) : error ? (
-					<p className={cn(text.base, "text-red-600")}>Failed to load posts</p>
-				) : post ? (
-					<article className="space-y-2">
-						<h3 className={cn(text.h3)}>{post.title}</h3>
-						<p className={cn(text.small, colors.text.muted)}>
-							{new Date(post.createdAt).toLocaleDateString("en-US", {
-								year: "numeric",
-								month: "long",
-								day: "numeric",
-							})}
-						</p>
-					</article>
-				) : (
-					<p className={cn(text.base, colors.text.secondary)}>
-						No posts yet. Be the first to create one!
-					</p>
-				)}
+				{renderLatestPost()}
 			</div>
 		</div>
 	);

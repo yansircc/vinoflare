@@ -1,4 +1,4 @@
-import { PostsList } from "@client/components/posts-list";
+import { PostsList } from "@/client/components/latest-post";
 import { createFileRoute } from "@tanstack/react-router";
 import { layout, spacing } from "@/client/lib/design";
 

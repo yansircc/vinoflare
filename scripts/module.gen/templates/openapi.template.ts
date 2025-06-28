@@ -4,37 +4,55 @@ export const getOpenAPITemplate = ({
 	pascal,
 	camel,
 	kebab,
-}: NameVariations) => `import { StatusCodes } from "http-status-codes";
+}: NameVariations) => `import { createOpenAPISpec, createCRUDOpenAPISpecs } from "@/server/lib/openapi-builder";
 import { z } from "zod/v4";
 import {
 	insert${pascal}Schema,
 	select${pascal}Schema,
 } from "./${kebab}.schema";
 
-// Convert Zod schemas to JSON Schema
+// 将 Zod schemas 转换为 JSON Schema
+// 注意：如果 z.toJSONSchema 出现兼容性问题，可以手动定义 schema
 const ${camel}Schema = z.toJSONSchema(select${pascal}Schema);
 const insert${pascal}JSONSchema = z.toJSONSchema(insert${pascal}Schema);
 
-// Response wrapper schemas
-const ${kebab.includes('-') ? 'item' : camel}ResponseSchema = {
-	type: "object",
-	properties: {
-		${kebab.includes('-') ? 'item' : camel}: ${camel}Schema,
+// 使用 CRUD 构建器生成标准的 CRUD OpenAPI 定义
+const crudSpecs = createCRUDOpenAPISpecs({
+	entity: "${pascal}",
+	schemas: {
+		select: ${camel}Schema,
+		insert: insert${pascal}JSONSchema,
 	},
-	required: ["${kebab.includes('-') ? 'item' : camel}"],
-};
+	responseWrapper: "${camel}",
+});
 
-const ${camel}ListResponseSchema = {
-	type: "object",
-	properties: {
-		${camel}: {
-			type: "array",
-			items: ${camel}Schema,
-		},
-	},
-	required: ["${camel}"],
-};
+// 导出标准 CRUD 操作的 OpenAPI 定义
+export const getAll${pascal}OpenAPI = crudSpecs.list;
+export const get${pascal}ByIdOpenAPI = crudSpecs.getById;
+export const create${pascal}OpenAPI = crudSpecs.create;
+export const update${pascal}OpenAPI = crudSpecs.update;
+export const delete${pascal}OpenAPI = crudSpecs.delete;
 
+// 如果需要自定义某个操作，可以覆盖或添加额外的定义
+// 例如：
+// export const get${pascal}BySlugOpenAPI = createOpenAPISpec({
+//   operation: "Get ${camel} by slug",
+//   entity: "${pascal}",
+//   action: "get",
+//   responseSchema: ${camel}Schema,
+//   responseWrapper: "${camel}",
+//   params: [
+//     {
+//       name: "slug",
+//       description: "${pascal} URL slug",
+//       required: true,
+//       schema: { type: "string", pattern: "^[a-z0-9-]+$" },
+//     },
+//   ],
+// });
+
+// 原始定义（保留以供参考，实际使用上面的 CRUD 构建器）
+/*
 export const getAll${pascal}OpenAPI = {
 	tags: ["${pascal}"],
 	summary: "Get all ${camel}",
@@ -47,7 +65,9 @@ export const getAll${pascal}OpenAPI = {
 		},
 	},
 };
+*/
 
+/*
 export const get${pascal}ByIdOpenAPI = {
 	tags: ["${pascal}"],
 	summary: "Get ${camel} by ID",
@@ -75,7 +95,9 @@ export const get${pascal}ByIdOpenAPI = {
 		},
 	},
 };
+*/
 
+/*
 export const create${pascal}OpenAPI = {
 	tags: ["${pascal}"],
 	summary: "Create a new ${camel}",
@@ -99,7 +121,9 @@ export const create${pascal}OpenAPI = {
 		},
 	},
 };
+*/
 
+/*
 export const update${pascal}OpenAPI = {
 	tags: ["${pascal}"],
 	summary: "Update ${camel}",
@@ -132,7 +156,9 @@ export const update${pascal}OpenAPI = {
 		},
 	},
 };
+*/
 
+/*
 export const delete${pascal}OpenAPI = {
 	tags: ["${pascal}"],
 	summary: "Delete ${camel}",
@@ -167,4 +193,5 @@ export const delete${pascal}OpenAPI = {
 			description: "${pascal} not found",
 		},
 	},
-}`;
+};
+*/`;

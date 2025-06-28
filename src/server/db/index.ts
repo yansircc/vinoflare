@@ -1,6 +1,6 @@
 import { drizzle } from "drizzle-orm/d1";
+import { account, jwks, session, user, verification } from "../modules/auth";
 import { posts } from "../modules/posts";
-import { user, session, account, verification, jwks } from "../modules/auth";
 
 // Combine core schema with module schemas
 // Note: We're importing auth tables from the module now

@@ -1,11 +1,11 @@
-import type { InferSelectModel, InferInsertModel } from "drizzle-orm";
+import type { InferInsertModel, InferSelectModel } from "drizzle-orm";
 import type { z } from "zod/v4";
-import { user, session } from "./auth.table";
-import {
+import type {
+	selectSessionSchema,
 	selectUserSchema,
 	updateUserSchema,
-	selectSessionSchema,
 } from "./auth.schema";
+import type { session, user } from "./auth.table";
 
 /**
  * User types

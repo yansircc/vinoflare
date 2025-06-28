@@ -1,102 +1,47 @@
-import { StatusCodes } from "http-status-codes";
+import { z } from "zod/v4";
+import { createOpenAPISpec } from "@/server/lib/openapi-builder";
+import {
+	insertPostSchema,
+	postIdSchema,
+	selectPostSchema,
+} from "./posts.schema";
 
-// Define post schema manually to avoid z.toJSONSchema issues
-const postSchema = {
-	type: "object",
-	properties: {
-		id: { type: "integer", example: 1 },
-		title: { type: "string", example: "My First Post" },
-		createdAt: { type: "string", format: "date-time", example: "2024-01-01T00:00:00.000Z" },
-		updatedAt: { type: "string", format: "date-time", example: "2024-01-01T00:00:00.000Z" },
-	},
-	required: ["id", "title", "createdAt", "updatedAt"],
-};
+const postJSONSchema = z.toJSONSchema(selectPostSchema);
+const insertPostJSONSchema = z.toJSONSchema(insertPostSchema);
+const postIdJSONSchema = z.toJSONSchema(postIdSchema);
 
-const insertPostBodySchema = {
-	type: "object",
-	properties: {
-		title: { 
-			type: "string", 
-			minLength: 1,
-			maxLength: 255,
-			example: "My First Post" 
-		},
-	},
-	required: ["title"],
-};
+// 使用构建器创建 OpenAPI 定义
+export const getLatestPostOpenAPI = createOpenAPISpec({
+	operation: "Get latest post",
+	entity: "Post",
+	action: "get",
+	responseSchema: postJSONSchema,
+	responseWrapper: "post",
+	skipStandardErrors: false,
+	additionalResponses: {}, // 使用标准错误响应
+});
 
-// Define the response wrapper schema
-const postResponseSchema = {
-	type: "object",
-	properties: {
-		post: postSchema,
-	},
-	required: ["post"],
-};
+export const createPostOpenAPI = createOpenAPISpec({
+	operation: "Create a new post",
+	entity: "Post",
+	action: "create",
+	requestSchema: insertPostJSONSchema,
+	responseSchema: postJSONSchema,
+	responseWrapper: "post",
+});
 
-export const getLatestPostOpenAPI = {
-	tags: ["Posts"],
-	summary: "Get latest post",
-	description: "Retrieves the most recently created post",
-	responses: {
-		[StatusCodes.OK]: {
-			description: "Latest post retrieved successfully",
-			schema: postResponseSchema,
+export const getPostByIdOpenAPI = createOpenAPISpec({
+	operation: "Get post by ID",
+	entity: "Post",
+	action: "get",
+	responseSchema: postJSONSchema,
+	responseWrapper: "post",
+	params: [
+		{
+			name: "id",
+			description: "Post ID",
+			required: true,
+			schema: postIdJSONSchema,
 		},
-	},
-};
-
-export const createPostOpenAPI = {
-	tags: ["Posts"],
-	summary: "Create a new post",
-	description: "Creates a new post with the provided data",
-	request: {
-		body: {
-			description: "Post data",
-			schema: insertPostBodySchema,
-		},
-	},
-	responses: {
-		[StatusCodes.CREATED]: {
-			description: "Post created successfully",
-			schema: postResponseSchema,
-		},
-		[StatusCodes.BAD_REQUEST]: {
-			description: "Validation error",
-		},
-		[StatusCodes.CONFLICT]: {
-			description: "Post conflict",
-		},
-		[StatusCodes.INTERNAL_SERVER_ERROR]: {
-			description: "Internal server error",
-		},
-	},
-};
-
-export const getPostByIdOpenAPI = {
-	tags: ["Posts"],
-	summary: "Get post by ID",
-	description: "Retrieves a specific post by its ID",
-	request: {
-		params: [
-			{
-				name: "id",
-				description: "Post ID",
-				required: true,
-				schema: { type: "integer" },
-			},
-		],
-	},
-	responses: {
-		[StatusCodes.OK]: {
-			description: "Post retrieved successfully",
-			schema: postResponseSchema,
-		},
-		[StatusCodes.NOT_FOUND]: {
-			description: "Post not found",
-		},
-		[StatusCodes.INTERNAL_SERVER_ERROR]: {
-			description: "Internal server error",
-		},
-	},
-};
+	],
+});
