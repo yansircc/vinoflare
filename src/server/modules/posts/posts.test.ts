@@ -3,16 +3,18 @@
  */
 
 import { describe, it, expect, beforeAll, beforeEach, afterEach } from "vitest";
-import { env } from "cloudflare:test";
 import { createTestApp, createAuthenticatedRequest } from "@/server/tests/test-helpers";
 import postsModule from "./index";
 import type { SelectPost } from "./posts.schema";
+import { env } from "cloudflare:test";
 
 describe("Posts Module", () => {
   let app: ReturnType<typeof createTestApp>;
 
   beforeAll(async () => {
-    // Create posts table if it doesn't exist
+    app = createTestApp([postsModule], env);
+    
+    // Create posts table for tests
     await env.DB.prepare(`
       CREATE TABLE IF NOT EXISTS posts (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -24,8 +26,6 @@ describe("Posts Module", () => {
   });
 
   beforeEach(async () => {
-    app = createTestApp([postsModule]);
-    
     // Clear posts table before each test
     await env.DB.prepare("DELETE FROM posts").run();
   });
@@ -49,19 +49,16 @@ describe("Posts Module", () => {
           method, 
           body,
           headers: body ? { "Content-Type": "application/json" } : undefined,
-        }, env);
+        });
         
-        // Without authentication, endpoints should still be accessible in test environment
-        // since we haven't implemented auth guard in test setup
         expect([200, 201, 404, 500]).toContain(response.status);
       }
     });
 
     it("should accept authenticated requests", async () => {
       const request = await createAuthenticatedRequest("/api/posts/latest");
-      const response = await app.request(request, {}, env);
+      const response = await app.request(request);
       
-      // Should not return 401
       expect(response.status).not.toBe(401);
     });
   });
@@ -76,19 +73,17 @@ describe("Posts Module", () => {
         body: JSON.stringify(postData),
       });
       
-      const response = await app.request(request, {}, env);
+      const response = await app.request(request);
       
       expect(response.status).toBe(201);
       const json = await response.json() as { post: any };
       
-      // Verify response structure
       expect(json).toHaveProperty("post");
       expect(json.post).toHaveProperty("id");
       expect(json.post.title).toBe("My Test Post");
       expect(json.post).toHaveProperty("createdAt");
       expect(json.post).toHaveProperty("updatedAt");
       
-      // Verify timestamps are valid ISO strings
       expect(new Date(json.post.createdAt)).toBeInstanceOf(Date);
       expect(new Date(json.post.updatedAt)).toBeInstanceOf(Date);
     });
@@ -102,7 +97,7 @@ describe("Posts Module", () => {
         body: JSON.stringify(postData),
       });
       
-      const response = await app.request(request, {}, env);
+      const response = await app.request(request);
       
       expect(response.status).toBe(201);
       const json = await response.json() as { post: SelectPost };
@@ -118,7 +113,7 @@ describe("Posts Module", () => {
         body: JSON.stringify(postData),
       });
       
-      const response = await app.request(request, {}, env);
+      const response = await app.request(request);
       
       expect(response.status).toBe(400);
     });
@@ -132,7 +127,7 @@ describe("Posts Module", () => {
         body: JSON.stringify(postData),
       });
       
-      const response = await app.request(request, {}, env);
+      const response = await app.request(request);
       
       expect(response.status).toBe(400);
     });
@@ -143,7 +138,7 @@ describe("Posts Module", () => {
         headers: { "Content-Type": "application/json" },
       });
       
-      const response = await app.request(request, {}, env);
+      const response = await app.request(request);
       
       expect(response.status).toBe(400);
       const error = await response.json() as { error: { code: string } };
@@ -157,7 +152,7 @@ describe("Posts Module", () => {
         body: "{ invalid json",
       });
       
-      const response = await app.request(request, {}, env);
+      const response = await app.request(request);
       
       expect(response.status).toBe(400);
     });
@@ -169,7 +164,7 @@ describe("Posts Module", () => {
         body: JSON.stringify({ notTitle: "test" }),
       });
       
-      const response = await app.request(request, {}, env);
+      const response = await app.request(request);
       
       expect(response.status).toBe(400);
     });
@@ -177,7 +172,6 @@ describe("Posts Module", () => {
     it("should reject duplicate titles", async () => {
       const postData = { title: "Duplicate Title" };
       
-      // Create first post
       const request1 = await createAuthenticatedRequest("/api/posts", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -187,7 +181,6 @@ describe("Posts Module", () => {
       const response1 = await app.request(request1, {}, env);
       expect(response1.status).toBe(201);
       
-      // Try to create duplicate
       const request2 = await createAuthenticatedRequest("/api/posts", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -205,7 +198,7 @@ describe("Posts Module", () => {
   describe("GET /api/posts/latest", () => {
     it("should return 404 when no posts exist", async () => {
       const request = await createAuthenticatedRequest("/api/posts/latest");
-      const response = await app.request(request, {}, env);
+      const response = await app.request(request);
       
       expect(response.status).toBe(404);
       const error = await response.json() as { error: { code: string } };
@@ -229,9 +222,8 @@ describe("Posts Module", () => {
         await app.request(request, {}, env);
       }
       
-      // Get latest
       const request = await createAuthenticatedRequest("/api/posts/latest");
-      const response = await app.request(request, {}, env);
+      const response = await app.request(request);
       
       expect(response.status).toBe(200);
       const json = await response.json() as { post: SelectPost };
@@ -247,7 +239,7 @@ describe("Posts Module", () => {
       
       for (const id of invalidIds) {
         const request = await createAuthenticatedRequest(`/api/posts/${id}`);
-        const response = await app.request(request, {}, env);
+        const response = await app.request(request);
         
         expect(response.status).toBe(400);
       }
@@ -266,12 +258,11 @@ describe("Posts Module", () => {
         body: JSON.stringify({ title: "Specific Post" }),
       });
       
-      const createResponse = await app.request(createRequest, {}, env);
+      const createResponse = await app.request(createRequest);
       const { post } = await createResponse.json() as { post: SelectPost };
       
-      // Get by ID
       const request = await createAuthenticatedRequest(`/api/posts/${post.id}`);
-      const response = await app.request(request, {}, env);
+      const response = await app.request(request);
       
       expect(response.status).toBe(200);
       const json = await response.json() as { post: SelectPost };
@@ -282,7 +273,7 @@ describe("Posts Module", () => {
 
     it("should return 404 for non-existent post", async () => {
       const request = await createAuthenticatedRequest("/api/posts/9999");
-      const response = await app.request(request, {}, env);
+      const response = await app.request(request);
       
       expect(response.status).toBe(404);
       const error = await response.json() as { error: { code: string } };
@@ -299,14 +290,12 @@ describe("Posts Module", () => {
         body: JSON.stringify({ title: "Date Test Post" }),
       });
       
-      const response = await app.request(createRequest, {}, env);
+      const response = await app.request(createRequest);
       const json = await response.json() as { post: SelectPost };
       
-      // Check date format
       expect(json.post.createdAt).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z$/);
       expect(json.post.updatedAt).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z$/);
       
-      // Verify they can be parsed as dates
       const createdDate = new Date(json.post.createdAt);
       const updatedDate = new Date(json.post.updatedAt);
       
@@ -327,12 +316,11 @@ describe("Posts Module", () => {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(data),
-        }).then(req => app.request(req, {}, env))
+        }).then(req => app.request(req))
       );
       
       const responses = await Promise.all(requests);
       
-      // All should succeed
       responses.forEach(response => {
         expect(response.status).toBe(201);
       });

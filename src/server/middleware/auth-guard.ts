@@ -29,6 +29,31 @@ export const authGuard = createMiddleware<BaseContext>(async (c, next) => {
 		return next();
 	}
 
+	// In test environment, automatically authenticate with test user
+	if (c.env?.ENVIRONMENT === "test") {
+		// Set test user and session
+		c.set("user", {
+			id: "test-user-id",
+			name: "Test User",
+			email: "test@example.com",
+			emailVerified: false,
+			image: null,
+			createdAt: new Date(),
+			updatedAt: new Date(),
+		});
+		c.set("session", {
+			id: "test-session-id",
+			userId: "test-user-id",
+			expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours
+			token: "test-session-token",
+			createdAt: new Date(),
+			updatedAt: new Date(),
+			userAgent: "test-agent",
+			ipAddress: "127.0.0.1",
+		});
+		return next();
+	}
+
 	// Check authentication
 	const session = await createAuth(c.env, c.req.raw.url).api.getSession({
 		headers: c.req.raw.headers,
