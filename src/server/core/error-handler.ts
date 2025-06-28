@@ -73,6 +73,16 @@ export function errorHandler(err: Error, c: Context): Response {
 			},
 		};
 
+		// Include cause if it has a code property
+		if ((err as any).cause?.code) {
+			response.error.code = (err as any).cause.code;
+		}
+
+		// Include details in non-production environments
+		if (c.env?.ENVIRONMENT !== "production" && (err as any).cause) {
+			response.error.details = (err as any).cause;
+		}
+
 		return c.json(response, err.status);
 	}
 

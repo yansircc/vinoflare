@@ -27,7 +27,15 @@ export class APIBuilder {
 			try {
 				let input: TInput | undefined;
 				if (definition.validation?.body) {
-					const body = await c.req.json();
+					let body: unknown;
+					try {
+						body = await c.req.json();
+					} catch (e) {
+						throw new HTTPException(400, {
+							message: "Invalid request body",
+							cause: { code: "INVALID_REQUEST_BODY", details: "Failed to parse JSON" },
+						});
+					}
 					const result = definition.validation.body.safeParse(body);
 					if (!result.success) {
 						throw new HTTPException(400, {

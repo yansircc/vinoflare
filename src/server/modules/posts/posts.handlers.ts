@@ -30,6 +30,12 @@ export const createPostHandler = async (
 		});
 	}
 
+	if (!input.title) {
+		throw new HTTPException(StatusCodes.BAD_REQUEST, {
+			message: "Title is required",
+		});
+	}
+
 	const db = c.get("db");
 
 	// Check for duplicate title
@@ -40,6 +46,7 @@ export const createPostHandler = async (
 	if (existing) {
 		throw new HTTPException(StatusCodes.CONFLICT, {
 			message: `Post with title "${input.title}" already exists`,
+			cause: { code: "DUPLICATE_TITLE" },
 		});
 	}
 

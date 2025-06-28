@@ -2,22 +2,41 @@
  * @vitest-environment workers
  */
 
-import { Hono } from "hono";
-import { describe, expect, it } from "vitest";
-import { helloHandler } from "./hello.handlers";
-import type { HelloResponse } from "./hello.schema";
+import { describe, it, expect, beforeAll } from "vitest";
+import { createTestApp } from "@/server/tests/test-helpers";
+import helloModule from "./index";
+import { type HelloResponse } from "./hello.schema";
 
-const app = new Hono();
-app.get("/api/hello", helloHandler);
+describe("Hello Module", () => {
+  let app: ReturnType<typeof createTestApp>;
 
-describe("Hello Route", () => {
-	it("should return a valid JSON response from /api/hello", async () => {
-		const res = await app.request("/api/hello");
-		expect(res.status).toBe(200);
+  beforeAll(() => {
+    app = createTestApp([helloModule]);
+  });
 
-		// Assert the type of the parsed JSON body
-		const body = (await res.json()) as HelloResponse;
-		expect(body.message).toBe("Hello from API!");
-		expect(body.time).toBeDefined();
-	});
+  describe("GET /api/hello", () => {
+    it("should return a greeting message with timestamp", async () => {
+      const response = await app.request("/api/hello", {}, {});
+      
+      expect(response.status).toBe(200);
+      expect(response.headers.get("content-type")).toContain("application/json");
+      
+      const json = await response.json() as HelloResponse;
+      
+      // Validate response structure
+      expect(json).toHaveProperty("message");
+      expect(json).toHaveProperty("time");
+      expect(json.message).toBe("Hello from API!");
+      
+      // Validate timestamp is a valid ISO string
+      const timestamp = new Date(json.time);
+      expect(timestamp).toBeInstanceOf(Date);
+      expect(timestamp.getTime()).not.toBeNaN();
+      
+      // Timestamp should be recent (within 1 second)
+      const now = Date.now();
+      const timeDiff = Math.abs(timestamp.getTime() - now);
+      expect(timeDiff).toBeLessThan(1000);
+    }); 
+  });
 });

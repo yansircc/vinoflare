@@ -10,11 +10,7 @@ import { trimSlash } from "@/server/middleware/trim-slash";
 import { createAPIApp } from "@/server/routes/api";
 import { renderer } from "./client/renderer";
 
-interface Env {
-	Bindings: CloudflareBindings;
-}
-
-const app = new Hono<Env>();
+const app = new Hono<{ Bindings: CloudflareBindings }>();
 
 // 全局中间件
 app.use(logger());

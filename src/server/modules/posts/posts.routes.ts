@@ -1,5 +1,7 @@
 import { APIBuilder } from "@/server/lib/api-builder";
 import { database } from "@/server/middleware/database";
+import { HTTPException } from "hono/http-exception";
+import { StatusCodes } from "http-status-codes";
 import {
 	createPostHandler,
 	getLatestPostHandler,
@@ -32,7 +34,7 @@ export const createPostsModule = () => {
 		validation: {
 			body: insertPostSchema,
 		},
-		handler: createPostHandler,
+		handler: async (c, input) => createPostHandler(c, input),
 		openapi: createPostOpenAPI,
 	});
 
@@ -41,7 +43,17 @@ export const createPostsModule = () => {
 		method: "get",
 		path: "/:id",
 		handler: async (c) => {
-			const id = Number.parseInt(c.req.param("id"));
+			const idParam = c.req.param("id");
+			const id = Number.parseInt(idParam);
+			
+			// Validate ID
+			if (isNaN(id) || id <= 0 || !Number.isInteger(Number(idParam))) {
+				throw new HTTPException(StatusCodes.BAD_REQUEST, {
+					message: "Invalid ID parameter",
+					cause: { code: "INVALID_ID" },
+				});
+			}
+			
 			return getPostByIdHandler(c, id);
 		},
 		openapi: getPostByIdOpenAPI,
