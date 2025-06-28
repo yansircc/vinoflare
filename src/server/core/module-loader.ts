@@ -39,10 +39,11 @@ export async function loadModules(): Promise<ModuleDefinition[]> {
 /**
  * Register all modules with the app
  */
-export function registerModules(app: any, modules: ModuleDefinition[]) {
+export function registerModules(app: any, modules: ModuleDefinition[], basePath = '') {
 	for (const module of modules) {
 		const moduleInstance = module.createModule();
-		app.route(module.basePath, moduleInstance.getApp());
+		const fullPath = basePath + module.basePath;
+		app.route(fullPath, moduleInstance.getApp());
 	}
 }
 

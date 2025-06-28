@@ -18,8 +18,6 @@ export default defineWorkersConfig({
 				},
 			},
 		},
-		// Setup files to run before tests
-		setupFiles: ["./src/server/tests/setup.ts"],
 	},
 	resolve: {
 		alias: {

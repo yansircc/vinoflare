@@ -2,13 +2,21 @@
  * @vitest-environment workers
  */
 
-import { describe, expect, it } from "vitest";
-import app from "../../../index";
+import { describe, expect, it, beforeAll } from "vitest";
+import { createTestApp } from "@/server/tests/test-helpers";
+import authModule from "./index";
+import { env } from "cloudflare:test";
 
 describe("Auth API", () => {
+	let app: ReturnType<typeof createTestApp>;
+
+	beforeAll(() => {
+		app = createTestApp([authModule], env);
+	});
+
 	// Test for accessing /user without authentication
 	it("should return 401 Unauthorized when getting user without a session", async () => {
-		const res = await app.request("/api/auth/user", {}, { env: { DB: {} } });
+		const res = await app.request("/api/auth/user");
 		expect(res.status).toBe(401);
 	});
 

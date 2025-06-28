@@ -6,44 +6,56 @@ import { logger } from "hono/logger";
 import { trimTrailingSlash } from "hono/trailing-slash";
 import { STATIC_ROUTES } from "@/server/config/routes";
 import { authGuard } from "@/server/middleware/auth-guard";
-import { trimSlash } from "@/server/middleware/trim-slash";
-import { createAPIApp } from "@/server/routes/api";
+import { database } from "@/server/middleware/database";
+import { createApp } from "@/server/core/app-factory";
+import { loadModules } from "@/server/core/module-loader";
 import { renderer } from "./client/renderer";
 
-const app = new Hono<{ Bindings: CloudflareBindings }>();
+// Create the main app with proper middleware configuration
+async function createMainApp() {
+	const app = new Hono<{ Bindings: CloudflareBindings }>();
 
-// 全局中间件
-app.use(logger());
-app.use(cors());
-app.use(trimTrailingSlash());
-app.use(trimSlash);
+	// Global middleware
+	app.use(logger());
+	app.use(cors());
+	app.use(trimTrailingSlash());
 
-// 静态资源处理
-for (const route of STATIC_ROUTES) {
-	app.get(route, async (c) => {
-		const url = new URL(c.req.url);
-		return await c.env.ASSETS.fetch(new Request(url));
+	// Static asset handling
+	for (const route of STATIC_ROUTES) {
+		app.get(route, async (c) => {
+			const url = new URL(c.req.url);
+			return await c.env.ASSETS.fetch(new Request(url));
+		});
+	}
+
+	// API middleware - apply to /api/* routes
+	app.use("/api/*", database());
+	app.use("/api/*", authGuard);
+
+	// Create and mount API app with dynamic module loading
+	const modules = await loadModules();
+	const apiApp = createApp({
+		modules,
+		includeDocs: true,
+		includeHealthCheck: true,
 	});
+	
+	app.route("/api", apiApp);
+
+	// Frontend routes (React SPA) - must be after API routes
+	app.use(renderer);
+
+	// Handle all frontend routes (React Router will take over)
+	app.get("/*", (c) => {
+		return c.render(<div id="root" />);
+	});
+
+	return app;
 }
 
-// API 路由配置
-const apiApp = createAPIApp();
-
-// API 认证保护 - 默认保护所有 API 路由，除了 PUBLIC_API_ROUTES 中定义的
-app.use("/api/*", authGuard);
-
-// 挂载所有 API 路由
-app.route("/api", apiApp);
-
-// 前端路由 (React SPA) - 必须在 API 路由之后
-app.use(renderer);
-
-// 处理所有前端路由 (React Router 会接管)
-app.get("/*", (c) => {
-	return c.render(<div id="root" />);
-});
-
+// Export the app promise
+const app = createMainApp();
 export default app;
 
-// 导出应用类型，用于 RPC 客户端
-export type AppType = typeof app;
+// Export app type for RPC client
+export type AppType = Awaited<typeof app>;
