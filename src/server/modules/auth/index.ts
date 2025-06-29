@@ -3,8 +3,6 @@ import { createAuthModule } from "./auth.routes";
 
 // Export handlers
 export * from "./auth.handlers";
-// Export OpenAPI definitions
-export * from "./auth.openapi";
 // Export all schemas
 export * from "./auth.schema";
 // Export all auth tables

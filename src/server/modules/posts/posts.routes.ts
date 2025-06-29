@@ -24,8 +24,11 @@ export const createPostsModule = () => {
 			description: "Post retrieved successfully", 
 			schema: postResponseSchema 
 		})
-		.response(StatusCodes.NOT_FOUND, { 
-			description: "No posts found" 
+		.response(StatusCodes.BAD_REQUEST, {
+			description: "Bad request",
+		})
+		.response(StatusCodes.NOT_FOUND, {
+			description: "Not found",
 		});
 
 	// Create post

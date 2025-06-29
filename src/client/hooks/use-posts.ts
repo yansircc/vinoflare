@@ -1,13 +1,13 @@
 import { useQueryClient } from "@tanstack/react-query";
 import {
-	getGetPostsLatestQueryKey,
-	useGetPostsLatest,
-	usePostPosts,
+	getGetApiPostsLatestQueryKey,
+	useGetApiPostsLatest,
+	usePostApiPosts,
 } from "@/generated/endpoints/posts/posts";
 
 // Hook for getting the latest post
 export function useLatestPost() {
-	const { data, isLoading, error } = useGetPostsLatest();
+	const { data, isLoading, error } = useGetApiPostsLatest();
 
 	return {
 		post: data?.post ?? null,
@@ -20,11 +20,11 @@ export function useLatestPost() {
 export function useCreatePost() {
 	const queryClient = useQueryClient();
 
-	const mutation = usePostPosts({
+	const mutation = usePostApiPosts({
 		mutation: {
 			onSuccess: () => {
 				queryClient.invalidateQueries({
-					queryKey: getGetPostsLatestQueryKey(),
+					queryKey: getGetApiPostsLatestQueryKey(),
 				});
 			},
 		},

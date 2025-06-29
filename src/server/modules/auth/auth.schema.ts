@@ -83,3 +83,10 @@ export const resetPasswordSchema = z.object({
 export const verifyEmailSchema = z.object({
 	token: z.string(),
 });
+
+/**
+ * Response schemas
+ */
+export const userResponseSchema = z.object({
+	user: selectUserSchema,
+});
