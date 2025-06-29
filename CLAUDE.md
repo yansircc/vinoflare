@@ -85,7 +85,7 @@ import { z } from "zod/v4";
 ### Database Schema as Source of Truth
 - Database schemas drive type generation
 - Use `drizzle-zod` to generate validation schemas
-- Dates in schemas must use `.string().datetime({ offset: true })` for JSON Schema compatibility
+- Dates in schemas must use `.iso.datetime({ offset: true })` for JSON Schema compatibility
 
 ### Module Registration
 Modules are automatically registered if they export a valid `ModuleDefinition`:
