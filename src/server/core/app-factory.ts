@@ -2,7 +2,6 @@ import { OpenAPIHono } from "@hono/zod-openapi";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
 import { trimTrailingSlash } from "hono/trailing-slash";
-import type { BaseContext } from "./worker-types";
 import { authGuard } from "../middleware/auth-guard";
 import { database } from "../middleware/database";
 import { trimSlash } from "../middleware/trim-slash";
@@ -10,6 +9,7 @@ import { createDocsRoutes } from "../routes/docs";
 import { errorHandler } from "./error-handler";
 import type { ModuleDefinition } from "./module-loader";
 import { registerModules } from "./module-loader";
+import type { BaseContext } from "./worker-types";
 
 export interface AppFactoryOptions {
 	modules: ModuleDefinition[];
