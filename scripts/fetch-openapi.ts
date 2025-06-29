@@ -1,38 +1,31 @@
 #!/usr/bin/env bun
 /**
- * Generate OpenAPI JSON file without starting a server
- * Uses Hono's request method to simulate HTTP calls
- *
- * Usage: bun gen:openapi
+ * Fetch OpenAPI spec from running dev server
+ * Make sure dev server is running before executing this script
  */
 
 import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import appPromise from "../src/index";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-// Generate OpenAPI specification
-const generateOpenAPISpec = async () => {
+async function fetchOpenAPISpec() {
 	try {
-		console.log("🔧 Generating OpenAPI specification...");
-
-		// Wait for the app to be created
-		const app = await appPromise;
+		console.log("🔧 Fetching OpenAPI specification from dev server...");
 		
-		// Fetch the OpenAPI spec from the app using Hono's request method
-		const response = await app.request("/api/openapi.json");
+		// Try to fetch from local dev server
+		const response = await fetch("http://localhost:5173/api/openapi.json");
 		
 		if (!response.ok) {
 			throw new Error(
-				`Failed to generate OpenAPI spec: ${response.statusText}`,
+				`Failed to fetch OpenAPI spec: ${response.statusText}\nMake sure the dev server is running with 'bun run dev'`,
 			);
 		}
 
 		const spec = await response.json();
 
-		// Define output path (now in src/generated)
+		// Define output path
 		const outputDir = resolve(__dirname, "../src/generated");
 		const outputPath = resolve(outputDir, "openapi.json");
 
@@ -42,15 +35,16 @@ const generateOpenAPISpec = async () => {
 		// Write to file
 		writeFileSync(outputPath, JSON.stringify(spec, null, 2));
 
-		console.log(`✅ OpenAPI specification generated successfully!`);
+		console.log(`✅ OpenAPI specification fetched successfully!`);
 		console.log(`📁 Output: ${outputPath}`);
 		console.log(`\n📝 You can now use this file with Orval:`);
 		console.log(`   bun orval --config orval.config.ts`);
 	} catch (error) {
-		console.error("❌ Error generating OpenAPI spec:", error);
+		console.error("❌ Error fetching OpenAPI spec:", error);
+		console.error("\n💡 Make sure the dev server is running with 'bun run dev'");
 		process.exit(1);
 	}
-};
+}
 
-// Run the generator
-generateOpenAPISpec();
+// Run the fetcher
+fetchOpenAPISpec();

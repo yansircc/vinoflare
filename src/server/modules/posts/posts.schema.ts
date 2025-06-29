@@ -58,3 +58,14 @@ export type SelectPost = z.infer<typeof selectPostSchema>;
 export type InsertPost = z.infer<typeof insertPostSchema>;
 export type UpdatePost = z.infer<typeof updatePostSchema>;
 export type PostId = z.infer<typeof postIdSchema>;
+
+/**
+ * Response schemas
+ */
+export const postResponseSchema = z.object({
+	post: selectPostSchema,
+});
+
+export const postsResponseSchema = z.object({
+	posts: z.array(selectPostSchema),
+});

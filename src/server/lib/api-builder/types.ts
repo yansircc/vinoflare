@@ -11,12 +11,19 @@ export interface ValidationSchemas {
 	query?: z.ZodType<any>;
 }
 
+export interface ResponseDefinition {
+	statusCode: number;
+	description: string;
+	schema?: z.ZodType<any>;
+}
+
 export interface RouteDefinition<TBody = any, TParams = any, TQuery = any> {
 	method: HTTPMethod;
 	path: string;
 	validation?: ValidationSchemas;
 	openapi?: OpenAPIRouteConfig;
 	handler: RouteHandler<TBody, TParams, TQuery>;
+	responses?: ResponseDefinition[];
 }
 
 export type RouteHandler<TBody = any, TParams = any, TQuery = any> = (
