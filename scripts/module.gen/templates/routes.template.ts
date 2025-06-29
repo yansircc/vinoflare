@@ -4,74 +4,37 @@ export const getRoutesTemplate = ({
 	pascal,
 	camel,
 	kebab,
-}: NameVariations) => `import { APIBuilder } from "@/server/lib/api-builder";
-import { database } from "@/server/middleware/database";
-import { insert${pascal}Schema, update${pascal}Schema } from "./${kebab}.schema";
-import {
-	getAll${pascal},
-	get${pascal}ById,
-	create${pascal},
-	update${pascal},
-	delete${pascal},
-} from "./${kebab}.handlers";
-import {
-	getAll${pascal}OpenAPI,
-	get${pascal}ByIdOpenAPI,
-	create${pascal}OpenAPI,
-	update${pascal}OpenAPI,
-	delete${pascal}OpenAPI,
-} from "./${kebab}.openapi";
+}: NameVariations) => `import { createCRUDAPI } from "@/server/core/api";
+import { ${camel} } from "./${kebab}.table";
+import { select${pascal}Schema, insert${pascal}Schema, update${pascal}Schema } from "./${kebab}.schema";
 
-export function create${pascal}Module() {
-	const builder = new APIBuilder({
-		middleware: [database()],
-	});
-
-	// Get all ${camel}
-	builder.addRoute({
-		method: "get",
-		path: "/",
-		handler: getAll${pascal},
-		openapi: getAll${pascal}OpenAPI,
-	});
-
-	// Get ${camel} by ID
-	builder.addRoute({
-		method: "get",
-		path: "/:id",
-		handler: get${pascal}ById,
-		openapi: get${pascal}ByIdOpenAPI,
-	});
-
-	// Create new ${camel}
-	builder.addRoute({
-		method: "post",
-		path: "/",
-		validation: {
-			body: insert${pascal}Schema,
+/**
+ * ${pascal} API routes using the CRUD generator
+ * 
+ * This automatically generates all standard CRUD operations:
+ * - GET /${kebab}s - Get all ${camel}s with pagination
+ * - GET /${kebab}s/:id - Get ${camel} by ID
+ * - POST /${kebab}s - Create new ${camel}
+ * - PUT /${kebab}s/:id - Update ${camel}
+ * - DELETE /${kebab}s/:id - Delete ${camel}
+ */
+export function create${pascal}Routes() {
+	return createCRUDAPI({
+		name: "${camel}",
+		table: ${camel},
+		schemas: {
+			select: select${pascal}Schema,
+			insert: insert${pascal}Schema,
+			update: update${pascal}Schema,
 		},
-		handler: create${pascal},
-		openapi: create${pascal}OpenAPI,
-	});
-
-	// Update ${camel}
-	builder.addRoute({
-		method: "put",
-		path: "/:id",
-		validation: {
-			body: update${pascal}Schema,
+		tags: ["${pascal}"],
+		// Add custom handlers if needed
+		handlers: {
+			// Example: Add custom validation
+			// beforeCreate: async (data, c) => {
+			//   // Custom validation logic
+			//   return data;
+			// },
 		},
-		handler: update${pascal},
-		openapi: update${pascal}OpenAPI,
-	});
-
-	// Delete ${camel}
-	builder.addRoute({
-		method: "delete",
-		path: "/:id",
-		handler: delete${pascal},
-		openapi: delete${pascal}OpenAPI,
-	});
-
-	return builder;
+	}).build();
 }`;

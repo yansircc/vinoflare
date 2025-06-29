@@ -2,7 +2,6 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import {
 	getHandlersTemplate,
-	getOpenAPITemplate,
 	getRoutesTemplate,
 	getTableTemplate,
 	getSchemaTemplate,
@@ -27,7 +26,6 @@ export function generateModuleFiles(
 	writeFileSync(join(paths.base, `${names.kebab}.schema.ts`), getSchemaTemplate(names));
 	writeFileSync(join(paths.base, `${names.kebab}.types.ts`), getTypesTemplate(names));
 	writeFileSync(paths.handlers, getHandlersTemplate(names));
-	writeFileSync(paths.openapi, getOpenAPITemplate(names));
 	writeFileSync(paths.routes, getRoutesTemplate(names));
 	writeFileSync(paths.test, getTestTemplate(names));
 	
@@ -42,7 +40,6 @@ export function generateModuleFiles(
 	console.log(`   - ${names.kebab}.schema.ts`);
 	console.log(`   - ${names.kebab}.types.ts`);
 	console.log(`   - ${paths.handlers}`);
-	console.log(`   - ${paths.openapi}`);
 	console.log(`   - ${paths.routes}`);
 	console.log(`   - ${paths.test}`);
 	console.log(`   - ${readmePath} 📚 Module documentation`);

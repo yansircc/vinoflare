@@ -5,20 +5,19 @@ export const getIndexTemplate = ({
 	camel,
 	kebab,
 }: NameVariations) => `import type { ModuleDefinition } from "../../core/module-loader";
-import { create${pascal}Module } from "./${kebab}.routes";
+import { create${pascal}Routes } from "./${kebab}.routes";
 
 // Export all public APIs from this module
 export * from "./${kebab}.table";
 export * from "./${kebab}.schema";
 export * from "./${kebab}.types";
 export * from "./${kebab}.handlers";
-export * from "./${kebab}.openapi";
 
 // Module definition
 const ${camel}Module: ModuleDefinition = {
 	name: "${kebab}",
-	basePath: "/${kebab}",
-	createModule: create${pascal}Module,
+	basePath: "/${kebab}s",
+	createModule: () => create${pascal}Routes(),
 	metadata: {
 		version: "1.0.0",
 		tags: ["${pascal}"],
