@@ -2,7 +2,7 @@ import type { Context } from "hono";
 import { HTTPException } from "hono/http-exception";
 import { StatusCodes } from "http-status-codes";
 import type { BaseContext } from "@/server/lib/worker-types";
-import type { InsertPost, postId } from "./posts.schema";
+import type { InsertPost, PostId } from "./posts.schema";
 import { posts } from "./posts.table";
 
 export const getLatestPostHandler = async (c: Context<BaseContext>) => {
@@ -63,9 +63,8 @@ export const createPostHandler = async (
 
 export const getPostByIdHandler = async (
 	c: Context<BaseContext>,
-	input: { params?: { id: postId } },
+	input: { params?: { id: PostId } },
 ) => {
-	// ID validation is now handled automatically by the APIBuilder
 	const id = input.params?.id;
 	if (!id) {
 		throw new HTTPException(StatusCodes.BAD_REQUEST, {

@@ -45,6 +45,38 @@ export class RouteBuilder<TBody = any, TParams = any, TQuery = any> {
 		}
 	}
 
+	// More intuitive API methods
+	body<T>(schema: z.ZodType<T>): RouteBuilder<T, TParams, TQuery> {
+		this.definition.validation!.body = schema;
+		return this as any;
+	}
+
+	params<T extends Record<string, z.ZodType<any>>>(
+		schema: T | z.ZodObject<T>,
+	): RouteBuilder<TBody, any, TQuery> {
+		// If it's already a ZodType, use it directly
+		if (schema && typeof schema === "object" && "parse" in schema) {
+			this.definition.validation!.params = schema as z.ZodType<any>;
+		} else {
+			// Otherwise, wrap the schema definition in z.object()
+			this.definition.validation!.params = z.object(schema as T);
+		}
+		return this as any;
+	}
+
+	query<T extends Record<string, z.ZodType<any>>>(
+		schema: T | z.ZodObject<T>,
+	): RouteBuilder<TBody, TParams, any> {
+		// If it's already a ZodType, use it directly
+		if (schema && typeof schema === "object" && "parse" in schema) {
+			this.definition.validation!.query = schema as z.ZodType<any>;
+		} else {
+			// Otherwise, wrap the schema definition in z.object()
+			this.definition.validation!.query = z.object(schema as T);
+		}
+		return this as any;
+	}
+
 	output(schema: z.ZodType<any>, statusCode: number = 200): this {
 		if (!this.definition.openapi) {
 			this.definition.openapi = {};

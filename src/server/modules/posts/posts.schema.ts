@@ -57,4 +57,4 @@ export const updatePostSchema = insertPostSchema.partial();
 export type SelectPost = z.infer<typeof selectPostSchema>;
 export type InsertPost = z.infer<typeof insertPostSchema>;
 export type UpdatePost = z.infer<typeof updatePostSchema>;
-export type postId = z.infer<typeof postIdSchema>;
+export type PostId = z.infer<typeof postIdSchema>;

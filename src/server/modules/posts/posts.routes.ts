@@ -23,13 +23,13 @@ export const createPostsModule = () => {
 	// Create post
 	builder
 		.post("/", createPostHandler)
-		.input(insertPostSchema, "body")
+		.body(insertPostSchema)
 		.openapi(createPostOpenAPI);
 
 	// Get post by ID - now with proper param validation
 	builder
 		.get("/:id", getPostByIdHandler)
-		.input(postIdSchema, "params")
+		.params({ id: postIdSchema })
 		.openapi(getPostByIdOpenAPI);
 
 	return builder;
