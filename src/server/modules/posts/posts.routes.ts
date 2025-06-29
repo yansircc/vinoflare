@@ -1,93 +1,23 @@
 import { HTTPException } from "hono/http-exception";
-import { z } from "zod/v4";
-import { createAPI, createCRUDAPI, response } from "@/server/core/api";
-import {
-	createPostHandler,
-	deletePostHandler,
-	getLatestPostHandler,
-	getPostByIdHandler,
-	updatePostHandler,
-} from "./posts.handlers";
+import { createCRUDAPI } from "@/server/core/api";
 import {
 	insertPostSchema,
-	postIdParamSchema,
 	selectPostSchema,
 	updatePostSchema,
 } from "./posts.schema";
 import { posts } from "./posts.table";
 
 /**
- * Posts API routes using the new API builder
- * This demonstrates both manual route creation and CRUD generator usage
+ * Posts API routes using the CRUD generator
+ *
+ * This automatically generates all standard CRUD operations:
+ * - GET /posts - Get all posts with pagination
+ * - GET /posts/:id - Get post by ID
+ * - POST /posts - Create new post
+ * - PUT /posts/:id - Update post
+ * - DELETE /posts/:id - Delete post
  */
-
-// Option 1: Create routes manually with the API builder
 export function createPostsRoutes() {
-	const api = createAPI()
-		.tags("Posts")
-
-		// Get latest post
-		.get("/latest", {
-			summary: "Get latest post",
-			description: "Retrieve the most recently created post",
-			response: response("post", selectPostSchema),
-			handler: async (c) => {
-				return getLatestPostHandler(c);
-			},
-		})
-
-		// Get post by ID
-		.get("/:id", {
-			summary: "Get post by ID",
-			params: z.object({ id: postIdParamSchema }),
-			response: response("post", selectPostSchema),
-			handler: async (c) => {
-				const id = c.req.param("id");
-				return getPostByIdHandler(c, { params: { id: Number(id) } });
-			},
-		})
-
-		// Create post
-		.post("/", {
-			summary: "Create a new post",
-			body: insertPostSchema,
-			response: response("post", selectPostSchema),
-			status: 201,
-			handler: async (c) => {
-				const body = await c.req.json();
-				return createPostHandler(c, { body });
-			},
-		})
-
-		// Update post
-		.patch("/:id", {
-			summary: "Update a post",
-			params: z.object({ id: postIdParamSchema }),
-			body: updatePostSchema,
-			response: response("post", selectPostSchema),
-			handler: async (c) => {
-				const id = c.req.param("id");
-				const body = await c.req.json();
-				return updatePostHandler(c, { params: { id: Number(id) }, body });
-			},
-		})
-
-		// Delete post
-		.delete("/:id", {
-			summary: "Delete a post",
-			params: z.object({ id: postIdParamSchema }),
-			response: response("post", selectPostSchema),
-			handler: async (c) => {
-				const id = c.req.param("id");
-				return deletePostHandler(c, { params: { id: Number(id) } });
-			},
-		});
-
-	return api.build();
-}
-
-// Option 2: Use CRUD generator for standard operations
-export function createPostsCRUDRoutes() {
 	return createCRUDAPI({
 		name: "post",
 		table: posts,
@@ -97,7 +27,7 @@ export function createPostsCRUDRoutes() {
 			update: updatePostSchema,
 		},
 		tags: ["Posts"],
-		// Custom handlers can override default CRUD behavior
+		// Custom handlers for business logic
 		handlers: {
 			beforeCreate: async (data: any, c: any) => {
 				// Check for duplicate title
@@ -118,6 +48,3 @@ export function createPostsCRUDRoutes() {
 		},
 	}).build();
 }
-
-// Export the manually created routes as default for now
-export default createPostsRoutes();

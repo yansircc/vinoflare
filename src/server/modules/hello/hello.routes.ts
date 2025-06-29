@@ -1,43 +1,26 @@
-import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
-import type { BaseContext } from "@/server/core/worker-types";
+import { z } from "zod/v4";
+import { createAPI } from "@/server/core/api";
 
-export const helloRoute = createRoute({
-	method: "get",
-	path: "/",
-	responses: {
-		200: {
-			description: "Hello from API!",
-			content: {
-				"application/json": {
-					schema: z.object({
-						message: z.string().describe("Greeting message"),
-						time: z.iso.datetime().describe("Current timestamp"),
-					}),
-				},
-			},
-		},
-		500: {
-			description: "Internal server error",
-			content: {
-				"application/json": {
-					schema: z.object({
-						message: z.string().describe("Error message"),
-					}),
-				},
-			},
-		},
-	},
+// Response schema
+const helloResponseSchema = z.object({
+	message: z.string().describe("Greeting message"),
+	time: z.iso.datetime({ offset: true }).describe("Current timestamp"),
 });
 
+// Create hello module routes using new API builder
 export function createHelloRoutes() {
-	const app = new OpenAPIHono<BaseContext>();
-
-	app.openapi(helloRoute, (c) => {
-		return c.json({
-			message: "Hello from API!",
-			time: new Date().toISOString(),
-		});
-	});
-
-	return app;
+	return createAPI()
+		.tags("Hello")
+		.get("/", {
+			summary: "Hello endpoint",
+			description: "Returns a greeting message with current timestamp",
+			response: helloResponseSchema,
+			handler: (c) => {
+				return c.json({
+					message: "Hello from API!",
+					time: new Date().toISOString(),
+				});
+			},
+		})
+		.build();
 }
