@@ -1,5 +1,5 @@
 import { z } from "zod/v4";
-import { createAPI } from "@/server/core/api";
+import { commonErrors, createAPI } from "@/server/core/api";
 
 // Response schema
 const helloResponseSchema = z.object({
@@ -15,6 +15,9 @@ export function createHelloRoutes() {
 			summary: "Hello endpoint",
 			description: "Returns a greeting message with current timestamp",
 			response: helloResponseSchema,
+			// This is a simple public endpoint, only needs minimal errors
+			includeStandardErrors: false,
+			errors: commonErrors.minimal,
 			handler: (c) => {
 				return c.json({
 					message: "Hello from API!",

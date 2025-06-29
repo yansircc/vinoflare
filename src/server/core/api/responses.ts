@@ -104,3 +104,48 @@ export type SuccessResponse<T> = {
 };
 
 export type ErrorResponse = z.infer<typeof errorResponseSchema>;
+
+// Common error response combinations
+export const commonErrors = {
+	// Basic auth errors
+	auth: {
+		401: createErrorResponse("Unauthorized - Authentication is required"),
+		403: createErrorResponse("Forbidden - The request is not allowed"),
+	},
+
+	// CRUD errors
+	crud: {
+		400: createErrorResponse(
+			"Bad Request - The request was invalid or cannot be served",
+		),
+		404: createErrorResponse(
+			"Not Found - The requested resource was not found",
+		),
+		409: createErrorResponse(
+			"Conflict - The request conflicts with the current state",
+		),
+		422: createErrorResponse(
+			"Unprocessable Entity - The request was well-formed but contains semantic errors",
+		),
+	},
+
+	// Minimal errors
+	minimal: {
+		400: createErrorResponse("Bad Request"),
+		500: createErrorResponse("Internal Server Error"),
+	},
+
+	// Public endpoint errors (no auth errors)
+	public: {
+		400: createErrorResponse(
+			"Bad Request - The request was invalid or cannot be served",
+		),
+		404: createErrorResponse(
+			"Not Found - The requested resource was not found",
+		),
+		429: createErrorResponse("Too Many Requests - Rate limit exceeded"),
+		500: createErrorResponse(
+			"Internal Server Error - An unexpected error occurred",
+		),
+	},
+};

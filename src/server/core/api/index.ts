@@ -13,6 +13,7 @@ export {
 } from "./response-wrapper.js";
 export type { ErrorResponse, SuccessResponse } from "./responses.js";
 export {
+	commonErrors,
 	createErrorResponse,
 	createSuccessResponse,
 	errorResponseSchema,

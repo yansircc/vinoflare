@@ -21,33 +21,12 @@ export const createAuthModule = () => {
 					});
 				}
 
-				// Ensure all required fields are present for schema
-				return c.json(
-					{
-						user: {
-							id: user.id,
-							name: user.name || "",
-							email: user.email || "",
-							emailVerified: user.emailVerified || false,
-							image: user.image || null,
-							createdAt: user.createdAt
-								? new Date(user.createdAt).toISOString()
-								: new Date().toISOString(),
-							updatedAt: user.updatedAt
-								? new Date(user.updatedAt).toISOString()
-								: new Date().toISOString(),
-						},
-					},
-					200,
-				);
+				return c.json({ user }, 200);
 			},
 		});
 
-	// Get the built app
 	const app = api.build();
 
-	// Better-auth endpoints - handle all HTTP methods
-	// These are internal Better Auth routes, so no OpenAPI definitions
 	app.get("/*", authHandler);
 	app.post("/*", authHandler);
 	app.put("/*", authHandler);

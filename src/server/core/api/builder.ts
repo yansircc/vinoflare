@@ -2,7 +2,11 @@ import type { RouteConfig, RouteHandler } from "@hono/zod-openapi";
 import { createRoute, OpenAPIHono } from "@hono/zod-openapi";
 import type { MiddlewareHandler } from "hono";
 import { z } from "zod/v4";
-import { createSuccessResponse, standardErrorResponses } from "./responses.js";
+import {
+	createErrorResponse,
+	createSuccessResponse,
+	standardErrorResponses,
+} from "./responses.js";
 
 // Types for route definitions
 interface RouteDefinition<TPath extends string = string> {
@@ -18,6 +22,8 @@ interface RouteDefinition<TPath extends string = string> {
 	status?: number;
 	middleware?: MiddlewareHandler[];
 	handler: RouteHandler<any, any>;
+	includeStandardErrors?: boolean;
+	errors?: Record<number, string | any>;
 }
 
 // Fluent API builder class
@@ -25,10 +31,17 @@ export class APIBuilder {
 	private app: OpenAPIHono;
 	private commonMiddleware: MiddlewareHandler[] = [];
 	private commonTags: string[] = [];
+	private includeStandardErrorsByDefault = true;
 
 	constructor(_basePath = "") {
 		this.app = new OpenAPIHono();
 		// basePath can be used for future features like automatic prefixing
+	}
+
+	// Configure whether to include standard errors by default
+	standardErrors(include: boolean) {
+		this.includeStandardErrorsByDefault = include;
+		return this;
 	}
 
 	// Set common middleware for all routes
@@ -58,6 +71,8 @@ export class APIBuilder {
 			status = method === "post" ? 201 : 200,
 			middleware = [],
 			handler,
+			includeStandardErrors = this.includeStandardErrorsByDefault,
+			errors = {},
 		} = definition;
 
 		// Build request config
@@ -75,7 +90,21 @@ export class APIBuilder {
 		}
 
 		// Build responses config
-		const responses: any = { ...standardErrorResponses };
+		let responses: any = {};
+
+		// Add standard error responses if requested
+		if (includeStandardErrors) {
+			responses = { ...standardErrorResponses };
+		}
+
+		// Add custom error responses
+		Object.entries(errors).forEach(([statusCode, errorDef]) => {
+			if (typeof errorDef === "string") {
+				responses[statusCode] = createErrorResponse(errorDef);
+			} else {
+				responses[statusCode] = errorDef;
+			}
+		});
 
 		if (response) {
 			if (response instanceof z.ZodType) {

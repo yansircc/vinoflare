@@ -141,6 +141,77 @@ const api = createCRUDAPI({
 });
 ```
 
+## Error Response Control
+
+By default, all routes include standard error responses. You can customize this behavior:
+
+### Disable Standard Errors Globally
+
+```typescript
+const api = createAPI()
+  .standardErrors(false)  // Disable all standard errors
+  .tags("Public")
+  
+  .get("/status", {
+    summary: "Health check",
+    response: z.object({ status: z.string() }),
+    // Only includes success response
+    handler: (c) => c.json({ status: "ok" })
+  });
+```
+
+### Custom Error Responses Per Route
+
+```typescript
+.get("/users/:id", {
+  summary: "Get user",
+  params: z.object({ id: z.coerce.number() }),
+  response: response("user", userSchema),
+  includeStandardErrors: false,  // Disable standard errors for this route
+  errors: {
+    404: "User not found",
+    403: "Access denied to user data"
+  },
+  handler: getUserHandler
+})
+```
+
+### Use Common Error Combinations
+
+```typescript
+import { commonErrors } from "@/server/core/api";
+
+.get("/public/data", {
+  summary: "Public endpoint",
+  response: dataSchema,
+  includeStandardErrors: false,
+  errors: commonErrors.public,  // Only public-appropriate errors
+  handler: getPublicData
+})
+
+// Available error sets:
+// - commonErrors.auth: 401, 403
+// - commonErrors.crud: 400, 404, 409, 422
+// - commonErrors.minimal: 400, 500
+// - commonErrors.public: 400, 404, 429, 500 (no auth errors)
+```
+
+### Mix Standard and Custom Errors
+
+```typescript
+.post("/special", {
+  summary: "Special endpoint",
+  body: inputSchema,
+  response: outputSchema,
+  // Keeps standard errors AND adds custom ones
+  errors: {
+    402: "Payment Required",
+    418: "I'm a teapot"
+  },
+  handler: specialHandler
+})
+```
+
 ## Advanced Usage
 
 ### Custom Middleware
