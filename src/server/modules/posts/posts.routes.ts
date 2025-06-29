@@ -1,234 +1,123 @@
-import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
-import type { BaseContext } from "@/server/core/worker-types";
-import { database } from "@/server/middleware/database";
+import { HTTPException } from "hono/http-exception";
+import { z } from "zod/v4";
+import { createAPI, createCRUDAPI, response } from "@/server/core/api";
 import {
 	createPostHandler,
+	deletePostHandler,
 	getLatestPostHandler,
 	getPostByIdHandler,
+	updatePostHandler,
 } from "./posts.handlers";
 import {
 	insertPostSchema,
-	postIdSchema,
+	postIdParamSchema,
 	selectPostSchema,
+	updatePostSchema,
 } from "./posts.schema";
+import { posts } from "./posts.table";
 
-// Route definitions
-const getLatestPostRoute = createRoute({
-	method: "get",
-	path: "/latest",
-	tags: ["Posts"],
-	summary: "Get latest post",
-	description: "Retrieves the most recent post",
-	responses: {
-		200: {
-			description: "Post retrieved successfully",
-			content: {
-				"application/json": {
-					schema: z.object({
-						post: selectPostSchema,
-					}),
-				},
-			},
-		},
-		404: {
-			description: "Post not found",
-			content: {
-				"application/json": {
-					schema: z.object({
-						error: z.object({
-							code: z.string(),
-							message: z.string(),
-							timestamp: z.string(),
-							path: z.string(),
-						}),
-					}),
-				},
-			},
-		},
-		500: {
-			description: "Internal server error",
-			content: {
-				"application/json": {
-					schema: z.object({
-						error: z.object({
-							code: z.string(),
-							message: z.string(),
-							timestamp: z.string(),
-							path: z.string(),
-						}),
-					}),
-				},
-			},
-		},
-	},
-});
+/**
+ * Posts API routes using the new API builder
+ * This demonstrates both manual route creation and CRUD generator usage
+ */
 
-const createPostRoute = createRoute({
-	method: "post",
-	path: "/",
-	tags: ["Posts"],
-	summary: "Create a new post",
-	description: "Creates a new post",
-	request: {
-		body: {
-			content: {
-				"application/json": {
-					schema: insertPostSchema,
-				},
-			},
-			description: "Post data",
-			required: true,
-		},
-	},
-	responses: {
-		201: {
-			description: "Post created successfully",
-			content: {
-				"application/json": {
-					schema: z.object({
-						post: selectPostSchema,
-					}),
-				},
-			},
-		},
-		400: {
-			description: "Validation error",
-			content: {
-				"application/json": {
-					schema: z.object({
-						error: z.object({
-							code: z.string(),
-							message: z.string(),
-							timestamp: z.string(),
-							path: z.string(),
-						}),
-					}),
-				},
-			},
-		},
-		409: {
-			description: "Post already exists",
-			content: {
-				"application/json": {
-					schema: z.object({
-						error: z.object({
-							code: z.string(),
-							message: z.string(),
-							timestamp: z.string(),
-							path: z.string(),
-						}),
-					}),
-				},
-			},
-		},
-		500: {
-			description: "Internal server error",
-			content: {
-				"application/json": {
-					schema: z.object({
-						error: z.object({
-							code: z.string(),
-							message: z.string(),
-							timestamp: z.string(),
-							path: z.string(),
-						}),
-					}),
-				},
-			},
-		},
-	},
-});
+// Option 1: Create routes manually with the API builder
+export function createPostsRoutes() {
+	const api = createAPI()
+		.tags("Posts")
 
-const getPostByIdRoute = createRoute({
-	method: "get",
-	path: "/:id",
-	tags: ["Posts"],
-	summary: "Get post by ID",
-	description: "Retrieves a specific post",
-	request: {
-		params: z.object({
-			id: postIdSchema,
-		}),
-	},
-	responses: {
-		200: {
-			description: "Post retrieved successfully",
-			content: {
-				"application/json": {
-					schema: z.object({
-						post: selectPostSchema,
-					}),
-				},
+		// Get latest post
+		.get("/latest", {
+			summary: "Get latest post",
+			description: "Retrieve the most recently created post",
+			response: response("post", selectPostSchema),
+			handler: async (c) => {
+				return getLatestPostHandler(c);
 			},
-		},
-		400: {
-			description: "Invalid path parameters",
-			content: {
-				"application/json": {
-					schema: z.object({
-						error: z.object({
-							code: z.string(),
-							message: z.string(),
-							timestamp: z.string(),
-							path: z.string(),
-						}),
-					}),
-				},
+		})
+
+		// Get post by ID
+		.get("/:id", {
+			summary: "Get post by ID",
+			params: z.object({ id: postIdParamSchema }),
+			response: response("post", selectPostSchema),
+			handler: async (c) => {
+				const id = c.req.param("id");
+				return getPostByIdHandler(c, { params: { id: Number(id) } });
 			},
-		},
-		404: {
-			description: "Post not found",
-			content: {
-				"application/json": {
-					schema: z.object({
-						error: z.object({
-							code: z.string(),
-							message: z.string(),
-							timestamp: z.string(),
-							path: z.string(),
-						}),
-					}),
-				},
+		})
+
+		// Create post
+		.post("/", {
+			summary: "Create a new post",
+			body: insertPostSchema,
+			response: response("post", selectPostSchema),
+			status: 201,
+			handler: async (c) => {
+				const body = await c.req.json();
+				return createPostHandler(c, { body });
 			},
-		},
-		500: {
-			description: "Internal server error",
-			content: {
-				"application/json": {
-					schema: z.object({
-						error: z.object({
-							code: z.string(),
-							message: z.string(),
-							timestamp: z.string(),
-							path: z.string(),
-						}),
-					}),
-				},
+		})
+
+		// Update post
+		.patch("/:id", {
+			summary: "Update a post",
+			params: z.object({ id: postIdParamSchema }),
+			body: updatePostSchema,
+			response: response("post", selectPostSchema),
+			handler: async (c) => {
+				const id = c.req.param("id");
+				const body = await c.req.json();
+				return updatePostHandler(c, { params: { id: Number(id) }, body });
 			},
-		},
-	},
-});
+		})
 
-export function createPostsModule() {
-	const app = new OpenAPIHono<BaseContext>();
+		// Delete post
+		.delete("/:id", {
+			summary: "Delete a post",
+			params: z.object({ id: postIdParamSchema }),
+			response: response("post", selectPostSchema),
+			handler: async (c) => {
+				const id = c.req.param("id");
+				return deletePostHandler(c, { params: { id: Number(id) } });
+			},
+		});
 
-	// Apply middleware
-	app.use(database());
-
-	// Register routes
-	app.openapi(getLatestPostRoute, async (c) => {
-		return getLatestPostHandler(c);
-	});
-
-	app.openapi(createPostRoute, async (c) => {
-		const body = c.req.valid("json");
-		return createPostHandler(c, { body });
-	});
-
-	app.openapi(getPostByIdRoute, async (c) => {
-		const params = c.req.valid("param");
-		return getPostByIdHandler(c, { params });
-	});
-
-	return app;
+	return api.build();
 }
+
+// Option 2: Use CRUD generator for standard operations
+export function createPostsCRUDRoutes() {
+	return createCRUDAPI({
+		name: "post",
+		table: posts,
+		schemas: {
+			select: selectPostSchema,
+			insert: insertPostSchema,
+			update: updatePostSchema,
+		},
+		tags: ["Posts"],
+		// Custom handlers can override default CRUD behavior
+		handlers: {
+			beforeCreate: async (data: any, c: any) => {
+				// Check for duplicate title
+				const db = c.get("db");
+				const existing = await db.query.posts.findFirst({
+					where: (postsTable: any, { eq }: any) =>
+						eq(postsTable.title, data.title),
+				});
+
+				if (existing) {
+					throw new HTTPException(409, {
+						message: `Post with title "${data.title}" already exists`,
+					});
+				}
+
+				return data;
+			},
+		},
+	}).build();
+}
+
+// Export the manually created routes as default for now
+export default createPostsRoutes();

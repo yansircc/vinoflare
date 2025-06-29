@@ -12,6 +12,13 @@ export const postIdSchema = z.coerce
 	.meta({ example: 1 })
 	.describe("Unique identifier of the post");
 
+export const postIdParamSchema = z.coerce
+	.string()
+	.regex(/^\d+$/, "ID must be a number")
+	.transform((val) => Number(val))
+	.meta({ example: "1" })
+	.describe("Unique identifier of the post");
+
 export const postTitleSchema = z
 	.string()
 	.min(1, "Title is required")
@@ -58,3 +65,4 @@ export type SelectPost = z.infer<typeof selectPostSchema>;
 export type InsertPost = z.infer<typeof insertPostSchema>;
 export type UpdatePost = z.infer<typeof updatePostSchema>;
 export type postId = z.infer<typeof postIdSchema>;
+export type postIdParam = z.infer<typeof postIdParamSchema>;

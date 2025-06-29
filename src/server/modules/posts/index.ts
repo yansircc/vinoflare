@@ -1,5 +1,5 @@
 import type { ModuleDefinition } from "../../core/module-loader";
-import { createPostsModule } from "./posts.routes";
+import { createPostsRoutes } from "./posts.routes";
 
 export * from "./posts.handlers";
 export * from "./posts.schema";
@@ -10,7 +10,7 @@ export { posts } from "./posts.table";
 const postsModule: ModuleDefinition = {
 	name: "posts",
 	basePath: "/posts",
-	createModule: createPostsModule,
+	createModule: createPostsRoutes,
 	metadata: {
 		version: "1.0.0",
 		tags: ["Posts"],

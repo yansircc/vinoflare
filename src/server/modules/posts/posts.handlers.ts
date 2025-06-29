@@ -1,8 +1,9 @@
+import { eq } from "drizzle-orm";
 import type { Context } from "hono";
 import { HTTPException } from "hono/http-exception";
 import { StatusCodes } from "http-status-codes";
 import type { BaseContext } from "@/server/core/worker-types";
-import type { InsertPost, postId } from "./posts.schema";
+import type { InsertPost, postId, UpdatePost } from "./posts.schema";
 import { posts } from "./posts.table";
 
 export const getLatestPostHandler = async (c: Context<BaseContext>) => {
@@ -84,6 +85,29 @@ export const getPostByIdHandler = async (
 			message: "Post not found",
 		});
 	}
+
+	return c.json({ post }, StatusCodes.OK);
+};
+
+export const updatePostHandler = async (
+	c: Context<BaseContext>,
+	input: { params?: { id: postId }; body?: UpdatePost },
+) => {
+	const db = c.get("db");
+	const post = await db
+		.update(posts)
+		.set(input.body!)
+		.where(eq(posts.id, input.params!.id));
+
+	return c.json({ post }, StatusCodes.OK);
+};
+
+export const deletePostHandler = async (
+	c: Context<BaseContext>,
+	input: { params?: { id: postId } },
+) => {
+	const db = c.get("db");
+	const post = await db.delete(posts).where(eq(posts.id, input.params!.id));
 
 	return c.json({ post }, StatusCodes.OK);
 };
