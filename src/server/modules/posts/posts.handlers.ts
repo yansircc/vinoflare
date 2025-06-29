@@ -22,7 +22,7 @@ export const getLatestPostHandler = async (c: Context<BaseContext>) => {
 
 export const createPostHandler = async (
 	c: Context<BaseContext>,
-	input: { body?: InsertPost }
+	input: { body?: InsertPost },
 ) => {
 	if (!input.body) {
 		throw new HTTPException(StatusCodes.BAD_REQUEST, {
@@ -63,7 +63,7 @@ export const createPostHandler = async (
 
 export const getPostByIdHandler = async (
 	c: Context<BaseContext>,
-	input: { params?: { id: postId } }
+	input: { params?: { id: postId } },
 ) => {
 	// ID validation is now handled automatically by the APIBuilder
 	const id = input.params?.id;

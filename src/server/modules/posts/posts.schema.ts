@@ -5,8 +5,7 @@ import { posts } from "./posts.table";
 /**
  * Post field validation schemas
  */
-export const postIdSchema = z
-	.coerce
+export const postIdSchema = z.coerce
 	.number()
 	.int()
 	.positive()

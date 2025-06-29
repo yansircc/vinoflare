@@ -7,9 +7,7 @@ export const createAuthModule = () => {
 	const builder = new APIBuilder();
 
 	// Get current user - using fluent API
-	builder
-		.get("/user", getCurrentUserHandler)
-		.openapi(getCurrentUserOpenAPI);
+	builder.get("/user", getCurrentUserHandler).openapi(getCurrentUserOpenAPI);
 
 	// Better-auth endpoints - handle all HTTP methods
 	// 不添加 openapi 定义，因为这是 Better Auth 的内部路由

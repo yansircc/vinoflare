@@ -10,7 +10,7 @@ import {
 	getLatestPostOpenAPI,
 	getPostByIdOpenAPI,
 } from "./posts.openapi";
-import { insertPostSchema,postIdSchema } from "./posts.schema";
+import { insertPostSchema, postIdSchema } from "./posts.schema";
 
 export const createPostsModule = () => {
 	const builder = new APIBuilder({
@@ -18,9 +18,7 @@ export const createPostsModule = () => {
 	});
 
 	// Get latest post - with automatic date transformation
-	builder
-		.get("/latest", getLatestPostHandler)
-		.openapi(getLatestPostOpenAPI);
+	builder.get("/latest", getLatestPostHandler).openapi(getLatestPostOpenAPI);
 
 	// Create post
 	builder

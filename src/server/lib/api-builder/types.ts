@@ -25,7 +25,7 @@ export type RouteHandler<TBody = any, TParams = any, TQuery = any> = (
 		body?: TBody;
 		params?: TParams;
 		query?: TQuery;
-	}
+	},
 ) => Promise<Response> | Response;
 
 export interface OpenAPIRouteConfig {

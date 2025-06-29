@@ -116,7 +116,12 @@ export class APIBuilder {
 		path: string,
 		handler: RouteHandler<TBody, TParams, TQuery>,
 	): RouteBuilder<TBody, TParams, TQuery> {
-		const routeBuilder = new RouteBuilder<TBody, TParams, TQuery>(this, method, path, handler);
+		const routeBuilder = new RouteBuilder<TBody, TParams, TQuery>(
+			this,
+			method,
+			path,
+			handler,
+		);
 		this.addRoute((routeBuilder as any).definition);
 		return routeBuilder;
 	}
