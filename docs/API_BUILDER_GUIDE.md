@@ -75,70 +75,77 @@ export default api.build();
 
 3. **Type Safety**: Full TypeScript inference for params, query, body, and responses
 
-## CRUD Generator
+## Building CRUD APIs
 
-For standard CRUD operations, use the CRUD generator to eliminate boilerplate entirely:
-
-```typescript
-import { createCRUDAPI } from "@/server/core/api";
-import { users } from "./users.table";
-import { selectUserSchema, insertUserSchema, updateUserSchema } from "./users.schema";
-
-const api = createCRUDAPI({
-  name: "user",
-  table: users,
-  schemas: {
-    select: selectUserSchema,
-    insert: insertUserSchema,
-    update: updateUserSchema,
-  },
-  tags: ["Users"],
-});
-
-export default api.build();
-```
-
-This automatically generates:
-- `GET /users` - List all users with pagination
-- `GET /users/:id` - Get user by ID
-- `POST /users` - Create new user
-- `PUT /users/:id` - Update user
-- `DELETE /users/:id` - Delete user
-
-### Customizing CRUD Operations
+While the API builder doesn't have a dedicated CRUD generator, you can easily create consistent CRUD operations using the fluent API with proper error handling:
 
 ```typescript
-const api = createCRUDAPI({
-  name: "user",
-  table: users,
-  schemas: { select, insert, update },
-  handlers: {
-    // Add validation before create
-    beforeCreate: async (data, c) => {
-      const existing = await checkDuplicate(c, data.email);
-      if (existing) {
-        throw new HTTPException(409, {
-          message: "Email already exists"
-        });
-      }
-      return data;
+import { createAPI, response, commonErrors } from "@/server/core/api";
+
+const api = createAPI()
+  .tags("Users")
+  
+  // List with pagination
+  .get("/", {
+    summary: "Get all users",
+    query: z.object({
+      page: z.coerce.number().positive().default(1),
+      limit: z.coerce.number().positive().max(100).default(10),
+    }),
+    response: z.object({
+      users: z.array(userSchema),
+      pagination: paginationSchema,
+    }),
+    includeStandardErrors: false,
+    errors: commonErrors.public,
+    handler: listUsersHandler
+  })
+  
+  // Get by ID
+  .get("/:id", {
+    summary: "Get user by ID",
+    params: z.object({ id: z.coerce.number() }),
+    response: response("user", userSchema),
+    includeStandardErrors: false,
+    errors: commonErrors.crud,
+    handler: getUserHandler
+  })
+  
+  // Create
+  .post("/", {
+    summary: "Create user",
+    body: createUserSchema,
+    response: response("user", userSchema),
+    status: 201,
+    includeStandardErrors: false,
+    errors: commonErrors.crud,
+    handler: createUserHandler
+  })
+  
+  // Update
+  .put("/:id", {
+    summary: "Update user",
+    params: z.object({ id: z.coerce.number() }),
+    body: updateUserSchema,
+    response: response("user", userSchema),
+    includeStandardErrors: false,
+    errors: commonErrors.crud,
+    handler: updateUserHandler
+  })
+  
+  // Delete
+  .delete("/:id", {
+    summary: "Delete user",
+    params: z.object({ id: z.coerce.number() }),
+    response: undefined,
+    status: 204,
+    includeStandardErrors: false,
+    errors: {
+      404: "User not found",
+      500: "Failed to delete user"
     },
-    
-    // Send email after create
-    afterCreate: async (user, c) => {
-      await sendWelcomeEmail(user.email);
-    },
-    
-    // Soft delete instead of hard delete
-    beforeDelete: async (id, c) => {
-      await c.get("db")
-        .update(users)
-        .set({ deletedAt: new Date() })
-        .where(eq(users.id, id));
-      throw new HTTPException(204); // Prevent default delete
-    }
-  }
-});
+    handler: deleteUserHandler
+  });
 ```
 
 ## Error Response Control
@@ -250,27 +257,6 @@ const api = createAPI()
 })
 ```
 
-### Combining Manual Routes with CRUD
-
-```typescript
-const api = createCRUDAPI({
-  name: "post",
-  table: posts,
-  schemas: { select, insert, update },
-})
-// Add custom routes to CRUD API
-.get("/posts/trending", {
-  summary: "Get trending posts",
-  response: response("posts", z.array(selectPostSchema)),
-  handler: getTrendingPosts
-})
-.post("/posts/:id/like", {
-  summary: "Like a post",
-  params: z.object({ id: z.coerce.number() }),
-  response: response("post", selectPostSchema),
-  handler: likePost
-});
-```
 
 ## Migration Guide
 
@@ -315,27 +301,27 @@ api.get("/users/:id", {
 
 ## Best Practices
 
-1. **Use CRUD Generator for Standard Operations**: Don't write boilerplate for basic CRUD
+1. **Choose Appropriate Error Sets**: Use `commonErrors` presets for consistency
 2. **Leverage Response Helpers**: Use `response()`, `paginatedResponse()` for consistency
 3. **Group Related Routes**: Use tags and common middleware
-4. **Custom Handlers for Business Logic**: Use before/after hooks in CRUD generator
+4. **Minimize Standard Errors**: Only include errors your endpoint actually uses
 5. **Type Safety First**: Let TypeScript inference work for you
 
 ## Module Generator
 
-When using `bun run gen:module <name>`, the generated module will automatically use the new API builder with CRUD operations pre-configured.
+When using `bun run gen:module <name>`, the generated module will automatically use the new API builder with proper CRUD routes and error handling.
 
 ```bash
 bun run gen:module products
 ```
 
 This creates:
-- `products.routes.ts` - Using `createCRUDAPI`
-- `products.handlers.ts` - (Only needed for custom logic)
+- `products.routes.ts` - Complete CRUD routes with proper error handling
+- `products.handlers.ts` - Handler stubs (for reference, routes are inline)
 - `products.schema.ts` - Zod schemas
 - `products.table.ts` - Drizzle table definition
-- Full CRUD operations with zero additional code!
+- All routes use appropriate `commonErrors` presets
 
 ## Conclusion
 
-The new API builder reduces code by 70%+ while maintaining all the benefits of type safety and OpenAPI documentation. It's designed to make the common case (CRUD) trivial while still allowing full customization when needed.
+The new API builder reduces code by 70%+ while maintaining all the benefits of type safety and OpenAPI documentation. It provides a clean, flexible API for defining routes with proper error handling.
