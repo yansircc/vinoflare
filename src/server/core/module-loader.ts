@@ -8,7 +8,7 @@ export interface ModuleMetadata {
 export interface ModuleDefinition {
 	name: string;
 	basePath: string;
-	createModule: () => any; // Returns an APIBuilder instance
+	createModule: () => any; // Returns an OpenAPIHono instance
 	metadata?: ModuleMetadata;
 }
 
@@ -47,34 +47,6 @@ export function registerModules(
 	for (const module of modules) {
 		const moduleInstance = module.createModule();
 		const fullPath = basePath + module.basePath;
-		app.route(fullPath, moduleInstance.getApp());
+		app.route(fullPath, moduleInstance);
 	}
-}
-
-/**
- * Collect OpenAPI paths from all modules
- */
-export function collectModulePaths(
-	modules: ModuleDefinition[],
-): Record<string, any> {
-	const paths: Record<string, any> = {};
-
-	for (const module of modules) {
-		const moduleInstance = module.createModule();
-		const moduleSpec = moduleInstance.generateOpenAPISpec({
-			title: "",
-			version: "",
-		});
-
-		// Prefix paths with module basePath
-		for (const [path, operations] of Object.entries(moduleSpec.paths || {})) {
-			let fullPath = module.basePath + path;
-			if (fullPath.endsWith("/") && fullPath.length > 1) {
-				fullPath = fullPath.slice(0, -1);
-			}
-			paths[fullPath] = operations;
-		}
-	}
-
-	return paths;
 }

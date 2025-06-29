@@ -149,7 +149,8 @@ describe("Posts Module", () => {
 
 			expect(response.status).toBe(400);
 			const error = (await response.json()) as { error: { code: string } };
-			expect(error.error.code).toBe("INVALID_REQUEST_BODY");
+			// @hono/zod-openapi returns BAD_REQUEST for validation errors
+			expect(error.error.code).toBe("BAD_REQUEST");
 		});
 
 		it("should handle invalid JSON", async () => {

@@ -27,6 +27,7 @@ export const createPostHandler = async (
 	if (!input.body) {
 		throw new HTTPException(StatusCodes.BAD_REQUEST, {
 			message: "Request body is required",
+			cause: { code: "INVALID_REQUEST_BODY" },
 		});
 	}
 

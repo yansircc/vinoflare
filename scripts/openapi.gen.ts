@@ -1,7 +1,7 @@
 #!/usr/bin/env bun
 /**
  * Generate OpenAPI JSON file without starting a server
- * Uses Hono's request method to simulate HTTP calls
+ * Uses runtime module loading for Bun compatibility
  *
  * Usage: bun gen:openapi
  */
@@ -9,7 +9,10 @@
 import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import app from "../src/index";
+import { OpenAPIHono } from "@hono/zod-openapi";
+import { loadModulesRuntime } from "../src/server/core/module-loader-runtime";
+import { registerModules } from "../src/server/core/module-loader";
+import type { BaseContext } from "../src/server/lib/worker-types";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -18,16 +21,40 @@ const generateOpenAPISpec = async () => {
 	try {
 		console.log("🔧 Generating OpenAPI specification...");
 
-		// Fetch the OpenAPI spec from the app using Hono's request method
-		const response = await app.request("/api/openapi.json");
+		// Create a temporary app just for OpenAPI generation
+		const app = new OpenAPIHono<BaseContext>();
 
-		if (!response.ok) {
-			throw new Error(
-				`Failed to generate OpenAPI spec: ${response.statusText}`,
-			);
-		}
+		// Configure OpenAPI
+		app.doc31("/openapi.json", {
+			openapi: "3.0.0",
+			info: {
+				title: "Vinoflare API",
+				version: "1.0.0",
+				description: "API documentation for Vinoflare v2 application",
+			},
+			servers: [
+				{
+					url: "/api",
+					description: "API server",
+				},
+			],
+		});
 
+		// Load modules using runtime loader
+		const modules = await loadModulesRuntime();
+		console.log(`📦 Loaded ${modules.length} modules`);
+
+		// Register modules with the app
+		registerModules(app, modules);
+
+		// Generate the OpenAPI spec
+		const response = await app.request("/openapi.json");
 		const spec = await response.json();
+
+		// Remove webhooks field that causes validation warnings
+		if ('webhooks' in spec) {
+			delete spec.webhooks;
+		}
 
 		// Define output path (now in src/generated)
 		const outputDir = resolve(__dirname, "../src/generated");

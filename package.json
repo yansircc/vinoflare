@@ -47,6 +47,8 @@
     "wrangler": "^4.21.2"
   },
   "dependencies": {
+    "@hono/zod-openapi": "beta",
+    "@hono/zod-validator": "^0.7.0",
     "@scalar/hono-api-reference": "^0.9.7",
     "@tailwindcss/vite": "^4.1.10",
     "@tanstack/react-query": "^5.81.2",

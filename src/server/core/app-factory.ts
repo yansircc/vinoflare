@@ -1,4 +1,4 @@
-import { Hono } from "hono";
+import { OpenAPIHono } from "@hono/zod-openapi";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
 import { trimTrailingSlash } from "hono/trailing-slash";
@@ -27,7 +27,7 @@ export interface AppFactoryOptions {
 }
 
 export function createApp(options: AppFactoryOptions) {
-	const app = new Hono<BaseContext>();
+	const app = new OpenAPIHono<BaseContext>();
 
 	// Apply global middleware based on configuration
 	if (options.middleware?.logger) {
@@ -60,7 +60,23 @@ export function createApp(options: AppFactoryOptions) {
 
 	// Optional features
 	if (options.includeDocs) {
-		const docsApp = createDocsRoutes(options.modules);
+		// Configure OpenAPI
+		app.doc31("/openapi.json", {
+			openapi: "3.0.0",
+			info: {
+				title: "Vinoflare API",
+				version: "1.0.0",
+				description: "REST API for Vinoflare application",
+			},
+			servers: [
+				{
+					url: "/api",
+					description: "API server",
+				},
+			],
+		});
+
+		const docsApp = createDocsRoutes();
 		app.route("/", docsApp);
 	}
 

@@ -48,8 +48,8 @@ bun run lint:fix    # Fix linting and formatting issues
 The application uses a modular architecture. Each module in `/src/server/modules/` contains:
 - `index.ts` - Module definition exporting routes and metadata
 - `[module].handlers.ts` - Request handlers
-- `[module].routes.ts` - Route definitions using APIBuilder
-- `[module].openapi.ts` - OpenAPI schema definitions
+- `[module].routes.ts` - Route definitions using @hono/zod-openapi
+- `[module].schema.ts` - Zod schemas for validation
 - `[module].test.ts` - Module tests
 
 ### Schema Flow
@@ -92,8 +92,12 @@ Modules are automatically registered if they export a valid `ModuleDefinition`:
 ```typescript
 export default {
   name: "posts",
-  routes: createPostsRoutes(),
-  openapi: postsOpenAPI,
+  basePath: "/posts",
+  createModule: createPostsModule,
+  metadata: {
+    version: "1.0.0",
+    tags: ["Posts"],
+  },
 } satisfies ModuleDefinition;
 ```
 
@@ -105,14 +109,30 @@ export default {
 ## Common Patterns
 
 ### Creating New API Endpoints
-Use the APIBuilder pattern for consistency:
+Use @hono/zod-openapi for type-safe routes:
 ```typescript
-const builder = new APIBuilder({ endpoint: "posts" });
+const route = createRoute({
+  method: "get",
+  path: "/:id",
+  request: {
+    params: z.object({ id: z.coerce.number() }),
+  },
+  responses: {
+    200: {
+      description: "Success",
+      content: {
+        "application/json": {
+          schema: z.object({ post: selectPostSchema }),
+        },
+      },
+    },
+  },
+});
 
-builder
-  .get("/:id", getPostByIdHandler)
-  .input(z.object({ id: z.coerce.number() }), "params")
-  .openapi(getPostByIdOpenAPI);
+app.openapi(route, async (c) => {
+  const { id } = c.req.valid("param");
+  // handler logic
+});
 ```
 
 ### Working with Database
@@ -132,7 +152,7 @@ const posts = await db.query.posts.findMany();
 ### Adding a New Feature
 1. Create database table in `/src/server/db/tables/`
 2. Run `bun run db:generate` to create migration
-3. Run `bun run scaffold:module <name>` to generate module
+3. Run `bun run gen:module <name>` to generate module
 4. Implement business logic in handlers
 5. Run `bun run gen:api` to update client types
 6. Use generated hooks in React components
@@ -158,7 +178,7 @@ bun run db:studio  # Automatically creates db.sqlite symlink
 ### File Naming
 - Handlers: `[module].handlers.ts`
 - Routes: `[module].routes.ts`
-- OpenAPI: `[module].openapi.ts`
+- Schemas: `[module].schema.ts`
 - Tests: `[module].test.ts`
 
 ### Response Wrapping

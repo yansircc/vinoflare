@@ -1,33 +1,11 @@
 import { Scalar } from "@scalar/hono-api-reference";
 import { Hono } from "hono";
-import type { ModuleDefinition } from "../core/module-loader";
-import { createOpenAPIHandler } from "../core/openapi-generator";
 
 /**
- * Create documentation routes with inline configuration
+ * Create documentation routes
  */
-export function createDocsRoutes(modules: ModuleDefinition[]) {
+export function createDocsRoutes() {
 	const app = new Hono();
-
-	// OpenAPI specification configuration
-	const openAPIConfig = {
-		title: "Vinoflare API",
-		version: "1.0.0",
-		description: "REST API for Vinoflare application",
-		contact: {
-			name: "API Support",
-			email: "support@vinoflare.com",
-		},
-		servers: [
-			{
-				url: "/api",
-				description: "API Server",
-			},
-		],
-	};
-
-	// OpenAPI JSON endpoint
-	app.get("/openapi.json", createOpenAPIHandler(modules, openAPIConfig));
 
 	// Scalar API Reference UI with inline configuration
 	app.get(
