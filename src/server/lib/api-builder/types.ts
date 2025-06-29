@@ -1,51 +1,65 @@
 import type { Context } from "hono";
 import type { z } from "zod/v4";
 
-export interface RouteDefinition<TInput = any> {
-	method: "get" | "post" | "put" | "delete" | "patch";
+export type HTTPMethod = "get" | "post" | "put" | "delete" | "patch";
+
+export type InputType = "body" | "params" | "query";
+
+export interface ValidationSchemas {
+	body?: z.ZodType<any>;
+	params?: z.ZodType<any>;
+	query?: z.ZodType<any>;
+}
+
+export interface RouteDefinition<TBody = any, TParams = any, TQuery = any> {
+	method: HTTPMethod;
 	path: string;
+	validation?: ValidationSchemas;
+	openapi?: OpenAPIRouteConfig;
+	handler: RouteHandler<TBody, TParams, TQuery>;
+}
 
-	// Validation schema
-	validation?: {
-		body?: z.ZodType<TInput>;
-	};
+export type RouteHandler<TBody = any, TParams = any, TQuery = any> = (
+	c: Context,
+	input: {
+		body?: TBody;
+		params?: TParams;
+		query?: TQuery;
+	}
+) => Promise<Response> | Response;
 
-	// OpenAPI documentation
-	openapi?: {
-		tags?: string[];
-		summary?: string;
-		description?: string;
-		deprecated?: boolean;
-		security?: Array<Record<string, string[]>>;
-		request?: {
-			body?: {
-				description?: string;
-				required?: boolean;
-				schema?: any; // Can be OpenAPI schema object or Zod schema
-			};
-			params?: Array<{
-				name: string;
-				description?: string;
-				required?: boolean;
-				schema?: any;
-			}>;
-			query?: Array<{
-				name: string;
-				description?: string;
-				required?: boolean;
-				schema?: any;
-			}>;
+export interface OpenAPIRouteConfig {
+	tags?: string[];
+	summary?: string;
+	description?: string;
+	deprecated?: boolean;
+	security?: Array<Record<string, string[]>>;
+	request?: {
+		body?: {
+			description?: string;
+			required?: boolean;
+			schema?: any;
 		};
-		responses?: {
-			[statusCode: string]: {
-				description: string;
-				schema?: any; // Can be OpenAPI schema object or Zod schema
-				headers?: Record<string, { description?: string; schema?: any }>;
-			};
+		params?: Array<{
+			name: string;
+			description?: string;
+			required?: boolean;
+			schema?: any;
+		}>;
+		query?: Array<{
+			name: string;
+			description?: string;
+			required?: boolean;
+			schema?: any;
+		}>;
+	};
+	responses?: {
+		[statusCode: string]: {
+			description: string;
+			schema?: any;
+			headers?: Record<string, { description?: string; schema?: any }>;
 		};
 	};
-
-	handler: (c: Context, input?: TInput) => Promise<Response> | Response;
 }
 
 export interface APIBuilderOptions {

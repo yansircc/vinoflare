@@ -1,5 +1,3 @@
-import { HTTPException } from "hono/http-exception";
-import { StatusCodes } from "http-status-codes";
 import { APIBuilder } from "@/server/lib/api-builder";
 import { database } from "@/server/middleware/database";
 import {
@@ -12,7 +10,7 @@ import {
 	getLatestPostOpenAPI,
 	getPostByIdOpenAPI,
 } from "./posts.openapi";
-import { insertPostSchema } from "./posts.schema";
+import { insertPostSchema,postIdSchema } from "./posts.schema";
 
 export const createPostsModule = () => {
 	const builder = new APIBuilder({
@@ -20,44 +18,21 @@ export const createPostsModule = () => {
 	});
 
 	// Get latest post - with automatic date transformation
-	builder.addRoute({
-		method: "get",
-		path: "/latest",
-		handler: getLatestPostHandler,
-		openapi: getLatestPostOpenAPI,
-	});
+	builder
+		.get("/latest", getLatestPostHandler)
+		.openapi(getLatestPostOpenAPI);
 
 	// Create post
-	builder.addRoute({
-		method: "post",
-		path: "/",
-		validation: {
-			body: insertPostSchema,
-		},
-		handler: async (c, input) => createPostHandler(c, input),
-		openapi: createPostOpenAPI,
-	});
+	builder
+		.post("/", createPostHandler)
+		.input(insertPostSchema, "body")
+		.openapi(createPostOpenAPI);
 
-	// Get post by ID - example of additional route
-	builder.addRoute({
-		method: "get",
-		path: "/:id",
-		handler: async (c) => {
-			const idParam = c.req.param("id");
-			const id = Number.parseInt(idParam);
-
-			// Validate ID
-			if (Number.isNaN(id) || id <= 0 || !Number.isInteger(Number(idParam))) {
-				throw new HTTPException(StatusCodes.BAD_REQUEST, {
-					message: "Invalid ID parameter",
-					cause: { code: "INVALID_ID" },
-				});
-			}
-
-			return getPostByIdHandler(c, id);
-		},
-		openapi: getPostByIdOpenAPI,
-	});
+	// Get post by ID - now with proper param validation
+	builder
+		.get("/:id", getPostByIdHandler)
+		.input(postIdSchema, "params")
+		.openapi(getPostByIdOpenAPI);
 
 	return builder;
 };

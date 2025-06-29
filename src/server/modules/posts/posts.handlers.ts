@@ -2,7 +2,7 @@ import type { Context } from "hono";
 import { HTTPException } from "hono/http-exception";
 import { StatusCodes } from "http-status-codes";
 import type { BaseContext } from "@/server/lib/worker-types";
-import type { InsertPost } from "./posts.schema";
+import type { InsertPost, postId } from "./posts.schema";
 import { posts } from "./posts.table";
 
 export const getLatestPostHandler = async (c: Context<BaseContext>) => {
@@ -22,15 +22,15 @@ export const getLatestPostHandler = async (c: Context<BaseContext>) => {
 
 export const createPostHandler = async (
 	c: Context<BaseContext>,
-	input?: InsertPost,
+	input: { body?: InsertPost }
 ) => {
-	if (!input) {
+	if (!input.body) {
 		throw new HTTPException(StatusCodes.BAD_REQUEST, {
 			message: "Request body is required",
 		});
 	}
 
-	if (!input.title) {
+	if (!input.body.title) {
 		throw new HTTPException(StatusCodes.BAD_REQUEST, {
 			message: "Title is required",
 		});
@@ -40,12 +40,12 @@ export const createPostHandler = async (
 
 	// Check for duplicate title
 	const existing = await db.query.posts.findFirst({
-		where: (posts, { eq }) => eq(posts.title, input.title),
+		where: (posts, { eq }) => eq(posts.title, input.body!.title),
 	});
 
 	if (existing) {
 		throw new HTTPException(StatusCodes.CONFLICT, {
-			message: `Post with title "${input.title}" already exists`,
+			message: `Post with title "${input.body.title}" already exists`,
 			cause: { code: "DUPLICATE_TITLE" },
 		});
 	}
@@ -54,7 +54,7 @@ export const createPostHandler = async (
 	const [newPost] = await db
 		.insert(posts)
 		.values({
-			title: input.title,
+			title: input.body.title,
 		})
 		.returning();
 
@@ -63,8 +63,16 @@ export const createPostHandler = async (
 
 export const getPostByIdHandler = async (
 	c: Context<BaseContext>,
-	id: number,
+	input: { params?: { id: postId } }
 ) => {
+	// ID validation is now handled automatically by the APIBuilder
+	const id = input.params?.id;
+	if (!id) {
+		throw new HTTPException(StatusCodes.BAD_REQUEST, {
+			message: "ID parameter is required",
+		});
+	}
+
 	const db = c.get("db");
 	const post = await db.query.posts.findFirst({
 		where: (posts, { eq }) => eq(posts.id, id),

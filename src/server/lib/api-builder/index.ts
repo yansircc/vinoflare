@@ -4,9 +4,66 @@ import { HTTPException } from "hono/http-exception";
 import { z } from "zod/v4";
 import type {
 	APIBuilderOptions,
+	HTTPMethod,
+	InputType,
 	OpenAPIConfig,
+	OpenAPIRouteConfig,
 	RouteDefinition,
+	RouteHandler,
 } from "./types";
+
+export * from "./types";
+
+export class RouteBuilder<TBody = any, TParams = any, TQuery = any> {
+	private definition: RouteDefinition<TBody, TParams, TQuery>;
+
+	constructor(
+		_builder: APIBuilder,
+		method: HTTPMethod,
+		path: string,
+		handler: RouteHandler<TBody, TParams, TQuery>,
+	) {
+		this.definition = {
+			method,
+			path,
+			handler,
+			validation: {},
+		};
+	}
+
+	input<T>(schema: z.ZodType<T>, type: InputType): RouteBuilder<any, any, any> {
+		switch (type) {
+			case "body":
+				this.definition.validation!.body = schema;
+				return this as any;
+			case "params":
+				this.definition.validation!.params = schema;
+				return this as any;
+			case "query":
+				this.definition.validation!.query = schema;
+				return this as any;
+		}
+	}
+
+	output(schema: z.ZodType<any>, statusCode: number = 200): this {
+		if (!this.definition.openapi) {
+			this.definition.openapi = {};
+		}
+		if (!this.definition.openapi.responses) {
+			this.definition.openapi.responses = {};
+		}
+		this.definition.openapi.responses[statusCode.toString()] = {
+			description: `${statusCode} response`,
+			schema,
+		};
+		return this;
+	}
+
+	openapi(config: OpenAPIRouteConfig): this {
+		this.definition.openapi = { ...this.definition.openapi, ...config };
+		return this;
+	}
+}
 
 export class APIBuilder {
 	private app: Hono;
@@ -19,13 +76,61 @@ export class APIBuilder {
 		options.middleware?.forEach((m) => this.app.use("*", m));
 	}
 
-	addRoute<TInput>(definition: RouteDefinition<TInput>) {
+	get<TBody = any, TParams = any, TQuery = any>(
+		path: string,
+		handler: RouteHandler<TBody, TParams, TQuery>,
+	): RouteBuilder<TBody, TParams, TQuery> {
+		return this.createRoute("get", path, handler);
+	}
+
+	post<TBody = any, TParams = any, TQuery = any>(
+		path: string,
+		handler: RouteHandler<TBody, TParams, TQuery>,
+	): RouteBuilder<TBody, TParams, TQuery> {
+		return this.createRoute("post", path, handler);
+	}
+
+	put<TBody = any, TParams = any, TQuery = any>(
+		path: string,
+		handler: RouteHandler<TBody, TParams, TQuery>,
+	): RouteBuilder<TBody, TParams, TQuery> {
+		return this.createRoute("put", path, handler);
+	}
+
+	delete<TBody = any, TParams = any, TQuery = any>(
+		path: string,
+		handler: RouteHandler<TBody, TParams, TQuery>,
+	): RouteBuilder<TBody, TParams, TQuery> {
+		return this.createRoute("delete", path, handler);
+	}
+
+	patch<TBody = any, TParams = any, TQuery = any>(
+		path: string,
+		handler: RouteHandler<TBody, TParams, TQuery>,
+	): RouteBuilder<TBody, TParams, TQuery> {
+		return this.createRoute("patch", path, handler);
+	}
+
+	private createRoute<TBody = any, TParams = any, TQuery = any>(
+		method: HTTPMethod,
+		path: string,
+		handler: RouteHandler<TBody, TParams, TQuery>,
+	): RouteBuilder<TBody, TParams, TQuery> {
+		const routeBuilder = new RouteBuilder<TBody, TParams, TQuery>(this, method, path, handler);
+		this.addRoute((routeBuilder as any).definition);
+		return routeBuilder;
+	}
+
+	private addRoute<TBody = any, TParams = any, TQuery = any>(
+		definition: RouteDefinition<TBody, TParams, TQuery>,
+	) {
 		this.routes.push(definition);
 
-		const middlewares: any[] = [];
 		const handler = async (c: Context) => {
 			try {
-				let input: TInput | undefined;
+				const input: { body?: TBody; params?: TParams; query?: TQuery } = {};
+
+				// Validate and parse body
 				if (definition.validation?.body) {
 					let body: unknown;
 					try {
@@ -46,7 +151,34 @@ export class APIBuilder {
 							cause: result.error.flatten(),
 						});
 					}
-					input = result.data;
+					input.body = result.data;
+				}
+
+				// Validate and parse params
+				if (definition.validation?.params) {
+					const params = c.req.param();
+					const result = definition.validation.params.safeParse(params);
+					if (!result.success) {
+						throw new HTTPException(400, {
+							message: "Invalid path parameters",
+							cause: result.error.flatten(),
+						});
+					}
+					input.params = result.data;
+				}
+
+				// Validate and parse query
+				if (definition.validation?.query) {
+					const url = new URL(c.req.url);
+					const query = Object.fromEntries(url.searchParams);
+					const result = definition.validation.query.safeParse(query);
+					if (!result.success) {
+						throw new HTTPException(400, {
+							message: "Invalid query parameters",
+							cause: result.error.flatten(),
+						});
+					}
+					input.query = result.data;
 				}
 
 				return await definition.handler(c, input);
@@ -59,13 +191,7 @@ export class APIBuilder {
 			}
 		};
 
-		(this.app as any)[definition.method](
-			definition.path,
-			...middlewares,
-			handler,
-		);
-
-		return this;
+		(this.app as any)[definition.method](definition.path, handler);
 	}
 
 	getApp() {
@@ -132,6 +258,38 @@ export class APIBuilder {
 					schema: p.schema || { type: "string" },
 				})),
 			];
+
+			// Auto-generate param schemas from validation
+			if (route.validation?.params && !route.openapi.request?.params) {
+				const paramSchema = this.convertSchema(route.validation.params);
+				if (paramSchema?.properties) {
+					for (const [name, schema] of Object.entries(paramSchema.properties)) {
+						parameters.push({
+							in: "path",
+							name,
+							description: undefined,
+							required: paramSchema.required?.includes(name) ?? true,
+							schema: schema as any,
+						});
+					}
+				}
+			}
+
+			// Auto-generate query schemas from validation
+			if (route.validation?.query && !route.openapi.request?.query) {
+				const querySchema = this.convertSchema(route.validation.query);
+				if (querySchema?.properties) {
+					for (const [name, schema] of Object.entries(querySchema.properties)) {
+						parameters.push({
+							in: "query",
+							name,
+							description: undefined,
+							required: querySchema.required?.includes(name) ?? false,
+							schema: schema as any,
+						});
+					}
+				}
+			}
 
 			if (parameters.length > 0) {
 				operation.parameters = parameters;

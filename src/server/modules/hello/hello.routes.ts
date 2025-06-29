@@ -5,12 +5,9 @@ import { helloOpenAPI } from "./hello.openapi";
 export const createHelloModule = () => {
 	const builder = new APIBuilder();
 
-	builder.addRoute({
-		method: "get",
-		path: "/",
-		handler: helloHandler,
-		openapi: helloOpenAPI,
-	});
+	builder
+		.get("/", helloHandler)
+		.openapi(helloOpenAPI);
 
 	return builder;
 };
