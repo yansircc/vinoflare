@@ -1,8 +1,8 @@
 import type { Context } from "hono";
 import { HTTPException } from "hono/http-exception";
 import { StatusCodes } from "http-status-codes";
-import { createAuth } from "@/server/lib/auth";
-import type { BaseContext } from "@/server/lib/worker-types";
+import { createAuth } from "@/server/core/auth";
+import type { BaseContext } from "@/server/core/worker-types";
 
 // Export Auth handler from better-auth
 export const authHandler = async (c: Context<BaseContext>) => {

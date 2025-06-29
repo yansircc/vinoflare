@@ -1,6 +1,6 @@
 import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
 import { HTTPException } from "hono/http-exception";
-import type { BaseContext } from "@/server/lib/worker-types";
+import type { BaseContext } from "@/server/core/worker-types";
 import { authHandler } from "./auth.handlers";
 
 // User schema for OpenAPI

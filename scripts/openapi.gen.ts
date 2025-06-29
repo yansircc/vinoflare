@@ -12,7 +12,7 @@ import { fileURLToPath } from "node:url";
 import { OpenAPIHono } from "@hono/zod-openapi";
 import { loadModulesRuntime } from "../src/server/core/module-loader-runtime";
 import { registerModules } from "../src/server/core/module-loader";
-import type { BaseContext } from "../src/server/lib/worker-types";
+import type { BaseContext } from "../src/server/core/worker-types";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 

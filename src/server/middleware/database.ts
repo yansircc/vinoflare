@@ -1,6 +1,6 @@
 import type { MiddlewareHandler } from "hono";
 import { createDb } from "../db";
-import type { BaseContext } from "../lib/worker-types";
+import type { BaseContext } from "../core/worker-types";
 
 export const database = (): MiddlewareHandler<BaseContext> => {
 	return async (c, next) => {

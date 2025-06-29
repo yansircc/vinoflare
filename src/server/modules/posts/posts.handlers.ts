@@ -1,7 +1,7 @@
 import type { Context } from "hono";
 import { HTTPException } from "hono/http-exception";
 import { StatusCodes } from "http-status-codes";
-import type { BaseContext } from "@/server/lib/worker-types";
+import type { BaseContext } from "@/server/core/worker-types";
 import type { InsertPost, postId } from "./posts.schema";
 import { posts } from "./posts.table";
 
