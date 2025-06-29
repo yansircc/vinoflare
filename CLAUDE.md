@@ -121,6 +121,36 @@ All API responses follow this pattern:
 { error: { code: string, message: string, timestamp: string, path: string } }
 ```
 
+## API Builder Architecture
+
+The project uses a custom API builder that significantly reduces boilerplate:
+
+### Benefits
+- **70%+ less code** compared to traditional OpenAPI definitions
+- **Automatic error responses** - No need to define 400, 401, 404, etc. for every route
+- **Smart response wrapping** - Automatically wraps responses in consistent format
+- **CRUD generator** - Zero-code CRUD operations with `createCRUDAPI`
+- **Type safety** - Full TypeScript inference throughout
+
+### Quick Examples
+```typescript
+// Simple route
+api.get("/posts", {
+  summary: "Get all posts",
+  response: response("posts", z.array(postSchema)),
+  handler: getAllPosts
+});
+
+// Complete CRUD in 6 lines
+const api = createCRUDAPI({
+  name: "post",
+  table: posts,
+  schemas: { select, insert, update }
+});
+```
+
+See `/docs/API_BUILDER_GUIDE.md` for comprehensive documentation.
+
 ## Key Architectural Decisions
 
 ### Zod v4 Requirement
@@ -156,29 +186,27 @@ export default {
 ## Common Patterns
 
 ### Creating New API Endpoints
-Use @hono/zod-openapi for type-safe routes:
+Use the new API builder for simplified route definitions:
 ```typescript
-const route = createRoute({
-  method: "get",
-  path: "/:id",
-  request: {
+// Option 1: Manual route creation
+const api = createAPI()
+  .tags("Posts")
+  .get("/:id", {
+    summary: "Get post by ID",
     params: z.object({ id: z.coerce.number() }),
-  },
-  responses: {
-    200: {
-      description: "Success",
-      content: {
-        "application/json": {
-          schema: z.object({ post: selectPostSchema }),
-        },
-      },
-    },
-  },
-});
+    response: response("post", selectPostSchema),
+    handler: async (c) => {
+      const id = Number(c.req.param("id"));
+      const post = await getPostById(c, id);
+      return c.json({ post });
+    }
+  });
 
-app.openapi(route, async (c) => {
-  const { id } = c.req.valid("param");
-  // handler logic
+// Option 2: CRUD generator (recommended for standard operations)
+const api = createCRUDAPI({
+  name: "post",
+  table: posts,
+  schemas: { select, insert, update }
 });
 ```
 
