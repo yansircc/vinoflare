@@ -4,11 +4,7 @@ export const getTestTemplate = ({
 	pascal,
 	camel,
 	kebab,
-}: NameVariations) => `/**
- * @vitest-environment workers
- */
-
-import { env } from "cloudflare:test";
+}: NameVariations) => `import { env } from "cloudflare:test";
 import { beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { ModuleRegistry } from "@/server/db/modular";
 import { createTestApp } from "@/server/tests/test-helpers";
@@ -16,10 +12,8 @@ import { createAuthRequest } from "@/server/tests/auth-utils";
 import ${camel}Module from "../index";
 import type { Select${pascal} } from "../${kebab}.schema";
 import {
-	clean${pascal}Data,
 	createTest${pascal},
 	reset${pascal}TestData,
-	setup${pascal}Table,
 } from "./${kebab}.test-utils";
 
 describe("${pascal} Module", () => {
@@ -31,13 +25,10 @@ describe("${pascal} Module", () => {
 
 		// Create test app
 		app = createTestApp([${camel}Module], env);
-
-		// Setup ${camel} table
-		await setup${pascal}Table(env.DB);
 	});
 
 	beforeEach(async () => {
-		await clean${pascal}Data(env.DB);
+		// TODO: Add test data cleanup when DB is available
 		reset${pascal}TestData();
 	});
 

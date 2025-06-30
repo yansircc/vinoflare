@@ -92,7 +92,10 @@ bun run build            # 构建生产版本
 bun run typecheck        # TypeScript 类型检查
 bun run lint             # 代码检查
 bun run lint:fix         # 自动修复代码问题
+bun run test             # 运行测试（使用 Vitest）
 ```
+
+> ⚠️ **注意**: 请使用 `bun run test` 而不是 `bun test`。本项目使用 Vitest 配合 Cloudflare Workers 进行测试，需要特殊配置。
 
 ### 代码生成
 

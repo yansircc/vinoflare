@@ -1,7 +1,3 @@
-/**
- * @vitest-environment workers
- */
-
 import { env } from "cloudflare:test";
 import { beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { ModuleRegistry } from "@/server/db/modular";
@@ -10,10 +6,8 @@ import { createTestApp } from "@/server/tests/test-helpers";
 import todoModule from "../index";
 import type { SelectTodo } from "../todo.schema";
 import {
-	cleanTodoData,
 	createTestTodo,
 	resetTodoTestData,
-	setupTodoTable,
 } from "./todo.test-utils";
 
 describe("Todo Module", () => {
@@ -25,13 +19,10 @@ describe("Todo Module", () => {
 
 		// Create test app
 		app = createTestApp([todoModule], env);
-
-		// Setup todo table
-		await setupTodoTable(env.DB);
 	});
 
 	beforeEach(async () => {
-		await cleanTodoData(env.DB);
+		// TODO: Add test data cleanup when DB is available
 		resetTodoTestData();
 	});
 
