@@ -6,14 +6,16 @@
 
 ```
 posts/
-├── index.ts          # 模块入口和公共 API 导出
-├── posts.table.ts    # 数据库表定义
-├── posts.schema.ts   # Zod 验证 schemas 和类型定义
-├── posts.handlers.ts # 业务逻辑处理函数
-├── posts.routes.ts   # 路由定义
-├── posts.openapi.ts  # OpenAPI 文档
-├── posts.test.ts     # 单元测试
-└── README.md         # 模块文档
+├── __tests__/
+│   ├── posts.test.ts       # 单元测试
+│   └── posts.test-utils.ts # 测试工具函数
+├── index.ts                # 模块入口和公共 API 导出
+├── posts.table.ts          # 数据库表定义
+├── posts.schema.ts         # Zod 验证 schemas 和类型定义
+├── posts.handlers.ts       # 业务逻辑处理函数
+├── posts.routes.ts         # 路由定义
+├── posts.openapi.ts        # OpenAPI 文档
+└── README.md               # 模块文档
 ```
 
 ## 架构特点
@@ -40,9 +42,9 @@ import { posts, selectPostSchema, type Post } from "@/server/modules/posts";
 
 ## 集成说明
 
-1. 模块会自动注册到路由系统
-2. 数据库 schema 通过 `db/index.ts` 集成
-3. 类型通过 `types/index.ts` 重新导出（向后兼容）
+1. 模块通过动态加载自动注册到路由系统
+2. 数据库表通过模块的 `tables` 属性自动集成
+3. 测试完全独立，使用模块自己的测试工具
 
 ## 优势
 

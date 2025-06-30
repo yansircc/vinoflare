@@ -1,9 +1,16 @@
-import { readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import type { NameVariations } from "./utils";
 
 export function updateApiRoutes(names: NameVariations) {
 	const apiPath = join(process.cwd(), "src/server/routes/api.ts");
+	
+	// Check if api.ts exists (it may not in the new architecture)
+	if (!existsSync(apiPath)) {
+		console.log(`\n📝 Note: No api.ts file found. Modules are auto-discovered in the new architecture.`);
+		return;
+	}
+	
 	let apiContent = readFileSync(apiPath, "utf-8");
 
 	// Add import statement for the module

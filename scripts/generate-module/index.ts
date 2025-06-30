@@ -70,7 +70,6 @@ if (!/^[a-zA-Z][a-zA-Z0-9-]*$/.test(moduleName)) {
 
 const names = getNameVariations(moduleName);
 const paths = getPaths(names.kebab);
-const schemaName = values.schema || names.camel;
 
 if (existsSync(paths.base)) {
 	console.error(
@@ -85,10 +84,11 @@ updateApiRoutes(names);
 console.log(`\n🎆 Next Steps:`);
 console.log(`   1. Update the table definition in ${names.kebab}.table.ts`);
 console.log(`   2. Adjust the schemas in ${names.kebab}.schema.ts`);
-console.log(`   3. Run database migrations:`);
+console.log(`   3. Update test utilities in __tests__/${names.kebab}.test-utils.ts`);
+console.log(`   4. Run database migrations:`);
 console.log(`      bun run db:generate`);
 console.log(`      bun run db:push:local`);
-console.log(`   4. Update src/server/db/index.ts to include the ${names.camel} table`);
-console.log(`   5. Import the module in src/server/routes/api.ts`);
 console.log(`\n📚 See ${paths.base}/README.md for detailed documentation`);
 console.log(`\n🚀 Your module will be available at /api/${names.kebab}`);
+console.log(`\n✅ Tests are ready to run:`);
+console.log(`      bun test src/server/modules/${names.kebab}`);

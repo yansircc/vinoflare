@@ -10,6 +10,7 @@ import {
 	getIndexTemplate,
 	getReadmeTemplate,
 	getTestTemplate,
+	getTestUtilsTemplate,
 } from "./templates";
 import type { NameVariations, Paths } from "./utils";
 
@@ -18,6 +19,7 @@ export function generateModuleFiles(
 	names: NameVariations,
 ) {
 	mkdirSync(paths.base, { recursive: true });
+	mkdirSync(paths.testsDir, { recursive: true });
 
 	const indexPath = join(paths.base, "index.ts");
 
@@ -29,7 +31,10 @@ export function generateModuleFiles(
 	writeFileSync(paths.handlers, getHandlersTemplate(names));
 	writeFileSync(paths.openapi, getOpenAPITemplate(names));
 	writeFileSync(paths.routes, getRoutesTemplate(names));
+	
+	// Test files in __tests__ folder
 	writeFileSync(paths.test, getTestTemplate(names));
+	writeFileSync(paths.testUtils, getTestUtilsTemplate(names));
 	
 	// Generate README
 	const readmePath = join(paths.base, "README.md");
@@ -44,7 +49,9 @@ export function generateModuleFiles(
 	console.log(`   - ${paths.handlers}`);
 	console.log(`   - ${paths.openapi}`);
 	console.log(`   - ${paths.routes}`);
-	console.log(`   - ${paths.test}`);
+	console.log(`   - __tests__/`);
+	console.log(`     - ${names.kebab}.test.ts`);
+	console.log(`     - ${names.kebab}.test-utils.ts`);
 	console.log(`   - ${readmePath} 📚 Module documentation`);
 
 	console.log(`\n📋 CRUD Operations Generated:`);

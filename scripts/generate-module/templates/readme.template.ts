@@ -12,15 +12,17 @@ This is a self-contained module that follows the modular architecture pattern.
 
 \`\`\`
 ${kebab}/
-├── index.ts            # Module entry point and public API exports
-├── ${kebab}.table.ts     # Database table definition
-├── ${kebab}.schema.ts    # Zod validation schemas
-├── ${kebab}.types.ts     # TypeScript type definitions
-├── ${kebab}.handlers.ts  # Business logic handlers
-├── ${kebab}.routes.ts    # Route definitions
-├── ${kebab}.openapi.ts   # OpenAPI documentation
-├── ${kebab}.test.ts      # Unit tests
-└── README.md           # This file
+├── __tests__/
+│   ├── ${kebab}.test.ts       # Unit tests
+│   └── ${kebab}.test-utils.ts # Test utilities
+├── index.ts                   # Module entry point and public API exports
+├── ${kebab}.table.ts          # Database table definition
+├── ${kebab}.schema.ts         # Zod validation schemas
+├── ${kebab}.types.ts          # TypeScript type definitions
+├── ${kebab}.handlers.ts       # Business logic handlers
+├── ${kebab}.routes.ts         # Route definitions
+├── ${kebab}.openapi.ts        # OpenAPI documentation
+└── README.md                  # This file
 \`\`\`
 
 ## 🚀 Quick Start
@@ -80,30 +82,25 @@ Update the handlers in \`${kebab}.handlers.ts\`:
 
 Run tests with:
 \`\`\`bash
-bun test ${kebab}.test.ts
+bun test src/server/modules/${kebab}
 \`\`\`
+
+Tests are self-contained within the module:
+- \`__tests__/${kebab}.test.ts\` - Test cases
+- \`__tests__/${kebab}.test-utils.ts\` - Test utilities and setup
 
 ## 🔌 Integration Points
 
-### Database
-The table is automatically included in the database schema through:
-\`\`\`typescript
-// src/server/db/index.ts
-import { ${camel} } from "../modules/${kebab}";
-\`\`\`
-
-### API Routes
-Routes are registered through the module system:
-\`\`\`typescript
-// src/server/routes/api.ts
-import ${camel}Module from "../modules/${kebab}";
-\`\`\`
+### Automatic Discovery
+The module is automatically discovered and integrated:
+- Database tables are collected from the module's \`tables\` property
+- Routes are registered when the module is loaded
+- No manual registration needed!
 
 ### Type Exports
-For backward compatibility, types can be re-exported through:
+Types are available through the module's public API:
 \`\`\`typescript
-// src/server/types/index.ts
-export type { ${pascal}, Insert${pascal}, Update${pascal} } from "../modules/${kebab}";
+import type { ${pascal}, Insert${pascal}, Update${pascal} } from "@/server/modules/${kebab}";
 \`\`\`
 
 ## 📝 Notes

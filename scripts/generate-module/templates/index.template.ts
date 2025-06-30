@@ -6,6 +6,7 @@ export const getIndexTemplate = ({
 	kebab,
 }: NameVariations) => `import type { ModuleDefinition } from "../../core/module-loader";
 import { create${pascal}Module } from "./${kebab}.routes";
+import { ${camel} } from "./${kebab}.table";
 
 // Export all public APIs from this module
 export * from "./${kebab}.table";
@@ -23,6 +24,10 @@ const ${camel}Module: ModuleDefinition = {
 		version: "1.0.0",
 		tags: ["${pascal}"],
 		// Add security: ["public"] if you want this module to be publicly accessible
+	},
+	// Self-contained table definitions
+	tables: {
+		${camel},
 	},
 };
 

@@ -11,7 +11,7 @@ const {
 // Use better-sqlite driver for local development
 export default LOCAL_DB_PATH
 	? ({
-			schema: ["./src/server/db/tables/*", "./src/server/modules/*/*.table.ts"],
+			schema: "./src/server/modules/*/*.table.ts",
 			dialect: "sqlite",
 			dbCredentials: {
 				url: LOCAL_DB_PATH,
@@ -19,7 +19,7 @@ export default LOCAL_DB_PATH
 		} satisfies Config)
 	: defineConfig({
 			out: "./src/server/db/migrations",
-			schema: ["./src/server/db/tables/*", "./src/server/modules/*/*.table.ts"],
+			schema: "./src/server/modules/*/*.table.ts",
 			dialect: "sqlite",
 			driver: "d1-http",
 			dbCredentials: {
