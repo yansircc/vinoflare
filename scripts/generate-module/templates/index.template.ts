@@ -8,12 +8,9 @@ export const getIndexTemplate = ({
 import { create${pascal}Module } from "./${kebab}.routes";
 import { ${camel} } from "./${kebab}.table";
 
-// Export all public APIs from this module
-export * from "./${kebab}.table";
+// Export public APIs
 export * from "./${kebab}.schema";
-export * from "./${kebab}.types";
-export * from "./${kebab}.handlers";
-export * from "./${kebab}.openapi";
+export { ${camel} } from "./${kebab}.table";
 
 // Module definition
 const ${camel}Module: ModuleDefinition = {
@@ -23,9 +20,7 @@ const ${camel}Module: ModuleDefinition = {
 	metadata: {
 		version: "1.0.0",
 		tags: ["${pascal}"],
-		// Add security: ["public"] if you want this module to be publicly accessible
 	},
-	// Self-contained table definitions
 	tables: {
 		${camel},
 	},

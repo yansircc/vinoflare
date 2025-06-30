@@ -51,6 +51,8 @@ describe("${pascal} Module", () => {
 		expect(response.status).toBe(201);
 		const json = await response.json() as { ${camel}: any };
 		// Add your assertions here
+		expect(json.${camel}).toBeDefined();
+		expect(json.${camel}.name).toBe(${camel}Data.name);
 	});
 
 	it("should get a ${camel} by ID", async () => {

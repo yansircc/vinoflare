@@ -1,7 +1,6 @@
 #!/usr/bin/env bun
 import { existsSync } from "node:fs";
 import { parseArgs } from "node:util";
-import { updateApiRoutes } from "./api-updater";
 import { generateModuleFiles } from "./file-generator";
 import { getNameVariations, getPaths } from "./utils";
 
@@ -41,13 +40,10 @@ Examples:
   
 This will generate a self-contained module with:
   - Database table definition
-  - Zod validation schemas  
-  - TypeScript type definitions
+  - Zod validation schemas
   - CRUD handlers with error handling
-  - OpenAPI documentation
-  - Routes with validation
+  - Routes with validation and OpenAPI docs
   - Module configuration
-  - README with documentation
   - Test file structure
 `);
 	process.exit(0);
@@ -79,16 +75,12 @@ if (existsSync(paths.base)) {
 }
 
 generateModuleFiles(paths, names);
-updateApiRoutes(names);
 
 console.log(`\n🎆 Next Steps:`);
 console.log(`   1. Update the table definition in ${names.kebab}.table.ts`);
-console.log(`   2. Adjust the schemas in ${names.kebab}.schema.ts`);
-console.log(`   3. Update test utilities in __tests__/${names.kebab}.test-utils.ts`);
-console.log(`   4. Run database migrations:`);
+console.log(`   2. Run database migrations:`);
 console.log(`      bun run db:generate`);
 console.log(`      bun run db:push:local`);
-console.log(`\n📚 See ${paths.base}/README.md for detailed documentation`);
+console.log(`   3. Generate API client:`);
+console.log(`      bun run gen:api`);
 console.log(`\n🚀 Your module will be available at /api/${names.kebab}`);
-console.log(`\n✅ Tests are ready to run:`);
-console.log(`      bun test src/server/modules/${names.kebab}`);

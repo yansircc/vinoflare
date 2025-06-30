@@ -4,9 +4,9 @@ export const getRoutesTemplate = ({
 	pascal,
 	camel,
 	kebab,
-}: NameVariations) => `import { APIBuilder } from "@/server/lib/api-builder";
+}: NameVariations) => `import { StatusCodes } from "http-status-codes";
+import { APIBuilder } from "@/server/core/api-builder";
 import { database } from "@/server/middleware/database";
-import { insert${pascal}Schema, update${pascal}Schema } from "./${kebab}.schema";
 import {
 	getAll${pascal},
 	get${pascal}ById,
@@ -15,63 +15,95 @@ import {
 	delete${pascal},
 } from "./${kebab}.handlers";
 import {
-	getAll${pascal}OpenAPI,
-	get${pascal}ByIdOpenAPI,
-	create${pascal}OpenAPI,
-	update${pascal}OpenAPI,
-	delete${pascal}OpenAPI,
-} from "./${kebab}.openapi";
+	insert${pascal}Schema,
+	update${pascal}Schema,
+	${camel}IdSchema,
+	${camel}ResponseSchema,
+	${camel}ListResponseSchema,
+	${camel}DeleteResponseSchema,
+} from "./${kebab}.schema";
 
-export function create${pascal}Module() {
+export const create${pascal}Module = () => {
 	const builder = new APIBuilder({
 		middleware: [database()],
 	});
 
 	// Get all ${camel}
-	builder.addRoute({
-		method: "get",
-		path: "/",
-		handler: getAll${pascal},
-		openapi: getAll${pascal}OpenAPI,
-	});
+	builder
+		.get("/", getAll${pascal})
+		.summary("Get all ${camel}")
+		.description("Retrieves a list of all ${camel}")
+		.tags("${pascal}")
+		.security([{ bearerAuth: [] }])
+		.response(StatusCodes.OK, {
+			description: "${pascal} list retrieved successfully",
+			schema: ${camel}ListResponseSchema,
+		});
 
 	// Get ${camel} by ID
-	builder.addRoute({
-		method: "get",
-		path: "/:id",
-		handler: get${pascal}ById,
-		openapi: get${pascal}ByIdOpenAPI,
-	});
+	builder
+		.get("/:id", get${pascal}ById)
+		.summary("Get ${camel} by ID")
+		.description("Retrieves a specific ${camel} by its ID")
+		.tags("${pascal}")
+		.security([{ bearerAuth: [] }])
+		.params({ id: ${camel}IdSchema })
+		.response(StatusCodes.OK, {
+			description: "${pascal} retrieved successfully",
+			schema: ${camel}ResponseSchema,
+		})
+		.response(StatusCodes.NOT_FOUND, {
+			description: "${pascal} not found",
+		});
 
 	// Create new ${camel}
-	builder.addRoute({
-		method: "post",
-		path: "/",
-		validation: {
-			body: insert${pascal}Schema,
-		},
-		handler: create${pascal},
-		openapi: create${pascal}OpenAPI,
-	});
+	builder
+		.post("/", create${pascal})
+		.summary("Create new ${camel}")
+		.description("Creates a new ${camel} with the provided data")
+		.tags("${pascal}")
+		.security([{ bearerAuth: [] }])
+		.body(insert${pascal}Schema)
+		.response(StatusCodes.CREATED, {
+			description: "${pascal} created successfully",
+			schema: ${camel}ResponseSchema,
+		})
+		.response(StatusCodes.BAD_REQUEST, {
+			description: "Invalid request data",
+		});
 
 	// Update ${camel}
-	builder.addRoute({
-		method: "put",
-		path: "/:id",
-		validation: {
-			body: update${pascal}Schema,
-		},
-		handler: update${pascal},
-		openapi: update${pascal}OpenAPI,
-	});
+	builder
+		.put("/:id", update${pascal})
+		.summary("Update ${camel}")
+		.description("Updates an existing ${camel}")
+		.tags("${pascal}")
+		.security([{ bearerAuth: [] }])
+		.params({ id: ${camel}IdSchema })
+		.body(update${pascal}Schema)
+		.response(StatusCodes.OK, {
+			description: "${pascal} updated successfully",
+			schema: ${camel}ResponseSchema,
+		})
+		.response(StatusCodes.NOT_FOUND, {
+			description: "${pascal} not found",
+		});
 
 	// Delete ${camel}
-	builder.addRoute({
-		method: "delete",
-		path: "/:id",
-		handler: delete${pascal},
-		openapi: delete${pascal}OpenAPI,
-	});
+	builder
+		.delete("/:id", delete${pascal})
+		.summary("Delete ${camel}")
+		.description("Deletes a ${camel} by ID")
+		.tags("${pascal}")
+		.security([{ bearerAuth: [] }])
+		.params({ id: ${camel}IdSchema })
+		.response(StatusCodes.OK, {
+			description: "${pascal} deleted successfully",
+			schema: ${camel}DeleteResponseSchema,
+		})
+		.response(StatusCodes.NOT_FOUND, {
+			description: "${pascal} not found",
+		});
 
 	return builder;
 }`;

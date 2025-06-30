@@ -5,7 +5,6 @@ import { trimTrailingSlash } from "hono/trailing-slash";
 import type { BaseContext } from "../lib/worker-types";
 import { authGuard } from "../middleware/auth-guard";
 import { database } from "../middleware/database";
-import { trimSlash } from "../middleware/trim-slash";
 import { createDocsRoutes } from "../routes/docs";
 import { errorHandler } from "./error-handler";
 import type { ModuleDefinition } from "./module-loader";
@@ -38,7 +37,7 @@ export function createApp(options: AppFactoryOptions) {
 	}
 	if (options.middleware?.trimSlash) {
 		app.use(trimTrailingSlash());
-		app.use(trimSlash);
+		// Removed custom trimSlash middleware - trimTrailingSlash handles it properly
 	}
 
 	// Apply route-specific middleware

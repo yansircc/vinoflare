@@ -62,7 +62,11 @@ export function createDocsRoutes(modules: ModuleDefinition[]) {
 			// Merge paths with basePath prefix
 			if (moduleSpec.paths) {
 				for (const [path, pathItem] of Object.entries(moduleSpec.paths)) {
-					const fullPath = module.basePath + path;
+					let fullPath = module.basePath + path;
+					// Remove trailing slash for non-root paths
+					if (fullPath.endsWith("/") && fullPath.length > 1) {
+						fullPath = fullPath.slice(0, -1);
+					}
 					paths[fullPath] = pathItem;
 				}
 			}

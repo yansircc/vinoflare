@@ -2,13 +2,10 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import {
 	getHandlersTemplate,
-	getOpenAPITemplate,
 	getRoutesTemplate,
 	getTableTemplate,
 	getSchemaTemplate,
-	getTypesTemplate,
 	getIndexTemplate,
-	getReadmeTemplate,
 	getTestTemplate,
 	getTestUtilsTemplate,
 } from "./templates";
@@ -27,32 +24,23 @@ export function generateModuleFiles(
 	writeFileSync(indexPath, getIndexTemplate(names));
 	writeFileSync(join(paths.base, `${names.kebab}.table.ts`), getTableTemplate(names));
 	writeFileSync(join(paths.base, `${names.kebab}.schema.ts`), getSchemaTemplate(names));
-	writeFileSync(join(paths.base, `${names.kebab}.types.ts`), getTypesTemplate(names));
 	writeFileSync(paths.handlers, getHandlersTemplate(names));
-	writeFileSync(paths.openapi, getOpenAPITemplate(names));
 	writeFileSync(paths.routes, getRoutesTemplate(names));
 	
 	// Test files in __tests__ folder
 	writeFileSync(paths.test, getTestTemplate(names));
 	writeFileSync(paths.testUtils, getTestUtilsTemplate(names));
-	
-	// Generate README
-	const readmePath = join(paths.base, "README.md");
-	writeFileSync(readmePath, getReadmeTemplate(names));
 
 	console.log(`✅ Module "${names.kebab}" scaffolded successfully!`);
 	console.log(`📁 Created files:`);
 	console.log(`   - ${indexPath}`);
 	console.log(`   - ${names.kebab}.table.ts`);
 	console.log(`   - ${names.kebab}.schema.ts`);
-	console.log(`   - ${names.kebab}.types.ts`);
 	console.log(`   - ${paths.handlers}`);
-	console.log(`   - ${paths.openapi}`);
 	console.log(`   - ${paths.routes}`);
 	console.log(`   - __tests__/`);
 	console.log(`     - ${names.kebab}.test.ts`);
 	console.log(`     - ${names.kebab}.test-utils.ts`);
-	console.log(`   - ${readmePath} 📚 Module documentation`);
 
 	console.log(`\n📋 CRUD Operations Generated:`);
 	console.log(`   - GET    /api/${names.kebab}      - Get all ${names.camel}`);

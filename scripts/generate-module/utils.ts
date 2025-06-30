@@ -9,7 +9,6 @@ export interface NameVariations {
 export interface Paths {
 	base: string;
 	handlers: string;
-	openapi: string;
 	routes: string;
 	testsDir: string;
 	test: string;
@@ -29,7 +28,6 @@ export function getPaths(kebabCaseName: string): Paths {
 	return {
 		base,
 		handlers: join(base, `${kebabCaseName}.handlers.ts`),
-		openapi: join(base, `${kebabCaseName}.openapi.ts`),
 		routes: join(base, `${kebabCaseName}.routes.ts`),
 		testsDir,
 		test: join(testsDir, `${kebabCaseName}.test.ts`),

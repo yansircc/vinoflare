@@ -5,123 +5,134 @@ export const getHandlersTemplate = ({
 	camel,
 	kebab,
 }: NameVariations) => `import type { Context } from "hono";
+import { HTTPException } from "hono/http-exception";
+import { StatusCodes } from "http-status-codes";
 import { eq } from "drizzle-orm";
 import { ${camel} } from "./${kebab}.table";
-import type { BaseContext } from "@/server/lib/types";
-import type { Insert${pascal} } from "./${kebab}.types";
-import {
-	NotFoundError,
-	ValidationError,
-	ConflictError,
-} from "@/server/core/error-handler";
+import type { BaseContext } from "@/server/lib/worker-types";
+import type { Insert${pascal}, ${pascal}Id } from "./${kebab}.schema";
 
-/**
- * Get all ${camel}
- */
-export async function getAll${pascal}(c: Context<BaseContext>) {
+export const getAll${pascal} = async (c: Context<BaseContext>) => {
 	const db = c.get("db");
-	
-	// TODO: Add filtering, pagination, and sorting as needed
-	const ${camel}List = await db.select().from(${camel});
-	
-	return c.json({ ${camel}: ${camel}List });
-}
+	const ${camel}List = await db.query.${camel}.findMany({
+		orderBy: (${camel}, { desc }) => [desc(${camel}.id)],
+	});
 
-/**
- * Get ${camel} by ID
- */
-export async function get${pascal}ById(c: Context<BaseContext>) {
-	const db = c.get("db");
-	const id = Number(c.req.param("id"));
-	
-	if (isNaN(id)) {
-		throw new ValidationError("Invalid ID format");
+	return c.json({ ${camel}s: ${camel}List }, StatusCodes.OK);
+};
+
+export const get${pascal}ById = async (
+	c: Context<BaseContext>,
+	input: { params?: { id: ${pascal}Id } },
+) => {
+	const id = input.params?.id;
+	if (!id) {
+		throw new HTTPException(StatusCodes.BAD_REQUEST, {
+			message: "ID parameter is required",
+		});
 	}
 
-	const result = await db
-		.select()
-		.from(${camel})
-		.where(eq(${camel}.id, id))
-		.limit(1);
-
-	if (!result[0]) {
-		throw new NotFoundError("${pascal} not found");
-	}
-
-	return c.json({ ${kebab.includes('-') ? 'item' : camel}: result[0] });
-}
-
-/**
- * Create a new ${camel}
- */
-export async function create${pascal}(c: Context<BaseContext>) {
 	const db = c.get("db");
-	const data = await c.req.json() as Insert${pascal};
+	const ${camel} = await db.query.${camel}.findFirst({
+		where: (${camel}, { eq }) => eq(${camel}.id, id),
+	});
 
-	try {
-		// TODO: Add validation logic here
-		
-		const [new${pascal}] = await db
-			.insert(${camel})
-			.values(data)
-			.returning();
-
-		return c.json({ ${kebab.includes('-') ? 'item' : camel}: new${pascal} }, 201);
-	} catch (error) {
-		// Handle unique constraint violations
-		if (error instanceof Error && error.message.includes("UNIQUE")) {
-			throw new ConflictError("${pascal} already exists");
-		}
-		throw error;
+	if (!${camel}) {
+		throw new HTTPException(StatusCodes.NOT_FOUND, {
+			message: "${pascal} not found",
+		});
 	}
-}
 
-/**
- * Update ${camel} by ID
- */
-export async function update${pascal}(c: Context<BaseContext>) {
+	return c.json({ ${camel} }, StatusCodes.OK);
+};
+
+export const create${pascal} = async (
+	c: Context<BaseContext>,
+	input: { body?: Insert${pascal} },
+) => {
+	if (!input.body) {
+		throw new HTTPException(StatusCodes.BAD_REQUEST, {
+			message: "Request body is required",
+		});
+	}
+
 	const db = c.get("db");
-	const id = Number(c.req.param("id"));
-	const data = await c.req.json();
-	
-	if (isNaN(id)) {
-		throw new ValidationError("Invalid ID format");
+
+	// Create the ${camel}
+	const [new${pascal}] = await db
+		.insert(${camel})
+		.values(input.body)
+		.returning();
+
+	return c.json({ ${camel}: new${pascal} }, StatusCodes.CREATED);
+};
+
+export const update${pascal} = async (
+	c: Context<BaseContext>,
+	input: { params?: { id: ${pascal}Id }; body?: Partial<Insert${pascal}> },
+) => {
+	const id = input.params?.id;
+	if (!id) {
+		throw new HTTPException(StatusCodes.BAD_REQUEST, {
+			message: "ID parameter is required",
+		});
 	}
 
-	// TODO: Add validation and data transformation logic here
+	if (!input.body) {
+		throw new HTTPException(StatusCodes.BAD_REQUEST, {
+			message: "Request body is required",
+		});
+	}
 
+	const db = c.get("db");
+
+	// Check if exists
+	const existing = await db.query.${camel}.findFirst({
+		where: (${camel}, { eq }) => eq(${camel}.id, id),
+	});
+
+	if (!existing) {
+		throw new HTTPException(StatusCodes.NOT_FOUND, {
+			message: "${pascal} not found",
+		});
+	}
+
+	// Update the ${camel}
 	const [updated${pascal}] = await db
 		.update(${camel})
-		.set(data)
+		.set(input.body)
 		.where(eq(${camel}.id, id))
 		.returning();
 
-	if (!updated${pascal}) {
-		throw new NotFoundError("${pascal} not found");
+	return c.json({ ${camel}: updated${pascal} }, StatusCodes.OK);
+};
+
+export const delete${pascal} = async (
+	c: Context<BaseContext>,
+	input: { params?: { id: ${pascal}Id } },
+) => {
+	const id = input.params?.id;
+	if (!id) {
+		throw new HTTPException(StatusCodes.BAD_REQUEST, {
+			message: "ID parameter is required",
+		});
 	}
 
-	return c.json({ ${kebab.includes('-') ? 'item' : camel}: updated${pascal} });
-}
-
-/**
- * Delete ${camel} by ID
- */
-export async function delete${pascal}(c: Context<BaseContext>) {
 	const db = c.get("db");
-	const id = Number(c.req.param("id"));
-	
-	if (isNaN(id)) {
-		throw new ValidationError("Invalid ID format");
+
+	// Check if exists
+	const existing = await db.query.${camel}.findFirst({
+		where: (${camel}, { eq }) => eq(${camel}.id, id),
+	});
+
+	if (!existing) {
+		throw new HTTPException(StatusCodes.NOT_FOUND, {
+			message: "${pascal} not found",
+		});
 	}
 
-	const [deleted${pascal}] = await db
-		.delete(${camel})
-		.where(eq(${camel}.id, id))
-		.returning();
+	// Delete the ${camel}
+	await db.delete(${camel}).where(eq(${camel}.id, id));
 
-	if (!deleted${pascal}) {
-		throw new NotFoundError("${pascal} not found");
-	}
-
-	return c.json({ message: "${pascal} deleted successfully" });
-}`;
+	return c.json({ message: "${pascal} deleted successfully" }, StatusCodes.OK);
+};`;

@@ -8,62 +8,28 @@ export const getSchemaTemplate = ({
 import { z } from "zod/v4";
 import { ${camel} } from "./${kebab}.table";
 
-/**
- * Field validation schemas
- */
-const ${camel}IdSchema = z
+// ID validation for params
+export const ${camel}IdSchema = z.coerce
 	.number()
 	.int()
 	.positive()
 	.meta({ example: 1 })
-	.describe("Unique identifier of the ${camel}");
-
-const ${camel}NameSchema = z
+	.describe("${pascal} ID");
+export const ${camel}NameSchema = z
 	.string()
-	.min(1, "Name is required")
-	.max(255, "Name must be 255 characters or less")
-	.trim()
-	.meta({ example: "${pascal} Name" })
-	.describe("Name of the ${camel}");
+	.min(1)
+	.max(255)
+	.meta({ example: "John Doe" })
+	.describe("${pascal} name");
 
-const ${camel}DescriptionSchema = z
-	.string()
-	.max(1000, "Description must be 1000 characters or less")
-	.optional()
-	.nullable()
-	.meta({ example: "Description of the ${camel}" })
-	.describe("Description of the ${camel}");
-
-const ${camel}CreatedAtSchema = z
-	.iso
-	.datetime({ offset: true })
-	.meta({ example: "2024-01-01T00:00:00.000Z" })
-	.describe("Creation timestamp");
-
-const ${camel}UpdatedAtSchema = z
-	.iso
-	.datetime({ offset: true })
-	.meta({ example: "2024-01-01T00:00:00.000Z" })
-	.describe("Last update timestamp");
-
-/**
- * CRUD schemas
- */
+// Database schemas
 export const select${pascal}Schema = createSelectSchema(${camel}, {
 	id: ${camel}IdSchema,
 	name: ${camel}NameSchema,
-	description: ${camel}DescriptionSchema,
-	createdAt: ${camel}CreatedAtSchema,
-	updatedAt: ${camel}UpdatedAtSchema,
+	createdAt: z.iso.datetime({ offset: true }),
+	updatedAt: z.iso.datetime({ offset: true }),
 });
-
-export const insert${pascal}Schema = createInsertSchema(${camel}, {
-	name: ${camel}NameSchema,
-	description: ${camel}DescriptionSchema,
-})
-	.required({
-		name: true,
-	})
+export const insert${pascal}Schema = createInsertSchema(${camel})
 	.omit({
 		id: true,
 		createdAt: true,
@@ -72,11 +38,20 @@ export const insert${pascal}Schema = createInsertSchema(${camel}, {
 
 export const update${pascal}Schema = insert${pascal}Schema.partial();
 
-// Export individual field schemas for reuse
-export {
-	${camel}IdSchema,
-	${camel}NameSchema,
-	${camel}DescriptionSchema,
-	${camel}CreatedAtSchema,
-	${camel}UpdatedAtSchema,
-};`;
+export type Select${pascal} = z.infer<typeof select${pascal}Schema>;
+export type Insert${pascal} = z.infer<typeof insert${pascal}Schema>;
+export type Update${pascal} = z.infer<typeof update${pascal}Schema>;
+export type ${pascal}Id = z.infer<typeof ${camel}IdSchema>;
+
+// Response schemas for API endpoints
+export const ${camel}ResponseSchema = z.object({
+	${camel}: select${pascal}Schema,
+});
+
+export const ${camel}ListResponseSchema = z.object({
+	${camel}s: z.array(select${pascal}Schema),
+});
+
+export const ${camel}DeleteResponseSchema = z.object({
+	message: z.string(),
+});`;

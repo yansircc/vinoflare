@@ -1,14 +1,17 @@
 import { sql } from "drizzle-orm";
 import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 
-/**
- * Posts table definition
- * Self-contained within the posts module
- */
-export const posts = sqliteTable("posts", {
+export const todo = sqliteTable("todo", {
 	id: integer("id").primaryKey({ autoIncrement: true }),
-	title: text("title", { length: 255 }).notNull(),
-	// Using integer timestamps for consistency with other tables
+
+	// Core fields
+	title: text("title").notNull(),
+	completed: integer("completed", { mode: "boolean" }).notNull().default(false),
+
+	// User association
+	userId: text("user_id").notNull(),
+
+	// Timestamps
 	createdAt: integer("created_at", { mode: "timestamp" })
 		.notNull()
 		.default(sql`(unixepoch())`),

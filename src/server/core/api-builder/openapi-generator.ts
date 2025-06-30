@@ -11,7 +11,8 @@ export class OpenAPIGenerator {
 		for (const route of this.routes) {
 			if (!route.openapi) continue;
 
-			const path = route.path;
+			// Convert Hono's :param format to OpenAPI {param} format
+			const path = route.path.replace(/:([a-zA-Z_][a-zA-Z0-9_]*)/g, "{$1}");
 			if (!paths[path]) {
 				paths[path] = {};
 			}

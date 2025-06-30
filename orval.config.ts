@@ -8,11 +8,9 @@ export default defineConfig({
 			target: "./src/generated/endpoints",
 			schemas: "./src/generated/schemas",
 			client: "react-query",
+			httpClient: "fetch",
+			baseUrl: "/api",
 			override: {
-				mutator: {
-					path: "./src/client/hooks/api/custom-instance.ts",
-					name: "customInstance",
-				},
 				query: {
 					useQuery: true,
 					useMutation: true,
