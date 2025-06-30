@@ -55,7 +55,8 @@ export const authGuard = createMiddleware<BaseContext>(async (c, next) => {
 	}
 
 	// Check authentication
-	const session = await createAuth(c.env, c.req.raw.url).api.getSession({
+	const auth = await createAuth(c.env, c.req.raw.url);
+	const session = await auth.api.getSession({
 		headers: c.req.raw.headers,
 	});
 

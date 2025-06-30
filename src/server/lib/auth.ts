@@ -1,10 +1,13 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { bearer, jwt } from "better-auth/plugins";
-import { createDb } from "@/server/db";
+import { loadModules } from "@/server/core/module-loader";
+import { createModularDb } from "@/server/db/modular";
 
-export function createAuth(c: CloudflareBindings, baseURL: string) {
-	const db = createDb(c.DB);
+export async function createAuth(c: CloudflareBindings, baseURL: string) {
+	// Load modules to get their table definitions
+	const modules = await loadModules();
+	const db = createModularDb(c.DB, modules);
 
 	return betterAuth({
 		database: drizzleAdapter(db, {

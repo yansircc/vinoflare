@@ -34,6 +34,11 @@ async function createMainApp() {
 
 	// Create and mount API app with dynamic module loading
 	const modules = await loadModules();
+
+	// Register modules for database middleware
+	const { ModuleRegistry } = await import("@/server/db/modular");
+	ModuleRegistry.register(modules);
+
 	const apiApp = createApp({
 		modules,
 		includeDocs: true,

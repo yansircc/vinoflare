@@ -1,4 +1,7 @@
 import { Hono } from "hono";
+import { OpenAPIGenerator } from "./openapi-generator";
+import { RouteBuilder } from "./route-builder";
+import { createHandler } from "./route-handler";
 import type {
 	APIBuilderOptions,
 	HTTPMethod,
@@ -6,12 +9,9 @@ import type {
 	RouteDefinition,
 	RouteHandler as RouteHandlerType,
 } from "./types";
-import { RouteBuilder } from "./route-builder";
-import { RouteHandler } from "./route-handler";
-import { OpenAPIGenerator } from "./openapi-generator";
 
-export * from "./types";
 export { RouteBuilder } from "./route-builder";
+export * from "./types";
 
 export class APIBuilder {
 	private app: Hono;
@@ -78,12 +78,9 @@ export class APIBuilder {
 		definition: RouteDefinition<TBody, TParams, TQuery>,
 	) {
 		this.routes.push(definition);
-		
-		const handler = RouteHandler.createHandler(
-			definition,
-			this.options.errorHandler,
-		);
-		
+
+		const handler = createHandler(definition, this.options.errorHandler);
+
 		(this.app as any)[definition.method](definition.path, handler);
 	}
 

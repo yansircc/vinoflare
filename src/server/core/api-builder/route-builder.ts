@@ -24,7 +24,10 @@ export class RouteBuilder<TBody = any, TParams = any, TQuery = any> {
 		};
 	}
 
-	input<T>(schema: z.ZodType<T>, type: "body" | "params" | "query"): RouteBuilder<any, any, any> {
+	input<T>(
+		schema: z.ZodType<T>,
+		type: "body" | "params" | "query",
+	): RouteBuilder<any, any, any> {
 		switch (type) {
 			case "body":
 				this.definition.validation!.body = schema;
@@ -48,7 +51,7 @@ export class RouteBuilder<TBody = any, TParams = any, TQuery = any> {
 		schema: T | z.ZodObject<T>,
 	): RouteBuilder<TBody, any, TQuery> {
 		// If it's already a ZodType, use it directly
-		if (schema && typeof schema === 'object' && 'parse' in schema) {
+		if (schema && typeof schema === "object" && "parse" in schema) {
 			this.definition.validation!.params = schema as z.ZodType<any>;
 		} else {
 			// Otherwise, wrap the schema definition in z.object()
@@ -61,7 +64,7 @@ export class RouteBuilder<TBody = any, TParams = any, TQuery = any> {
 		schema: T | z.ZodObject<T>,
 	): RouteBuilder<TBody, TParams, any> {
 		// If it's already a ZodType, use it directly
-		if (schema && typeof schema === 'object' && 'parse' in schema) {
+		if (schema && typeof schema === "object" && "parse" in schema) {
 			this.definition.validation!.query = schema as z.ZodType<any>;
 		} else {
 			// Otherwise, wrap the schema definition in z.object()
@@ -89,7 +92,10 @@ export class RouteBuilder<TBody = any, TParams = any, TQuery = any> {
 		return this;
 	}
 
-	response(statusCode: number, options: { description: string; schema?: z.ZodType<any> }): this {
+	response(
+		statusCode: number,
+		options: { description: string; schema?: z.ZodType<any> },
+	): this {
 		if (!this.definition.responses) {
 			this.definition.responses = [];
 		}

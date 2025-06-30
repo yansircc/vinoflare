@@ -1,5 +1,6 @@
 import type { ModuleDefinition } from "../../core/module-loader";
 import { createPostsModule } from "./posts.routes";
+import { posts } from "./posts.table";
 
 export * from "./posts.handlers";
 export * from "./posts.schema";
@@ -15,6 +16,10 @@ const postsModule: ModuleDefinition = {
 		version: "1.0.0",
 		tags: ["Posts"],
 		security: ["public", "authenticated"],
+	},
+	// Self-contained table definitions
+	tables: {
+		posts,
 	},
 };
 

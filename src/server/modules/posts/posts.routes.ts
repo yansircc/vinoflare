@@ -6,7 +6,11 @@ import {
 	getLatestPostHandler,
 	getPostByIdHandler,
 } from "./posts.handlers";
-import { insertPostSchema, postIdSchema, postResponseSchema } from "./posts.schema";
+import {
+	insertPostSchema,
+	postIdSchema,
+	postResponseSchema,
+} from "./posts.schema";
 
 export const createPostsModule = () => {
 	const builder = new APIBuilder({
@@ -20,9 +24,9 @@ export const createPostsModule = () => {
 		.description("Retrieves the most recent post")
 		.tags("Post")
 		.security([{ bearerAuth: [] }])
-		.response(StatusCodes.OK, { 
-			description: "Post retrieved successfully", 
-			schema: postResponseSchema 
+		.response(StatusCodes.OK, {
+			description: "Post retrieved successfully",
+			schema: postResponseSchema,
 		})
 		.response(StatusCodes.BAD_REQUEST, {
 			description: "Bad request",
@@ -39,15 +43,15 @@ export const createPostsModule = () => {
 		.tags("Post")
 		.security([{ bearerAuth: [] }])
 		.body(insertPostSchema)
-		.response(StatusCodes.CREATED, { 
-			description: "Post created successfully", 
-			schema: postResponseSchema 
+		.response(StatusCodes.CREATED, {
+			description: "Post created successfully",
+			schema: postResponseSchema,
 		})
-		.response(StatusCodes.BAD_REQUEST, { 
-			description: "Invalid request - missing or invalid title" 
+		.response(StatusCodes.BAD_REQUEST, {
+			description: "Invalid request - missing or invalid title",
 		})
-		.response(StatusCodes.CONFLICT, { 
-			description: "Post with this title already exists" 
+		.response(StatusCodes.CONFLICT, {
+			description: "Post with this title already exists",
 		});
 
 	// Get post by ID - now with proper param validation
@@ -58,15 +62,15 @@ export const createPostsModule = () => {
 		.tags("Post")
 		.security([{ bearerAuth: [] }])
 		.params({ id: postIdSchema })
-		.response(StatusCodes.OK, { 
-			description: "Post retrieved successfully", 
-			schema: postResponseSchema 
+		.response(StatusCodes.OK, {
+			description: "Post retrieved successfully",
+			schema: postResponseSchema,
 		})
-		.response(StatusCodes.BAD_REQUEST, { 
-			description: "Invalid ID parameter" 
+		.response(StatusCodes.BAD_REQUEST, {
+			description: "Invalid ID parameter",
 		})
-		.response(StatusCodes.NOT_FOUND, { 
-			description: "Post not found" 
+		.response(StatusCodes.NOT_FOUND, {
+			description: "Post not found",
 		});
 
 	return builder;

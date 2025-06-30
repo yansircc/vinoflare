@@ -6,7 +6,7 @@ import type { BaseContext } from "@/server/lib/worker-types";
 
 // Export Auth handler from better-auth
 export const authHandler = async (c: Context<BaseContext>) => {
-	const auth = createAuth(c.env, new URL(c.req.url).origin);
+	const auth = await createAuth(c.env, new URL(c.req.url).origin);
 	return auth.handler(c.req.raw);
 };
 

@@ -1,3 +1,4 @@
+import type { InferInsertModel, InferSelectModel } from "drizzle-orm";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 import { account, jwks, session, user, verification } from "./auth.table";
@@ -90,3 +91,18 @@ export const verifyEmailSchema = z.object({
 export const userResponseSchema = z.object({
 	user: selectUserSchema,
 });
+
+/**
+ * User types
+ */
+export type User = InferSelectModel<typeof user>;
+export type InsertUser = InferInsertModel<typeof user>;
+export type UpdateUser = z.infer<typeof updateUserSchema>;
+export type SelectUser = z.infer<typeof selectUserSchema>;
+
+/**
+ * Session types
+ */
+export type Session = InferSelectModel<typeof session>;
+export type InsertSession = InferInsertModel<typeof session>;
+export type SelectSession = z.infer<typeof selectSessionSchema>;

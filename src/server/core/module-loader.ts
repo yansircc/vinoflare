@@ -10,6 +10,7 @@ export interface ModuleDefinition {
 	basePath: string;
 	createModule: () => any; // Returns an APIBuilder instance
 	metadata?: ModuleMetadata;
+	tables?: Record<string, any>; // Module's table definitions for Drizzle
 }
 
 /**
@@ -77,4 +78,21 @@ export function collectModulePaths(
 	}
 
 	return paths;
+}
+
+/**
+ * Collect all table definitions from modules
+ */
+export function collectModuleTables(
+	modules: ModuleDefinition[],
+): Record<string, any> {
+	const tables: Record<string, any> = {};
+
+	for (const module of modules) {
+		if (module.tables) {
+			Object.assign(tables, module.tables);
+		}
+	}
+
+	return tables;
 }

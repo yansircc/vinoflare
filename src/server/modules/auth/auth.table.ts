@@ -3,6 +3,7 @@ import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 
 /**
  * Authentication-related tables required by Better Auth
+ * Self-contained within the auth module
  */
 
 // User table

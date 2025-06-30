@@ -3,7 +3,7 @@ import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 
 /**
  * Posts table definition
- * This is now self-contained within the posts module
+ * Self-contained within the posts module
  */
 export const posts = sqliteTable("posts", {
 	id: integer("id").primaryKey({ autoIncrement: true }),
