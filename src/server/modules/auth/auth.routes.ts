@@ -1,5 +1,5 @@
 import { StatusCodes } from "http-status-codes";
-import { APIBuilder } from "@/server/lib/api-builder";
+import { APIBuilder } from "@/server/core/api-builder";
 import { authHandler, getCurrentUserHandler } from "./auth.handlers";
 import { userResponseSchema } from "./auth.schema";
 

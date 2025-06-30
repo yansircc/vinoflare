@@ -1,5 +1,5 @@
 import { StatusCodes } from "http-status-codes";
-import { APIBuilder } from "@/server/lib/api-builder";
+import { APIBuilder } from "@/server/core/api-builder";
 import { database } from "@/server/middleware/database";
 import {
 	createPostHandler,
