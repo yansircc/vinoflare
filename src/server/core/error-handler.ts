@@ -31,22 +31,25 @@ interface ErrorResponse {
 export function errorHandler(err: Error, c: Context): Response {
 	const timestamp = new Date().toISOString();
 	const path = c.req.path;
+	const method = c.req.method;
 
 	// Handle Hono HTTPException
 	if (err instanceof HTTPException) {
+		const errorCode = (err as any).cause?.code || getErrorCode(err.status);
+		
+		// Log the error
+		console.error(
+			`[ERROR] ${timestamp} ${method} ${path} ${err.status} - ${errorCode}: ${err.message}`
+		);
+		
 		const response: ErrorResponse = {
 			error: {
-				code: getErrorCode(err.status),
+				code: errorCode,
 				message: err.message,
 				timestamp,
 				path,
 			},
 		};
-
-		// Include cause if it has a code property
-		if ((err as any).cause?.code) {
-			response.error.code = (err as any).cause.code;
-		}
 
 		// Include details in non-production environments
 		if (c.env?.ENVIRONMENT !== "production" && (err as any).cause) {
@@ -58,6 +61,11 @@ export function errorHandler(err: Error, c: Context): Response {
 
 	// Handle API errors
 	if (err instanceof APIError) {
+		// Log the error
+		console.error(
+			`[ERROR] ${timestamp} ${method} ${path} ${err.statusCode} - ${err.code}: ${err.message}`
+		);
+		
 		const response: ErrorResponse = {
 			error: {
 				code: err.code,
@@ -77,6 +85,13 @@ export function errorHandler(err: Error, c: Context): Response {
 
 	// Handle Zod validation errors
 	if (err instanceof ZodError) {
+		// Log the error with first validation issue
+		const firstIssue = err.issues[0];
+		const errorMessage = firstIssue ? `${firstIssue.path.join('.')}: ${firstIssue.message}` : "Invalid request data";
+		console.error(
+			`[ERROR] ${timestamp} ${method} ${path} ${StatusCodes.BAD_REQUEST} - VALIDATION_ERROR: ${errorMessage}`
+		);
+		
 		const response: ErrorResponse = {
 			error: {
 				code: "VALIDATION_ERROR",
@@ -94,7 +109,14 @@ export function errorHandler(err: Error, c: Context): Response {
 	}
 
 	// Handle unknown errors
-	console.error("Unhandled error:", err);
+	console.error(
+		`[ERROR] ${timestamp} ${method} ${path} ${StatusCodes.INTERNAL_SERVER_ERROR} - INTERNAL_SERVER_ERROR: ${err.message || "An unexpected error occurred"}`
+	);
+	
+	// Log stack trace in development
+	if (c.env?.ENVIRONMENT === "development" && err.stack) {
+		console.error("[STACK TRACE]", err.stack);
+	}
 
 	const response: ErrorResponse = {
 		error: {
