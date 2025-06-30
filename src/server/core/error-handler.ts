@@ -15,36 +15,6 @@ export class APIError extends Error {
 	}
 }
 
-export class ValidationError extends APIError {
-	constructor(message: string, details?: unknown) {
-		super("VALIDATION_ERROR", message, StatusCodes.BAD_REQUEST, details);
-	}
-}
-
-export class AuthenticationError extends APIError {
-	constructor(message = "Authentication required") {
-		super("AUTHENTICATION_ERROR", message, StatusCodes.UNAUTHORIZED);
-	}
-}
-
-export class AuthorizationError extends APIError {
-	constructor(message = "Insufficient permissions") {
-		super("AUTHORIZATION_ERROR", message, StatusCodes.FORBIDDEN);
-	}
-}
-
-export class NotFoundError extends APIError {
-	constructor(resource: string) {
-		super("NOT_FOUND", `${resource} not found`, StatusCodes.NOT_FOUND);
-	}
-}
-
-export class ConflictError extends APIError {
-	constructor(message: string) {
-		super("CONFLICT", message, StatusCodes.CONFLICT);
-	}
-}
-
 interface ErrorResponse {
 	error: {
 		code: string;

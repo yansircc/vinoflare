@@ -163,11 +163,62 @@ export class OpenAPIGenerator {
 	private convertSchema(schema: any): any {
 		if (schema?._def) {
 			try {
-				return toJSONSchema(schema);
+				const jsonSchema = toJSONSchema(schema);
+				// Clean up the schema for OpenAPI 3.0 compatibility
+				return this.cleanupSchema(jsonSchema);
 			} catch {
 				return { type: "object" };
 			}
 		}
 		return schema;
+	}
+
+	private cleanupSchema(schema: any): any {
+		if (!schema || typeof schema !== "object") {
+			return schema;
+		}
+
+		// Create a new object to avoid mutating the original
+		const cleaned: any = {};
+
+		for (const [key, value] of Object.entries(schema)) {
+			// Remove $schema property (not allowed in OpenAPI)
+			if (key === "$schema") {
+				continue;
+			}
+
+			// Fix exclusiveMinimum/exclusiveMaximum for OpenAPI 3.0
+			if (key === "exclusiveMinimum" && typeof value === "number") {
+				cleaned.minimum = value;
+				cleaned.exclusiveMinimum = true;
+				continue;
+			}
+			if (key === "exclusiveMaximum" && typeof value === "number") {
+				cleaned.maximum = value;
+				cleaned.exclusiveMaximum = true;
+				continue;
+			}
+
+			// Remove additionalProperties if false (can cause issues with some tools)
+			if (key === "additionalProperties" && value === false) {
+				continue;
+			}
+
+			// Recursively clean nested schemas
+			if (key === "properties" && typeof value === "object") {
+				cleaned[key] = {};
+				for (const [propKey, propValue] of Object.entries(value)) {
+					cleaned[key][propKey] = this.cleanupSchema(propValue);
+				}
+			} else if (key === "items") {
+				cleaned[key] = this.cleanupSchema(value);
+			} else if (key === "oneOf" || key === "anyOf" || key === "allOf") {
+				cleaned[key] = (value as any[]).map(v => this.cleanupSchema(v));
+			} else {
+				cleaned[key] = value;
+			}
+		}
+
+		return cleaned;
 	}
 }

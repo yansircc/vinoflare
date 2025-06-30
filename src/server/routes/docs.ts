@@ -1,7 +1,7 @@
 import { Scalar } from "@scalar/hono-api-reference";
 import { Hono } from "hono";
+import type { APIBuilder } from "../core/api-builder";
 import type { ModuleDefinition } from "../core/module-loader";
-import { createOpenAPIHandler } from "../core/openapi-generator";
 
 /**
  * Create documentation routes with inline configuration
@@ -11,12 +11,15 @@ export function createDocsRoutes(modules: ModuleDefinition[]) {
 
 	// OpenAPI specification configuration
 	const openAPIConfig = {
-		title: "Vinoflare API",
-		version: "1.0.0",
-		description: "REST API for Vinoflare application",
-		contact: {
-			name: "API Support",
-			email: "support@vinoflare.com",
+		openapi: "3.0.0",
+		info: {
+			title: "Vinoflare API",
+			version: "1.0.0",
+			description: "REST API for Vinoflare application",
+			contact: {
+				name: "API Support",
+				email: "support@vinoflare.com",
+			},
 		},
 		servers: [
 			{
@@ -24,10 +27,61 @@ export function createDocsRoutes(modules: ModuleDefinition[]) {
 				description: "API Server",
 			},
 		],
+		components: {
+			securitySchemes: {
+				bearerAuth: {
+					type: "http",
+					scheme: "bearer",
+					bearerFormat: "JWT",
+				},
+			},
+		},
+		tags: [],
+		paths: {},
 	};
 
 	// OpenAPI JSON endpoint
-	app.get("/openapi.json", createOpenAPIHandler(modules, openAPIConfig));
+	app.get("/openapi.json", (c) => {
+		// Collect OpenAPI paths from all modules
+		const paths: Record<string, any> = {};
+		const tags = new Set<string>();
+
+		for (const module of modules) {
+			// Create module instance to get APIBuilder
+			const apiBuilder = module.createModule() as APIBuilder;
+
+			// Generate OpenAPI spec for this module
+			const moduleSpec = apiBuilder.generateOpenAPISpec({
+				title: openAPIConfig.info.title,
+				version: openAPIConfig.info.version,
+				description: openAPIConfig.info.description,
+				servers: openAPIConfig.servers,
+				contact: openAPIConfig.info.contact,
+			});
+
+			// Merge paths with basePath prefix
+			if (moduleSpec.paths) {
+				for (const [path, pathItem] of Object.entries(moduleSpec.paths)) {
+					const fullPath = module.basePath + path;
+					paths[fullPath] = pathItem;
+				}
+			}
+
+			// Collect tags
+			if (module.metadata?.tags) {
+				module.metadata.tags.forEach((tag) => tags.add(tag));
+			}
+		}
+
+		// Build final OpenAPI spec
+		const spec = {
+			...openAPIConfig,
+			paths,
+			tags: Array.from(tags).map((name) => ({ name })),
+		};
+
+		return c.json(spec);
+	});
 
 	// Scalar API Reference UI with inline configuration
 	app.get(
@@ -40,7 +94,7 @@ export function createDocsRoutes(modules: ModuleDefinition[]) {
 				targetKey: "js",
 				clientKey: "fetch",
 			},
-		} as any),
+		}),
 	);
 
 	// Redirect root to docs
