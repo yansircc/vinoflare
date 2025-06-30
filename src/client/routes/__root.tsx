@@ -26,7 +26,7 @@ function RootComponent() {
 					unstyled: true,
 					classNames: {
 						toast:
-							"bg-white border border-gray-200 p-4 flex items-center gap-3",
+							"bg-white border border-gray-200 p-4 flex items-center gap-3 w-full",
 						title: "text-sm",
 						description: "text-sm text-gray-600",
 						actionButton: "text-sm text-gray-900 hover:text-gray-700",
