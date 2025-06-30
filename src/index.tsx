@@ -34,7 +34,6 @@ async function createMainApp() {
 			logger: true,
 			trimSlash: true,
 		},
-		basePath: "/api",
 		includeDocs: true,
 		includeHealthCheck: true,
 	});
@@ -42,10 +41,22 @@ async function createMainApp() {
 	app.route("/api", apiApp);
 
 	// Frontend routes (React SPA) - must be after API routes
-	app.use(renderer);
+	// Only use renderer for non-API routes
+	app.use("*", async (c, next) => {
+		// Skip renderer for API routes
+		if (c.req.path.startsWith("/api/")) {
+			return next();
+		}
+		return renderer(c, next);
+	});
 
 	// Handle all frontend routes (React Router will take over)
-	app.get("/*", (c) => {
+	// Exclude API routes explicitly
+	app.get("*", (c) => {
+		// This should only handle non-API routes
+		if (c.req.path.startsWith("/api/")) {
+			return c.notFound();
+		}
 		return c.render(<div id="root" />);
 	});
 

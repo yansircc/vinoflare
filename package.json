@@ -9,7 +9,7 @@
     "typecheck": "tsc --noEmit",
     "gen:routes": "tsr generate",
     "gen:types": "wrangler types --env-interface CloudflareBindings",
-    "gen:api": "bun scripts/generate-openapi-dynamic.ts && bun orval --config orval.config.ts",
+    "gen:api": "bun scripts/generate-openapi.ts && bun orval --config orval.config.ts",
     "gen:module": "bun scripts/generate-module/index.ts",
     "db:generate": "drizzle-kit generate",
     "db:push:local": "wrangler d1 migrations apply DB --local",
