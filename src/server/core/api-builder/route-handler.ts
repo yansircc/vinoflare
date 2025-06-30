@@ -28,7 +28,10 @@ export function createHandler<TBody, TParams, TQuery>(
 				if (!result.success) {
 					throw new HTTPException(400, {
 						message: "Validation failed",
-						cause: result.error.flatten(),
+						cause: {
+							code: "BAD_REQUEST",
+							issues: result.error.issues,
+						},
 					});
 				}
 				input.body = result.data;
@@ -41,7 +44,10 @@ export function createHandler<TBody, TParams, TQuery>(
 				if (!result.success) {
 					throw new HTTPException(400, {
 						message: "Invalid path parameters",
-						cause: result.error.flatten(),
+						cause: {
+							code: "BAD_REQUEST",
+							issues: result.error.issues,
+						},
 					});
 				}
 				input.params = result.data;
@@ -55,7 +61,10 @@ export function createHandler<TBody, TParams, TQuery>(
 				if (!result.success) {
 					throw new HTTPException(400, {
 						message: "Invalid query parameters",
-						cause: result.error.flatten(),
+						cause: {
+							code: "BAD_REQUEST",
+							issues: result.error.issues,
+						},
 					});
 				}
 				input.query = result.data;
