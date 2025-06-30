@@ -18,8 +18,7 @@ export const user = sqliteTable("user", {
 		.notNull(),
 	updatedAt: integer("updatedAt", { mode: "timestamp" })
 		.default(sql`(CURRENT_TIMESTAMP)`)
-		.notNull()
-		.$onUpdate(() => sql`(CURRENT_TIMESTAMP)`),
+		.notNull(),
 });
 
 // Session table
@@ -37,8 +36,7 @@ export const session = sqliteTable("session", {
 		.notNull(),
 	updatedAt: integer("updatedAt", { mode: "timestamp" })
 		.default(sql`(CURRENT_TIMESTAMP)`)
-		.notNull()
-		.$onUpdate(() => sql`(CURRENT_TIMESTAMP)`),
+		.notNull(),
 });
 
 // Account table for OAuth providers
@@ -63,8 +61,7 @@ export const account = sqliteTable("account", {
 		.notNull(),
 	updatedAt: integer("updatedAt", { mode: "timestamp" })
 		.default(sql`(CURRENT_TIMESTAMP)`)
-		.notNull()
-		.$onUpdate(() => sql`(CURRENT_TIMESTAMP)`),
+		.notNull(),
 });
 
 // Verification table for email verification, password reset, etc.
@@ -77,8 +74,7 @@ export const verification = sqliteTable("verification", {
 		sql`(CURRENT_TIMESTAMP)`,
 	),
 	updatedAt: integer("updatedAt", { mode: "timestamp" })
-		.default(sql`(CURRENT_TIMESTAMP)`)
-		.$onUpdate(() => sql`(CURRENT_TIMESTAMP)`),
+		.default(sql`(CURRENT_TIMESTAMP)`),
 });
 
 // JWKS table for JWT plugin

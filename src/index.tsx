@@ -27,6 +27,7 @@ async function createMainApp() {
 
 	const apiApp = createApp({
 		modules,
+		basePath: "",
 		middleware: {
 			database: true,
 			auth: true,

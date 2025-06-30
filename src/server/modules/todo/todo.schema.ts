@@ -32,6 +32,7 @@ export const selectTodoSchema = createSelectSchema(todo, {
 });
 export const insertTodoSchema = createInsertSchema(todo).omit({
 	id: true,
+	userId: true, // userId is set automatically from authenticated user
 	createdAt: true,
 	updatedAt: true,
 });
@@ -50,8 +51,4 @@ export const todoResponseSchema = z.object({
 
 export const todoListResponseSchema = z.object({
 	todos: z.array(selectTodoSchema),
-});
-
-export const todoDeleteResponseSchema = z.object({
-	message: z.string(),
 });

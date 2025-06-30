@@ -41,16 +41,16 @@ export function createApp(options: AppFactoryOptions) {
 	}
 
 	// Apply route-specific middleware
-	if (
-		options.basePath &&
-		(options.middleware?.database || options.middleware?.auth)
-	) {
-		const apiPath = `${options.basePath}/*`;
+	if (options.middleware?.database || options.middleware?.auth) {
+		// If basePath is provided, apply middleware to that path
+		// Otherwise apply to all routes
+		const middlewarePath = options.basePath ? `${options.basePath}/*` : "*";
+
 		if (options.middleware?.database) {
-			app.use(apiPath, database());
+			app.use(middlewarePath, database());
 		}
 		if (options.middleware?.auth) {
-			app.use(apiPath, authGuard);
+			app.use(middlewarePath, authGuard);
 		}
 	}
 

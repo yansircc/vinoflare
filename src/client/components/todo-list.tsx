@@ -6,7 +6,6 @@ import {
 	colors,
 	divider,
 	focus,
-	focusVariants,
 	form,
 	interactive,
 	layout,
@@ -68,7 +67,6 @@ export function TodoList() {
 		createTodo.mutate({
 			data: {
 				title: title.trim(),
-				userId: "demo-user",
 			},
 		});
 	};
@@ -149,7 +147,7 @@ export function TodoList() {
 										todo.completed
 											? form.checkbox.checked
 											: form.checkbox.unchecked,
-										focusVariants.checkbox,
+										focus,
 										updateTodo.isPending && states.pending,
 									)}
 									disabled={updateTodo.isPending}

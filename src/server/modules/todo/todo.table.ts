@@ -17,6 +17,5 @@ export const todo = sqliteTable("todo", {
 		.default(sql`(unixepoch())`),
 	updatedAt: integer("updated_at", { mode: "timestamp" })
 		.notNull()
-		.default(sql`(unixepoch())`)
-		.$onUpdate(() => new Date()),
+		.default(sql`(unixepoch())`),
 });

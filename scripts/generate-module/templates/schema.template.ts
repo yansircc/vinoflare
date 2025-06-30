@@ -32,6 +32,7 @@ export const select${pascal}Schema = createSelectSchema(${camel}, {
 export const insert${pascal}Schema = createInsertSchema(${camel})
 	.omit({
 		id: true,
+		userId: true, // userId is set automatically from authenticated user
 		createdAt: true,
 		updatedAt: true,
 	});
@@ -50,8 +51,4 @@ export const ${camel}ResponseSchema = z.object({
 
 export const ${camel}ListResponseSchema = z.object({
 	${camel}s: z.array(select${pascal}Schema),
-});
-
-export const ${camel}DeleteResponseSchema = z.object({
-	message: z.string(),
 });`;

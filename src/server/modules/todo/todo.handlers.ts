@@ -8,10 +8,21 @@ import { todo } from "./todo.table";
 
 export const getAllTodo = async (c: Context<BaseContext>) => {
 	const db = c.get("db");
+	const user = c.get("user");
+
+	if (!user) {
+		throw new HTTPException(StatusCodes.UNAUTHORIZED, {
+			message: "User not authenticated",
+		});
+	}
+
+	// Only return todos for the current user
 	const todoList = await db.query.todo.findMany({
+		where: (todo, { eq }) => eq(todo.userId, user.id),
 		orderBy: (todo, { desc }) => [desc(todo.id)],
 	});
 
+	// Always return 200 with array (empty array if no todos)
 	return c.json({ todos: todoList }, StatusCodes.OK);
 };
 
@@ -27,17 +38,26 @@ export const getTodoById = async (
 	}
 
 	const db = c.get("db");
-	const todo = await db.query.todo.findFirst({
-		where: (todo, { eq }) => eq(todo.id, id),
+	const user = c.get("user");
+
+	if (!user) {
+		throw new HTTPException(StatusCodes.UNAUTHORIZED, {
+			message: "User not authenticated",
+		});
+	}
+
+	const todoItem = await db.query.todo.findFirst({
+		where: (todo, { and, eq }) =>
+			and(eq(todo.id, id), eq(todo.userId, user.id)),
 	});
 
-	if (!todo) {
+	if (!todoItem) {
 		throw new HTTPException(StatusCodes.NOT_FOUND, {
 			message: "Todo not found",
 		});
 	}
 
-	return c.json({ todo }, StatusCodes.OK);
+	return c.json({ todo: todoItem }, StatusCodes.OK);
 };
 
 export const createTodo = async (
@@ -51,9 +71,22 @@ export const createTodo = async (
 	}
 
 	const db = c.get("db");
+	const user = c.get("user");
 
-	// Create the todo
-	const [newTodo] = await db.insert(todo).values(input.body).returning();
+	if (!user) {
+		throw new HTTPException(StatusCodes.UNAUTHORIZED, {
+			message: "User not authenticated",
+		});
+	}
+
+	// Create the todo with current user's ID
+	const [newTodo] = await db
+		.insert(todo)
+		.values({
+			...input.body,
+			userId: user.id, // Always use authenticated user's ID
+		})
+		.returning();
 
 	return c.json({ todo: newTodo }, StatusCodes.CREATED);
 };
@@ -76,10 +109,18 @@ export const updateTodo = async (
 	}
 
 	const db = c.get("db");
+	const user = c.get("user");
 
-	// Check if exists
+	if (!user) {
+		throw new HTTPException(StatusCodes.UNAUTHORIZED, {
+			message: "User not authenticated",
+		});
+	}
+
+	// Check if exists and belongs to user
 	const existing = await db.query.todo.findFirst({
-		where: (todo, { eq }) => eq(todo.id, id),
+		where: (todo, { and, eq }) =>
+			and(eq(todo.id, id), eq(todo.userId, user.id)),
 	});
 
 	if (!existing) {
@@ -110,10 +151,18 @@ export const deleteTodo = async (
 	}
 
 	const db = c.get("db");
+	const user = c.get("user");
 
-	// Check if exists
+	if (!user) {
+		throw new HTTPException(StatusCodes.UNAUTHORIZED, {
+			message: "User not authenticated",
+		});
+	}
+
+	// Check if exists and belongs to user
 	const existing = await db.query.todo.findFirst({
-		where: (todo, { eq }) => eq(todo.id, id),
+		where: (todo, { and, eq }) =>
+			and(eq(todo.id, id), eq(todo.userId, user.id)),
 	});
 
 	if (!existing) {
@@ -125,5 +174,6 @@ export const deleteTodo = async (
 	// Delete the todo
 	await db.delete(todo).where(eq(todo.id, id));
 
-	return c.json({ message: "Todo deleted successfully" }, StatusCodes.OK);
+	// Return 204 No Content for successful deletion
+	return new Response(null, { status: StatusCodes.NO_CONTENT });
 };

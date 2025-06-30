@@ -14,10 +14,21 @@ import type { Insert${pascal}, ${pascal}Id } from "./${kebab}.schema";
 
 export const getAll${pascal} = async (c: Context<BaseContext>) => {
 	const db = c.get("db");
+	const user = c.get("user");
+	
+	if (!user) {
+		throw new HTTPException(StatusCodes.UNAUTHORIZED, {
+			message: "User not authenticated",
+		});
+	}
+	
+	// Only return items for the current user
 	const ${camel}List = await db.query.${camel}.findMany({
+		where: (${camel}, { eq }) => eq(${camel}.userId, user.id),
 		orderBy: (${camel}, { desc }) => [desc(${camel}.id)],
 	});
 
+	// Always return 200 with array (empty array if no items)
 	return c.json({ ${camel}s: ${camel}List }, StatusCodes.OK);
 };
 
@@ -33,17 +44,26 @@ export const get${pascal}ById = async (
 	}
 
 	const db = c.get("db");
-	const ${camel} = await db.query.${camel}.findFirst({
-		where: (${camel}, { eq }) => eq(${camel}.id, id),
+	const user = c.get("user");
+	
+	if (!user) {
+		throw new HTTPException(StatusCodes.UNAUTHORIZED, {
+			message: "User not authenticated",
+		});
+	}
+	
+	const ${camel}Item = await db.query.${camel}.findFirst({
+		where: (${camel}, { and, eq }) => 
+			and(eq(${camel}.id, id), eq(${camel}.userId, user.id)),
 	});
 
-	if (!${camel}) {
+	if (!${camel}Item) {
 		throw new HTTPException(StatusCodes.NOT_FOUND, {
 			message: "${pascal} not found",
 		});
 	}
 
-	return c.json({ ${camel} }, StatusCodes.OK);
+	return c.json({ ${camel}: ${camel}Item }, StatusCodes.OK);
 };
 
 export const create${pascal} = async (
@@ -57,12 +77,19 @@ export const create${pascal} = async (
 	}
 
 	const db = c.get("db");
+	const user = c.get("user");
 
-	// Create the ${camel}
-	const [new${pascal}] = await db
-		.insert(${camel})
-		.values(input.body)
-		.returning();
+	if (!user) {
+		throw new HTTPException(StatusCodes.UNAUTHORIZED, {
+			message: "User not authenticated",
+		});
+	}
+
+	// Create the ${camel} with current user's ID
+	const [new${pascal}] = await db.insert(${camel}).values({
+		...input.body,
+		userId: user.id, // Always use authenticated user's ID
+	}).returning();
 
 	return c.json({ ${camel}: new${pascal} }, StatusCodes.CREATED);
 };
@@ -85,10 +112,18 @@ export const update${pascal} = async (
 	}
 
 	const db = c.get("db");
+	const user = c.get("user");
 
-	// Check if exists
+	if (!user) {
+		throw new HTTPException(StatusCodes.UNAUTHORIZED, {
+			message: "User not authenticated",
+		});
+	}
+
+	// Check if exists and belongs to user
 	const existing = await db.query.${camel}.findFirst({
-		where: (${camel}, { eq }) => eq(${camel}.id, id),
+		where: (${camel}, { and, eq }) => 
+			and(eq(${camel}.id, id), eq(${camel}.userId, user.id)),
 	});
 
 	if (!existing) {
@@ -119,10 +154,18 @@ export const delete${pascal} = async (
 	}
 
 	const db = c.get("db");
+	const user = c.get("user");
 
-	// Check if exists
+	if (!user) {
+		throw new HTTPException(StatusCodes.UNAUTHORIZED, {
+			message: "User not authenticated",
+		});
+	}
+
+	// Check if exists and belongs to user
 	const existing = await db.query.${camel}.findFirst({
-		where: (${camel}, { eq }) => eq(${camel}.id, id),
+		where: (${camel}, { and, eq }) => 
+			and(eq(${camel}.id, id), eq(${camel}.userId, user.id)),
 	});
 
 	if (!existing) {
@@ -134,5 +177,6 @@ export const delete${pascal} = async (
 	// Delete the ${camel}
 	await db.delete(${camel}).where(eq(${camel}.id, id));
 
-	return c.json({ message: "${pascal} deleted successfully" }, StatusCodes.OK);
+	// Return 204 No Content for successful deletion
+	return new Response(null, { status: StatusCodes.NO_CONTENT });
 };`;

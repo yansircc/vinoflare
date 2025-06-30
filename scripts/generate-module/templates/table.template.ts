@@ -22,6 +22,5 @@ export const ${camel} = sqliteTable("${camel}", {
 		.default(sql\`(unixepoch())\`),
 	updatedAt: integer("updated_at", { mode: "timestamp" })
 		.notNull()
-		.default(sql\`(unixepoch())\`)
-		.\$onUpdate(() => new Date()),
+		.default(sql\`(unixepoch())\`),
 });`;

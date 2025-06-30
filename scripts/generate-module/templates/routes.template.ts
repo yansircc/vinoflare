@@ -20,7 +20,6 @@ import {
 	${camel}IdSchema,
 	${camel}ResponseSchema,
 	${camel}ListResponseSchema,
-	${camel}DeleteResponseSchema,
 } from "./${kebab}.schema";
 
 export const create${pascal}Module = () => {
@@ -97,9 +96,8 @@ export const create${pascal}Module = () => {
 		.tags("${pascal}")
 		.security([{ bearerAuth: [] }])
 		.params({ id: ${camel}IdSchema })
-		.response(StatusCodes.OK, {
+		.response(StatusCodes.NO_CONTENT, {
 			description: "${pascal} deleted successfully",
-			schema: ${camel}DeleteResponseSchema,
 		})
 		.response(StatusCodes.NOT_FOUND, {
 			description: "${pascal} not found",

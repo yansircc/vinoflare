@@ -16,6 +16,10 @@ export default defineConfig({
 					useMutation: true,
 					signal: true,
 				},
+				mutator: {
+					path: "./src/client/lib/custom-fetch.ts",
+					name: "customFetch",
+				},
 			},
 		},
 	},

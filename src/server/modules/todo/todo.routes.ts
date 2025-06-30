@@ -10,7 +10,6 @@ import {
 } from "./todo.handlers";
 import {
 	insertTodoSchema,
-	todoDeleteResponseSchema,
 	todoIdSchema,
 	todoListResponseSchema,
 	todoResponseSchema,
@@ -91,9 +90,8 @@ export const createTodoModule = () => {
 		.tags("Todo")
 		.security([{ bearerAuth: [] }])
 		.params({ id: todoIdSchema })
-		.response(StatusCodes.OK, {
+		.response(StatusCodes.NO_CONTENT, {
 			description: "Todo deleted successfully",
-			schema: todoDeleteResponseSchema,
 		})
 		.response(StatusCodes.NOT_FOUND, {
 			description: "Todo not found",

@@ -127,10 +127,3 @@ export const divider = {
 // Focus styles - minimal and clean
 export const focus =
 	"focus:outline-none focus:ring-1 focus:ring-gray-900 focus:ring-offset-2";
-
-// Focus variants for different components
-export const focusVariants = {
-	default: focus,
-	checkbox:
-		"focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 focus:ring-opacity-50",
-};

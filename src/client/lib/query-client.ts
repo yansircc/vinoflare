@@ -1,5 +1,6 @@
 import { MutationCache, QueryCache, QueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { APIError } from "./custom-fetch";
 
 export const queryClient = new QueryClient({
 	defaultOptions: {
@@ -21,12 +22,22 @@ export const queryClient = new QueryClient({
 	},
 	queryCache: new QueryCache({
 		onError: (err) => {
-			toast.error(err.message);
+			// Handle special cases
+			if (err instanceof APIError) {
+				toast.error(err.message);
+			} else {
+				toast.error("An unexpected error occurred");
+			}
 		},
 	}),
 	mutationCache: new MutationCache({
 		onError: (err) => {
-			toast.error(err.message);
+			// Handle special cases
+			if (err instanceof APIError) {
+				toast.error(err.message);
+			} else {
+				toast.error("An unexpected error occurred");
+			}
 		},
 	}),
 });
