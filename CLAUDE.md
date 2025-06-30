@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Vinoflare v2 - Full-stack TypeScript app on Cloudflare Workers with React, Hono, D1 database, and Better Auth.
+Vinoflare v2 API - API-only version built on Cloudflare Workers with Hono, D1 database, and Better Auth.
 
 ## Essential Commands
 
@@ -16,8 +16,7 @@ bun run deploy       # Deploy to Cloudflare Workers
 
 # Code Generation
 bun run gen:module <name>     # Generate complete CRUD module
-bun run gen:api              # Update OpenAPI spec and client hooks
-bun run gen:routes           # Update TanStack Router types
+bun run gen:api              # Update OpenAPI spec
 
 # Database
 bun run db:generate          # Generate migrations from schema changes
@@ -55,7 +54,7 @@ export const postsRoutes = builder.build();
 ```
 
 ### Key Patterns
-- **Database-first**: Tables → Zod schemas → Types → OpenAPI → Client hooks
+- **Database-first**: Tables → Zod schemas → Types → OpenAPI
 - **Auth**: Better Auth with Discord OAuth, all /api/* routes protected by default
 - **Responses**: Always wrap data in objects: `{ post: Post }` or `{ posts: Post[] }`
 - **Errors**: Global handler ensures consistent error format
@@ -64,7 +63,7 @@ export const postsRoutes = builder.build();
 
 ### Imports
 - Always use `import { z } from "zod/v4"` (not plain "zod")
-- Use path aliases: `@/` for src, `@/server/`, `@/client/`
+- Use path aliases: `@/` for src, `@/server/`
 - Never use relative imports
 
 ### Module Structure
@@ -89,6 +88,23 @@ const posts = await db.query.posts.findMany({
 });
 ```
 
+## API Endpoints
+
+### Default Routes
+- `/` - Redirects to `/api/docs`
+- `/api/docs` - Interactive API documentation (Scalar UI)
+- `/api/openapi.json` - OpenAPI specification
+- `/api/health` - Health check endpoint
+- `/api/auth/*` - Authentication endpoints (Better Auth)
+- `/*` - Returns 404 with JSON error
+
+### Authentication
+- Discord OAuth redirect URL: `http://localhost:5173/api/auth/callback/discord`
+- Public routes configured in `src/server/config/routes.ts`
+- All other `/api/*` routes require authentication by default
+- Simple login: Run `./auth.sh` to get Discord login URL
+- Logout: Clear browser cookies for localhost:5173
+
 ## Development Workflow
 
 ### Creating a New Module
@@ -96,13 +112,13 @@ const posts = await db.query.posts.findMany({
 bun run gen:module <name>    # Generate complete CRUD module
 bun run db:generate          # Create migration
 bun run db:push:local        # Apply migration
-bun run gen:api              # Update client types
+bun run gen:api              # Update OpenAPI spec
 ```
 
 ### Important Notes
-- **API Docs**: Available at `/api/docs` (Scalar UI)
-- **Auth**: Discord OAuth required, redirect URL: `http://localhost:5173/api/auth/callback/discord`
-- **Database GUI**: Run `bun run db:studio` to open Drizzle Studio
+- **Entry Point**: `src/index.ts` exports Cloudflare Workers handler
+- **Build Output**: Vite builds to `dist/` directory
+- **Dev Server**: Uses Vite with Cloudflare plugin on port 5173
 - **Response Format**: Always wrap data in objects: `return c.json({ post }, 200)`
 - **Environment**: Local config in `.dev.vars`, production via `wrangler secret put`
 

@@ -24,7 +24,8 @@ export async function loadModules(): Promise<ModuleDefinition[]> {
 
 	const modules: ModuleDefinition[] = [];
 
-	for (const [path, module] of Object.entries(moduleFiles)) {
+	for (const [path, moduleImport] of Object.entries(moduleFiles)) {
+		const module = moduleImport as { default: ModuleDefinition };
 		if (module.default) {
 			modules.push(module.default);
 		} else {

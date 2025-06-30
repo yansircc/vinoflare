@@ -21,10 +21,3 @@ export const PUBLIC_API_ROUTES = [
 	"/api/docs/*", // API 文档相关资源
 	"/api/health", // 健康检查端点
 ] as const;
-
-// 静态资源路径
-export const STATIC_ROUTES = [
-	"/assets/*", // 前端资源
-	"/.vite/*", // Vite 相关文件
-	"/favicon.ico", // 网站图标
-] as const;

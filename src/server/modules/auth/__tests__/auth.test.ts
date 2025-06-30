@@ -14,7 +14,7 @@ describe("Auth API", () => {
 	it("should return test user when accessing /api/auth/user in test environment", async () => {
 		const res = await app.request("/api/auth/user");
 		expect(res.status).toBe(200);
-		const json = await res.json() as { user: { id: string; email: string } };
+		const json = (await res.json()) as { user: { id: string; email: string } };
 		expect(json).toHaveProperty("user");
 		expect(json.user).toHaveProperty("id", "test-user-id");
 		expect(json.user).toHaveProperty("email", "test@example.com");

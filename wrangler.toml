@@ -1,11 +1,7 @@
 name = "my-vinoflare-app"
 compatibility_date = "2025-06-17"
 compatibility_flags = ["nodejs_compat"]
-main = "./src/index.tsx"
-
-[assets]
-directory = "./dist/client"
-binding = "ASSETS"
+main = "./src/index.ts"
 
 [observability.logs]
 enabled = true
