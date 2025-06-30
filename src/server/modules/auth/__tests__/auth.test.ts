@@ -5,7 +5,7 @@
 import { env } from "cloudflare:test";
 import { beforeAll, describe, expect, it } from "vitest";
 import { createTestApp } from "@/server/tests/test-helpers";
-import authModule from "./index";
+import authModule from "../index";
 
 describe("Auth API", () => {
 	let app: ReturnType<typeof createTestApp>;

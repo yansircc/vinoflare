@@ -8,8 +8,7 @@
 posts/
 ├── index.ts          # 模块入口和公共 API 导出
 ├── posts.table.ts    # 数据库表定义
-├── posts.schema.ts   # Zod 验证 schemas
-├── posts.types.ts    # TypeScript 类型定义
+├── posts.schema.ts   # Zod 验证 schemas 和类型定义
 ├── posts.handlers.ts # 业务逻辑处理函数
 ├── posts.routes.ts   # 路由定义
 ├── posts.openapi.ts  # OpenAPI 文档
@@ -30,8 +29,7 @@ posts/
 ```typescript
 // 模块内部文件相互引用
 import { posts } from "./posts.table";
-import { selectPostSchema } from "./posts.schema";
-import type { Post } from "./posts.types";
+import { selectPostSchema, type Post } from "./posts.schema";
 ```
 
 ### 外部引用

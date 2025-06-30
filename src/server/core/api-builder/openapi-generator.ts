@@ -205,7 +205,7 @@ export class OpenAPIGenerator {
 			}
 
 			// Recursively clean nested schemas
-			if (key === "properties" && typeof value === "object") {
+			if (key === "properties" && typeof value === "object" && value !== null) {
 				cleaned[key] = {};
 				for (const [propKey, propValue] of Object.entries(value)) {
 					cleaned[key][propKey] = this.cleanupSchema(propValue);
@@ -213,7 +213,7 @@ export class OpenAPIGenerator {
 			} else if (key === "items") {
 				cleaned[key] = this.cleanupSchema(value);
 			} else if (key === "oneOf" || key === "anyOf" || key === "allOf") {
-				cleaned[key] = (value as any[]).map(v => this.cleanupSchema(v));
+				cleaned[key] = (value as any[]).map((v) => this.cleanupSchema(v));
 			} else {
 				cleaned[key] = value;
 			}
