@@ -1,6 +1,6 @@
 import { logger } from "hono/logger";
-import { colorize, colorizeJson, getStatusColor } from "../utils/colors";
-import { stripAnsi } from "../utils/strip-ansi";
+import { colorize, colorizeJson, getStatusColor } from "../../utils/colors";
+import { stripAnsi } from "../../utils/strip-ansi";
 
 /**
  * Custom JSON logger middleware for consistent logging format
