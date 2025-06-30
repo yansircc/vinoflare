@@ -14,6 +14,7 @@ import { ModuleRegistry } from "@/server/db/modular";
 import { createTestApp } from "@/server/tests/test-helpers";
 import { createAuthRequest } from "@/server/tests/auth-utils";
 import ${camel}Module from "../index";
+import type { Select${pascal} } from "../${kebab}.schema";
 import {
 	clean${pascal}Data,
 	createTest${pascal},
@@ -49,7 +50,7 @@ describe("${pascal} Module", () => {
 
 		const response = await app.request(request);
 		expect(response.status).toBe(201);
-		const json = await response.json() as { ${camel}: any };
+		const json = await response.json() as { ${camel}: Select${pascal} };
 		// Add your assertions here
 		expect(json.${camel}).toBeDefined();
 		expect(json.${camel}.name).toBe(${camel}Data.name);
@@ -62,7 +63,7 @@ describe("${pascal} Module", () => {
 			body: JSON.stringify(createTest${pascal}()),
 		});
 		const createResponse = await app.request(createReq);
-		const { ${camel} } = await createResponse.json() as { ${camel}: any };
+		const { ${camel} } = await createResponse.json() as { ${camel}: Select${pascal} };
 
 		// Get the ${camel}
 		const getReq = await createAuthRequest(\`/api/${kebab}/\${${camel}.id}\`);

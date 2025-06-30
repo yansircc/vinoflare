@@ -8,6 +8,7 @@ import { ModuleRegistry } from "@/server/db/modular";
 import { createAuthRequest } from "@/server/tests/auth-utils";
 import { createTestApp } from "@/server/tests/test-helpers";
 import todoModule from "../index";
+import type { SelectTodo } from "../todo.schema";
 import {
 	cleanTodoData,
 	createTestTodo,
@@ -45,7 +46,7 @@ describe("Todo Module", () => {
 
 		const response = await app.request(request);
 		expect(response.status).toBe(201);
-		const json = (await response.json()) as { todo: any };
+		const json = (await response.json()) as { todo: SelectTodo };
 		// Add your assertions here
 		expect(json.todo).toBeDefined();
 		expect(json.todo.title).toBe(todoData.title);
@@ -58,7 +59,7 @@ describe("Todo Module", () => {
 			body: JSON.stringify(createTestTodo()),
 		});
 		const createResponse = await app.request(createReq);
-		const { todo } = (await createResponse.json()) as { todo: any };
+		const { todo } = (await createResponse.json()) as { todo: SelectTodo };
 
 		// Get the todo
 		const getReq = await createAuthRequest(`/api/todo/${todo.id}`);
