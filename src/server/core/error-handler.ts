@@ -2,6 +2,7 @@ import type { Context } from "hono";
 import { HTTPException } from "hono/http-exception";
 import { StatusCodes } from "http-status-codes";
 import { ZodError } from "zod/v4";
+import { colorize, colorizeJson } from "../utils/colors";
 
 export class APIError extends Error {
 	constructor(
@@ -51,19 +52,18 @@ export function errorHandler(err: Error, c: Context): Response {
 			response.error.details = (err as any).cause;
 		}
 
-		// Log the error in JSON format
-		console.error(
-			JSON.stringify({
-				type: "ERROR",
-				timestamp,
-				method,
-				path,
-				status: err.status,
-				code: errorCode,
-				message: err.message,
-				details: (err as any).cause || undefined,
-			}, null, 2)
-		);
+		// Log the error in JSON format with color
+		const prefix = colorize("✖--", "red");
+		console.error(`${prefix} ${colorizeJson({
+			type: "ERROR",
+			timestamp,
+			method,
+			path,
+			status: err.status,
+			code: errorCode,
+			message: err.message,
+			details: (err as any).cause || undefined,
+		})}`);
 
 		return c.json(response, err.status);
 	}
@@ -84,19 +84,19 @@ export function errorHandler(err: Error, c: Context): Response {
 			response.error.details = err.details;
 		}
 
-		// Log the error in JSON format
-		console.error(
-			JSON.stringify({
-				type: "ERROR",
-				timestamp,
-				method,
-				path,
-				status: err.statusCode,
-				code: err.code,
-				message: err.message,
-				details: err.details || undefined,
-			}, null, 2)
-		);
+		// Log the error in JSON format with color
+		const statusColor = err.statusCode >= 500 ? "red" : "yellow";
+		const prefix = colorize("✖--", statusColor as any);
+		console.error(`${prefix} ${colorizeJson({
+			type: "ERROR",
+			timestamp,
+			method,
+			path,
+			status: err.statusCode,
+			code: err.code,
+			message: err.message,
+			details: err.details || undefined,
+		})}`);
 
 		return c.json(response, err.statusCode as any);
 	}
@@ -117,18 +117,17 @@ export function errorHandler(err: Error, c: Context): Response {
 		}
 
 		// Log the error in JSON format with details
-		console.error(
-			JSON.stringify({
-				type: "ERROR",
-				timestamp,
-				method,
-				path,
-				status: StatusCodes.BAD_REQUEST,
-				code: "VALIDATION_ERROR",
-				message: "Invalid request data",
-				details: err.issues,
-			}, null, 2)
-		);
+		const prefix = colorize("✖--", "yellow");
+		console.error(`${prefix} ${colorizeJson({
+			type: "ERROR",
+			timestamp,
+			method,
+			path,
+			status: StatusCodes.BAD_REQUEST,
+			code: "VALIDATION_ERROR",
+			message: "Invalid request data",
+			details: err.issues,
+		})}`);
 
 		return c.json(response, StatusCodes.BAD_REQUEST);
 	}
@@ -152,18 +151,17 @@ export function errorHandler(err: Error, c: Context): Response {
 	}
 
 	// Log the error in JSON format
-	console.error(
-		JSON.stringify({
-			type: "ERROR",
-			timestamp,
-			method,
-			path,
-			status: StatusCodes.INTERNAL_SERVER_ERROR,
-			code: "INTERNAL_SERVER_ERROR",
-			message: err.message || "An unexpected error occurred",
-			stack: c.env?.ENVIRONMENT === "development" ? err.stack : undefined,
-		}, null, 2)
-	);
+	const prefix = colorize("✖--", "red");
+	console.error(`${prefix} ${colorizeJson({
+		type: "ERROR",
+		timestamp,
+		method,
+		path,
+		status: StatusCodes.INTERNAL_SERVER_ERROR,
+		code: "INTERNAL_SERVER_ERROR",
+		message: err.message || "An unexpected error occurred",
+		stack: c.env?.ENVIRONMENT === "development" ? err.stack : undefined,
+	})}`);
 
 	return c.json(response, StatusCodes.INTERNAL_SERVER_ERROR);
 }
