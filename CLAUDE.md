@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Vinoflare v2 API - API-only version built on Cloudflare Workers with Hono, D1 database, and Better Auth.
+Vinoflare v2 API (No Auth) - API-only version built on Cloudflare Workers with Hono and D1 database. No authentication required.
 
 ## Essential Commands
 
@@ -55,7 +55,7 @@ export const postsRoutes = builder.build();
 
 ### Key Patterns
 - **Database-first**: Tables → Zod schemas → Types → OpenAPI
-- **Auth**: Better Auth with Discord OAuth, all /api/* routes protected by default
+- **No Authentication**: All API endpoints are publicly accessible
 - **Responses**: Always wrap data in objects: `{ post: Post }` or `{ posts: Post[] }`
 - **Errors**: Global handler ensures consistent error format
 
@@ -83,9 +83,7 @@ export default {
 ### Database Access
 ```typescript
 const db = c.get("db");  // Get database from context
-const posts = await db.query.posts.findMany({
-  where: eq(posts.authorId, userId)
-});
+const posts = await db.query.posts.findMany();
 ```
 
 ## API Endpoints
@@ -95,15 +93,12 @@ const posts = await db.query.posts.findMany({
 - `/api/docs` - Interactive API documentation (Scalar UI)
 - `/api/openapi.json` - OpenAPI specification
 - `/api/health` - Health check endpoint
-- `/api/auth/*` - Authentication endpoints (Better Auth)
 - `/*` - Returns 404 with JSON error
 
-### Authentication
-- Discord OAuth redirect URL: `http://localhost:5173/api/auth/callback/discord`
-- Public routes configured in `src/server/config/routes.ts`
-- All other `/api/*` routes require authentication by default
-- Simple login: Run `./auth.sh` to get Discord login URL
-- Logout: Clear browser cookies for localhost:5173
+### Public Access
+- All API endpoints are publicly accessible
+- No authentication or authorization required
+- Suitable for public APIs or internal services
 
 ## Development Workflow
 
@@ -120,7 +115,7 @@ bun run gen:api              # Update OpenAPI spec
 - **Build Output**: Vite builds to `dist/` directory
 - **Dev Server**: Uses Vite with Cloudflare plugin on port 5173
 - **Response Format**: Always wrap data in objects: `return c.json({ post }, 200)`
-- **Environment**: Local config in `.dev.vars`, production via `wrangler secret put`
+- **No Auth**: No authentication middleware or user context
 
 # important-instruction-reminders
 Do what has been asked; nothing more, nothing less.

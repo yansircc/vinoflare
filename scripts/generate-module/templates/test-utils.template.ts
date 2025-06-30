@@ -17,7 +17,6 @@ export function createTest${pascal}(overrides?: Partial<Insert${pascal}>): Inser
 	${camel}Counter++;
 	return {
 		name: \`Test ${pascal} \${${camel}Counter}\`,
-		userId: "test-user-id",
 		...overrides,
 	} as Insert${pascal};
 }
@@ -32,7 +31,6 @@ export async function setup${pascal}Table(db: D1Database) {
 			CREATE TABLE IF NOT EXISTS ${kebab} (
 				id INTEGER PRIMARY KEY AUTOINCREMENT,
 				name TEXT NOT NULL,
-				user_id TEXT NOT NULL,
 				created_at INTEGER NOT NULL DEFAULT (unixepoch()),
 				updated_at INTEGER NOT NULL DEFAULT (unixepoch())
 			)

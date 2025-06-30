@@ -3,7 +3,6 @@ import { cors } from "hono/cors";
 import { logger } from "hono/logger";
 import { trimTrailingSlash } from "hono/trailing-slash";
 import type { BaseContext } from "../lib/worker-types";
-import { authGuard } from "../middleware/auth-guard";
 import { database } from "../middleware/database";
 import { createDocsRoutes } from "../routes/docs";
 import { errorHandler } from "./error-handler";
@@ -14,7 +13,6 @@ export interface AppFactoryOptions {
 	modules: ModuleDefinition[];
 	middleware?: {
 		database?: boolean;
-		auth?: boolean;
 		trimSlash?: boolean;
 		cors?: boolean;
 		logger?: boolean;
@@ -41,17 +39,11 @@ export function createApp(options: AppFactoryOptions) {
 	}
 
 	// Apply route-specific middleware
-	if (options.middleware?.database || options.middleware?.auth) {
+	if (options.middleware?.database) {
 		// If basePath is provided, apply middleware to that path
 		// Otherwise apply to all routes
 		const middlewarePath = options.basePath ? `${options.basePath}/*` : "*";
-
-		if (options.middleware?.database) {
-			app.use(middlewarePath, database());
-		}
-		if (options.middleware?.auth) {
-			app.use(middlewarePath, authGuard);
-		}
+		app.use(middlewarePath, database());
 	}
 
 	// Register modules

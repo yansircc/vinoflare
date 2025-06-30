@@ -1,6 +1,6 @@
-# Vinoflare v2 API - Modern API Template for Cloudflare Workers
+# Vinoflare v2 API (No Auth) - Modern API Template for Cloudflare Workers
 
-一个基于 Cloudflare Workers 的现代 API 服务模板，集成了 Hono、Drizzle ORM、Better Auth 和完整的类型安全体系。
+一个基于 Cloudflare Workers 的现代 API 服务模板，集成了 Hono、Drizzle ORM 和完整的类型安全体系。
 
 ## 🚀 特性
 
@@ -9,9 +9,8 @@
 - **模块化架构**: 清晰的模块化设计，易于扩展和维护
 - **自动化代码生成**: 一键生成 CRUD 模块和类型定义
 - **现代技术栈**: Hono + TypeScript + Drizzle ORM
-- **身份认证**: 集成 Better Auth，支持 Discord OAuth
 - **API 文档**: 自动生成 OpenAPI 文档和交互式 UI
-- **API 专注**: 纯 API 服务，无前端代码，适合作为微服务或 BFF
+- **无需认证**: 所有 API 端点均为公开访问，适合公共 API 或内部服务
 
 ## 📋 前置要求
 
@@ -27,23 +26,7 @@
 bun install
 ```
 
-### 2. 环境配置
-
-创建 `.dev.vars` 文件（用于本地开发）：
-
-```env
-# 身份认证密钥（生成一个随机字符串）
-BETTER_AUTH_SECRET=your-secret-key-here
-
-# Discord OAuth（可选，如需使用 Discord 登录）
-DISCORD_CLIENT_ID=your-discord-client-id
-DISCORD_CLIENT_SECRET=your-discord-client-secret
-
-# 环境标识
-ENVIRONMENT=development
-```
-
-### 3. 数据库设置
+### 2. 数据库设置
 
 ```bash
 # 生成数据库迁移
@@ -53,7 +36,7 @@ bun run db:generate
 bun run db:push:local
 ```
 
-### 4. 启动开发服务器
+### 3. 启动开发服务器
 
 ```bash
 bun run dev
@@ -139,43 +122,6 @@ bun run gen:module products
 2. 运行 `bun run db:push:local` 应用迁移
 3. 运行 `bun run gen:api` 更新 OpenAPI 规范
 
-## 🔐 身份认证
-
-项目集成了 Better Auth，默认配置了 Discord OAuth：
-
-1. 在 [Discord Developer Portal](https://discord.com/developers/applications) 创建应用
-2. 添加重定向 URL：`http://localhost:5173/api/auth/callback/discord`（生产环境使用实际域名）
-3. 将 Client ID 和 Secret 添加到 `.dev.vars`
-
-支持的认证功能：
-- Discord OAuth 登录
-- JWT 令牌
-- 会话管理（7天有效期）
-- 路由保护（默认所有 API 路由需要认证）
-
-### 简单登录
-
-```bash
-# 获取 Discord 登录 URL
-./auth.sh
-
-# 在浏览器中打开显示的 URL 完成登录
-# 登录后浏览器会自动保存 session cookie
-
-# 退出登录：在浏览器中清除 localhost:5173 的 cookies 即可
-```
-
-详细使用说明请参考 [API_AUTH_GUIDE.md](./API_AUTH_GUIDE.md)
-
-### 公开路由
-
-以下路由无需认证即可访问（在 `src/server/config/routes.ts` 中配置）：
-- `/api/hello` - 测试端点
-- `/api/auth/*` - 认证相关端点
-- `/api/openapi.json` - API 规范
-- `/api/docs` - API 文档
-- `/api/health` - 健康检查
-
 ## 📝 API 文档
 
 启动开发服务器后，访问 http://localhost:5173/api/docs 查看：
@@ -200,18 +146,7 @@ database_name = "my-app-db"
 database_id = "你的数据库ID"
 ```
 
-### 2. 设置生产环境变量
-
-```bash
-# 设置 Better Auth 密钥
-wrangler secret put BETTER_AUTH_SECRET
-
-# 设置 Discord OAuth（如果使用）
-wrangler secret put DISCORD_CLIENT_ID
-wrangler secret put DISCORD_CLIENT_SECRET
-```
-
-### 3. 部署应用
+### 2. 部署应用
 
 ```bash
 # 应用数据库迁移到生产环境
@@ -259,17 +194,9 @@ npx orval --input http://localhost:5173/api/openapi.json --output ./src/api
 
 ### 手动集成示例
 ```typescript
-// 获取认证会话
-const response = await fetch('http://localhost:5173/api/auth/get-session', {
-  credentials: 'include'
-});
-
-// 调用受保护的 API
-const todos = await fetch('http://localhost:5173/api/todos', {
-  headers: {
-    'Authorization': `Bearer ${session.token}`
-  }
-});
+// 直接调用 API（无需认证）
+const todos = await fetch('http://localhost:5173/api/todos');
+const data = await todos.json();
 ```
 
 ## 🤝 贡献

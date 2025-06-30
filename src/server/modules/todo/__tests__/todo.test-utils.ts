@@ -12,7 +12,6 @@ export function createTestTodo(overrides?: Partial<InsertTodo>): InsertTodo {
 	return {
 		title: `Test Todo ${todoCounter}`,
 		completed: false,
-		userId: "test-user-id",
 		...overrides,
 	} as InsertTodo;
 }
@@ -28,7 +27,6 @@ export async function setupTodoTable(db: D1Database) {
 				id INTEGER PRIMARY KEY AUTOINCREMENT,
 				title TEXT NOT NULL,
 				completed INTEGER NOT NULL DEFAULT 0,
-				user_id TEXT NOT NULL,
 				created_at INTEGER NOT NULL DEFAULT (unixepoch()),
 				updated_at INTEGER NOT NULL DEFAULT (unixepoch())
 			)

@@ -296,6 +296,7 @@ curl http://localhost:5173/api/openapi.json
 - `tsconfig.json` (removed frontend types)
 - `wrangler.toml` (removed assets, updated main)
 - `src/server/config/routes.ts` (removed STATIC_ROUTES)
+- `/scripts/generate-module/templates/` (all templates updated to remove frontend references)
 
 ### Unchanged:
 - All `/src/server/` code (except routes.ts)

@@ -32,7 +32,6 @@ export const selectTodoSchema = createSelectSchema(todo, {
 });
 export const insertTodoSchema = createInsertSchema(todo).omit({
 	id: true,
-	userId: true, // userId is set automatically from authenticated user
 	createdAt: true,
 	updatedAt: true,
 });

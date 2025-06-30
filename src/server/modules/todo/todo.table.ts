@@ -8,9 +8,6 @@ export const todo = sqliteTable("todo", {
 	title: text("title").notNull(),
 	completed: integer("completed", { mode: "boolean" }).notNull().default(false),
 
-	// User association
-	userId: text("user_id").notNull(),
-
 	// Timestamps
 	createdAt: integer("created_at", { mode: "timestamp" })
 		.notNull()

@@ -8,17 +8,9 @@ import { todo } from "./todo.table";
 
 export const getAllTodo = async (c: Context<BaseContext>) => {
 	const db = c.get("db");
-	const user = c.get("user");
 
-	if (!user) {
-		throw new HTTPException(StatusCodes.UNAUTHORIZED, {
-			message: "User not authenticated",
-		});
-	}
-
-	// Only return todos for the current user
+	// Return all todos (no user filtering)
 	const todoList = await db.query.todo.findMany({
-		where: (todo, { eq }) => eq(todo.userId, user.id),
 		orderBy: (todo, { desc }) => [desc(todo.id)],
 	});
 
@@ -38,17 +30,9 @@ export const getTodoById = async (
 	}
 
 	const db = c.get("db");
-	const user = c.get("user");
-
-	if (!user) {
-		throw new HTTPException(StatusCodes.UNAUTHORIZED, {
-			message: "User not authenticated",
-		});
-	}
 
 	const todoItem = await db.query.todo.findFirst({
-		where: (todo, { and, eq }) =>
-			and(eq(todo.id, id), eq(todo.userId, user.id)),
+		where: (todo, { eq }) => eq(todo.id, id),
 	});
 
 	if (!todoItem) {
@@ -71,22 +55,9 @@ export const createTodo = async (
 	}
 
 	const db = c.get("db");
-	const user = c.get("user");
 
-	if (!user) {
-		throw new HTTPException(StatusCodes.UNAUTHORIZED, {
-			message: "User not authenticated",
-		});
-	}
-
-	// Create the todo with current user's ID
-	const [newTodo] = await db
-		.insert(todo)
-		.values({
-			...input.body,
-			userId: user.id, // Always use authenticated user's ID
-		})
-		.returning();
+	// Create the todo without user ID
+	const [newTodo] = await db.insert(todo).values(input.body).returning();
 
 	return c.json({ todo: newTodo }, StatusCodes.CREATED);
 };
@@ -109,18 +80,10 @@ export const updateTodo = async (
 	}
 
 	const db = c.get("db");
-	const user = c.get("user");
 
-	if (!user) {
-		throw new HTTPException(StatusCodes.UNAUTHORIZED, {
-			message: "User not authenticated",
-		});
-	}
-
-	// Check if exists and belongs to user
+	// Check if exists
 	const existing = await db.query.todo.findFirst({
-		where: (todo, { and, eq }) =>
-			and(eq(todo.id, id), eq(todo.userId, user.id)),
+		where: (todo, { eq }) => eq(todo.id, id),
 	});
 
 	if (!existing) {
@@ -151,18 +114,10 @@ export const deleteTodo = async (
 	}
 
 	const db = c.get("db");
-	const user = c.get("user");
 
-	if (!user) {
-		throw new HTTPException(StatusCodes.UNAUTHORIZED, {
-			message: "User not authenticated",
-		});
-	}
-
-	// Check if exists and belongs to user
+	// Check if exists
 	const existing = await db.query.todo.findFirst({
-		where: (todo, { and, eq }) =>
-			and(eq(todo.id, id), eq(todo.userId, user.id)),
+		where: (todo, { eq }) => eq(todo.id, id),
 	});
 
 	if (!existing) {

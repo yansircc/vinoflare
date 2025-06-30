@@ -32,7 +32,6 @@ export const select${pascal}Schema = createSelectSchema(${camel}, {
 export const insert${pascal}Schema = createInsertSchema(${camel})
 	.omit({
 		id: true,
-		userId: true, // userId is set automatically from authenticated user
 		createdAt: true,
 		updatedAt: true,
 	});
