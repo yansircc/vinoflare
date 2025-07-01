@@ -1,9 +1,0 @@
-# Environment variables for local development
-ENVIRONMENT=development
-
-# Better Auth Configuration
-BETTER_AUTH_SECRET=your-secret-key-here
-
-# OAuth Providers
-DISCORD_CLIENT_ID=your-discord-client-id
-DISCORD_CLIENT_SECRET=your-discord-client-secret
