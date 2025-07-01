@@ -30,7 +30,6 @@ async function createMainApp() {
 		basePath: "",
 		middleware: {
 			database: true,
-			auth: true,
 			cors: true,
 			logger: true,
 			trimSlash: true,

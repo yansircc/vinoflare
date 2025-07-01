@@ -52,7 +52,6 @@
     "@tanstack/react-query": "^5.81.2",
     "@tanstack/react-router": "^1.121.34",
     "axios": "^1.10.0",
-    "better-auth": "^1.2.10",
     "clsx": "^2.1.1",
     "drizzle-orm": "^0.44.2",
     "drizzle-zod": "^0.8.2",

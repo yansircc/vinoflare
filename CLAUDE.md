@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Vinoflare v2 - Full-stack TypeScript app on Cloudflare Workers with React, Hono, D1 database, and Better Auth.
+Vinoflare v2 - Full-stack TypeScript app on Cloudflare Workers with React, Hono, and D1 database. This is the NO-AUTH version with all authentication removed.
 
 ## Essential Commands
 
@@ -56,7 +56,7 @@ export const postsRoutes = builder.build();
 
 ### Key Patterns
 - **Database-first**: Tables → Zod schemas → Types → OpenAPI → Client hooks
-- **Auth**: Better Auth with Discord OAuth, all /api/* routes protected by default
+- **No Authentication**: All API routes are publicly accessible
 - **Responses**: Always wrap data in objects: `{ post: Post }` or `{ posts: Post[] }`
 - **Errors**: Global handler ensures consistent error format
 
@@ -84,9 +84,7 @@ export default {
 ### Database Access
 ```typescript
 const db = c.get("db");  // Get database from context
-const posts = await db.query.posts.findMany({
-  where: eq(posts.authorId, userId)
-});
+const posts = await db.query.posts.findMany();
 ```
 
 ## Development Workflow
@@ -101,7 +99,7 @@ bun run gen:api              # Update client types
 
 ### Important Notes
 - **API Docs**: Available at `/api/docs` (Scalar UI)
-- **Auth**: Discord OAuth required, redirect URL: `http://localhost:5173/api/auth/callback/discord`
+- **No Authentication**: All API endpoints are publicly accessible
 - **Database GUI**: Run `bun run db:studio` to open Drizzle Studio
 - **Response Format**: Always wrap data in objects: `return c.json({ post }, 200)`
 - **Environment**: Local config in `.dev.vars`, production via `wrangler secret put`

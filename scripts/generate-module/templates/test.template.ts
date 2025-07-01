@@ -8,7 +8,6 @@ export const getTestTemplate = ({
 import { beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { ModuleRegistry } from "@/server/db/modular";
 import { createTestApp } from "@/server/tests/test-helpers";
-import { createAuthRequest } from "@/server/tests/auth-utils";
 import ${camel}Module from "../index";
 import type { Select${pascal} } from "../${kebab}.schema";
 import {
@@ -34,9 +33,12 @@ describe("${pascal} Module", () => {
 
 	it("should create a ${camel}", async () => {
 		const ${camel}Data = createTest${pascal}({ /* your fields here */ });
-		const request = await createAuthRequest("/api/${kebab}", {
+		const request = new Request("http://localhost/api/${kebab}", {
 			method: "POST",
 			body: JSON.stringify(${camel}Data),
+			headers: {
+				"Content-Type": "application/json",
+			},
 		});
 
 		const response = await app.request(request);
@@ -49,36 +51,45 @@ describe("${pascal} Module", () => {
 
 	it("should get a ${camel} by ID", async () => {
 		// Create a ${camel} first
-		const createReq = await createAuthRequest("/api/${kebab}", {
+		const createReq = new Request("http://localhost/api/${kebab}", {
 			method: "POST",
 			body: JSON.stringify(createTest${pascal}()),
+			headers: {
+				"Content-Type": "application/json",
+			},
 		});
 		const createResponse = await app.request(createReq);
 		const { ${camel} } = await createResponse.json() as { ${camel}: Select${pascal} };
 
 		// Get the ${camel}
-		const getReq = await createAuthRequest(\`/api/${kebab}/\${${camel}.id}\`);
+		const getReq = new Request(\`http://localhost/api/${kebab}/\${${camel}.id}\`);
 		const response = await app.request(getReq);
 		expect(response.status).toBe(200);
 	});
 
 	it("should get all ${camel}", async () => {
 		// Create a ${camel} first
-		const createReq = await createAuthRequest("/api/${kebab}", {
+		const createReq = new Request("http://localhost/api/${kebab}", {
 			method: "POST",
 			body: JSON.stringify(createTest${pascal}()),
+			headers: {
+				"Content-Type": "application/json",
+			},
 		});
 		await app.request(createReq);
 
-		const getReq = await createAuthRequest("/api/${kebab}");
+		const getReq = new Request("http://localhost/api/${kebab}");
 		const response = await app.request(getReq);
 		expect(response.status).toBe(200);
 	});
 
 	it("should validate required fields", async () => {
-		const request = await createAuthRequest("/api/${kebab}", {
+		const request = new Request("http://localhost/api/${kebab}", {
 			method: "POST",
 			body: JSON.stringify({}), // Empty body
+			headers: {
+				"Content-Type": "application/json",
+			},
 		});
 
 		const response = await app.request(request);

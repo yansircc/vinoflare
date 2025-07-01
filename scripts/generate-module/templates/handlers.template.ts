@@ -14,17 +14,8 @@ import type { Insert${pascal}, ${pascal}Id } from "./${kebab}.schema";
 
 export const getAll${pascal} = async (c: Context<BaseContext>) => {
 	const db = c.get("db");
-	const user = c.get("user");
 	
-	if (!user) {
-		throw new HTTPException(StatusCodes.UNAUTHORIZED, {
-			message: "User not authenticated",
-		});
-	}
-	
-	// Only return items for the current user
 	const ${camel}List = await db.query.${camel}.findMany({
-		where: (${camel}, { eq }) => eq(${camel}.userId, user.id),
 		orderBy: (${camel}, { desc }) => [desc(${camel}.id)],
 	});
 
@@ -44,17 +35,9 @@ export const get${pascal}ById = async (
 	}
 
 	const db = c.get("db");
-	const user = c.get("user");
-	
-	if (!user) {
-		throw new HTTPException(StatusCodes.UNAUTHORIZED, {
-			message: "User not authenticated",
-		});
-	}
 	
 	const ${camel}Item = await db.query.${camel}.findFirst({
-		where: (${camel}, { and, eq }) => 
-			and(eq(${camel}.id, id), eq(${camel}.userId, user.id)),
+		where: (${camel}, { eq }) => eq(${camel}.id, id),
 	});
 
 	if (!${camel}Item) {
@@ -77,19 +60,9 @@ export const create${pascal} = async (
 	}
 
 	const db = c.get("db");
-	const user = c.get("user");
 
-	if (!user) {
-		throw new HTTPException(StatusCodes.UNAUTHORIZED, {
-			message: "User not authenticated",
-		});
-	}
-
-	// Create the ${camel} with current user's ID
-	const [new${pascal}] = await db.insert(${camel}).values({
-		...input.body,
-		userId: user.id, // Always use authenticated user's ID
-	}).returning();
+	// Create the ${camel}
+	const [new${pascal}] = await db.insert(${camel}).values(input.body).returning();
 
 	return c.json({ ${camel}: new${pascal} }, StatusCodes.CREATED);
 };
@@ -112,18 +85,10 @@ export const update${pascal} = async (
 	}
 
 	const db = c.get("db");
-	const user = c.get("user");
 
-	if (!user) {
-		throw new HTTPException(StatusCodes.UNAUTHORIZED, {
-			message: "User not authenticated",
-		});
-	}
-
-	// Check if exists and belongs to user
+	// Check if exists
 	const existing = await db.query.${camel}.findFirst({
-		where: (${camel}, { and, eq }) => 
-			and(eq(${camel}.id, id), eq(${camel}.userId, user.id)),
+		where: (${camel}, { eq }) => eq(${camel}.id, id),
 	});
 
 	if (!existing) {
@@ -154,18 +119,10 @@ export const delete${pascal} = async (
 	}
 
 	const db = c.get("db");
-	const user = c.get("user");
 
-	if (!user) {
-		throw new HTTPException(StatusCodes.UNAUTHORIZED, {
-			message: "User not authenticated",
-		});
-	}
-
-	// Check if exists and belongs to user
+	// Check if exists
 	const existing = await db.query.${camel}.findFirst({
-		where: (${camel}, { and, eq }) => 
-			and(eq(${camel}.id, id), eq(${camel}.userId, user.id)),
+		where: (${camel}, { eq }) => eq(${camel}.id, id),
 	});
 
 	if (!existing) {

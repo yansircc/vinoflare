@@ -1,7 +1,6 @@
 import { env } from "cloudflare:test";
 import { beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { ModuleRegistry } from "@/server/db/modular";
-import { createAuthRequest } from "@/server/tests/auth-utils";
 import { createTestApp } from "@/server/tests/test-helpers";
 import todoModule from "../index";
 import type { SelectTodo } from "../todo.schema";
@@ -27,8 +26,9 @@ describe("Todo Module", () => {
 		const todoData = createTestTodo({
 			/* your fields here */
 		});
-		const request = await createAuthRequest("/api/todo", {
+		const request = new Request("http://localhost/api/todo", {
 			method: "POST",
+			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify(todoData),
 		});
 
@@ -42,35 +42,38 @@ describe("Todo Module", () => {
 
 	it("should get a todo by ID", async () => {
 		// Create a todo first
-		const createReq = await createAuthRequest("/api/todo", {
+		const createReq = new Request("http://localhost/api/todo", {
 			method: "POST",
+			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify(createTestTodo()),
 		});
 		const createResponse = await app.request(createReq);
 		const { todo } = (await createResponse.json()) as { todo: SelectTodo };
 
 		// Get the todo
-		const getReq = await createAuthRequest(`/api/todo/${todo.id}`);
+		const getReq = new Request(`http://localhost/api/todo/${todo.id}`);
 		const response = await app.request(getReq);
 		expect(response.status).toBe(200);
 	});
 
 	it("should get all todo", async () => {
 		// Create a todo first
-		const createReq = await createAuthRequest("/api/todo", {
+		const createReq = new Request("http://localhost/api/todo", {
 			method: "POST",
+			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify(createTestTodo()),
 		});
 		await app.request(createReq);
 
-		const getReq = await createAuthRequest("/api/todo");
+		const getReq = new Request("http://localhost/api/todo");
 		const response = await app.request(getReq);
 		expect(response.status).toBe(200);
 	});
 
 	it("should validate required fields", async () => {
-		const request = await createAuthRequest("/api/todo", {
+		const request = new Request("http://localhost/api/todo", {
 			method: "POST",
+			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify({}), // Empty body
 		});
 

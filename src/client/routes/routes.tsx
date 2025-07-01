@@ -23,7 +23,6 @@ const endpoints = [
 		method: "POST",
 		path: "/api/posts",
 		description: "Creates a new post",
-		auth: true,
 	},
 ];
 
@@ -68,12 +67,6 @@ function ApiPage() {
 								<p className={cn(text.base, colors.text.secondary)}>
 									{endpoint.description}
 								</p>
-
-								{endpoint.auth && (
-									<p className={cn(text.small, colors.text.muted)}>
-										Requires authentication
-									</p>
-								)}
 							</div>
 						))}
 					</div>

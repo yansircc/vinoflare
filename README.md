@@ -1,6 +1,6 @@
-# Vinoflare v2 - Modern Full-Stack Template for Cloudflare Workers
+# Vinoflare v2 - Modern Full-Stack Template for Cloudflare Workers (NO-AUTH Version)
 
-一个基于 Cloudflare Workers 的现代全栈应用模板，集成了 React、Hono、Drizzle ORM 和完整的类型安全体系。
+一个基于 Cloudflare Workers 的现代全栈应用模板，集成了 React、Hono、Drizzle ORM 和完整的类型安全体系。**此版本已移除所有身份认证功能，所有 API 端点均为公开访问。**
 
 ## 🚀 特性
 
@@ -9,7 +9,7 @@
 - **模块化架构**: 清晰的模块化设计，易于扩展和维护
 - **自动化代码生成**: 一键生成 CRUD 模块、API 客户端和类型定义
 - **现代技术栈**: React 19 + TypeScript + Vite + TanStack Router
-- **身份认证**: 集成 Better Auth，支持 Discord OAuth
+- **无需认证**: 所有 API 端点公开访问，适合公共 API 或内部服务
 - **API 文档**: 自动生成 OpenAPI 文档和交互式 UI
 
 ## 📋 前置要求
@@ -31,13 +31,6 @@ bun install
 创建 `.dev.vars` 文件（用于本地开发）：
 
 ```env
-# 身份认证密钥（生成一个随机字符串）
-BETTER_AUTH_SECRET=your-secret-key-here
-
-# Discord OAuth（可选，如需使用 Discord 登录）
-DISCORD_CLIENT_ID=your-discord-client-id
-DISCORD_CLIENT_SECRET=your-discord-client-secret
-
 # 环境标识
 ENVIRONMENT=development
 ```

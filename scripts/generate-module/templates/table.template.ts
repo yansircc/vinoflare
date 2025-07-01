@@ -13,9 +13,6 @@ export const ${camel} = sqliteTable("${camel}", {
 	// Core fields
 	name: text("name").notNull(),
 	
-	// User association
-	userId: text("user_id").notNull(),
-	
 	// Timestamps
 	createdAt: integer("created_at", { mode: "timestamp" })
 		.notNull()

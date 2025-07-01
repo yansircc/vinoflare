@@ -10,7 +10,6 @@ export function createTestApp(modules: ModuleDefinition[] = [], testEnv?: any) {
 		modules,
 		middleware: {
 			database: true,
-			auth: true,
 			trimSlash: true,
 		},
 		basePath: "/api",
