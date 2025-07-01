@@ -1,9 +1,9 @@
 import { Hono } from "hono";
 import { cors } from "hono/cors";
-import { logger } from "hono/logger";
 import { trimTrailingSlash } from "hono/trailing-slash";
 import type { BaseContext } from "../lib/worker-types";
 import { database } from "../middleware/database";
+import { jsonLogger } from "../middleware/json-logger";
 import { createDocsRoutes } from "../routes/docs";
 import { errorHandler } from "./error-handler";
 import type { ModuleDefinition } from "./module-loader";
@@ -28,7 +28,7 @@ export function createApp(options: AppFactoryOptions) {
 
 	// Apply global middleware based on configuration
 	if (options.middleware?.logger) {
-		app.use(logger());
+		app.use(jsonLogger());
 	}
 	if (options.middleware?.cors) {
 		app.use(cors());

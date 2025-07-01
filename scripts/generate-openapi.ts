@@ -176,7 +176,7 @@ async function generateDynamicOpenAPI() {
 		mkdirSync(outputDir, { recursive: true });
 
 		// Write to file
-		writeFileSync(outputPath, JSON.stringify(spec, null, 2));
+		writeFileSync(outputPath, JSON.stringify(spec));
 
 		console.log(`\n✅ OpenAPI specification generated successfully!`);
 		console.log(`📁 Output: ${outputPath}`);
