@@ -9,7 +9,7 @@ import kleur from "kleur";
 const execAsync = promisify(exec);
 
 const TEST_OUTPUT_DIR = path.join(process.cwd(), "test-output");
-const CLI_PATH = path.join(process.cwd(), "src", "index.ts");
+const CLI_PATH = path.join(process.cwd(), "dist", "index.js");
 
 interface TestScenario {
 	name: string;
@@ -22,37 +22,37 @@ const scenarios: TestScenario[] = [
 	{
 		name: "Full-stack: DB + Auth",
 		projectName: "test-full-db-auth",
-		command: `tsx ${CLI_PATH} test-full-db-auth --type=full-stack -y --no-git`,
+		command: `node ${CLI_PATH} test-full-db-auth --type=full-stack -y --no-git`,
 		needsAuth: true,
 	},
 	{
 		name: "Full-stack: DB, No Auth",
 		projectName: "test-full-db-noauth",
-		command: `tsx ${CLI_PATH} test-full-db-noauth --type=full-stack --no-auth -y --no-git`,
+		command: `node ${CLI_PATH} test-full-db-noauth --type=full-stack --no-auth -y --no-git`,
 		needsAuth: false,
 	},
 	{
 		name: "Full-stack: No DB, No Auth",
 		projectName: "test-full-nodb-noauth",
-		command: `tsx ${CLI_PATH} test-full-nodb-noauth --type=full-stack --no-db -y --no-git`,
+		command: `node ${CLI_PATH} test-full-nodb-noauth --type=full-stack --no-db -y --no-git`,
 		needsAuth: false,
 	},
 	{
 		name: "API-only: DB + Auth",
 		projectName: "test-api-db-auth",
-		command: `tsx ${CLI_PATH} test-api-db-auth --type=api-only -y --no-git`,
+		command: `node ${CLI_PATH} test-api-db-auth --type=api-only -y --no-git`,
 		needsAuth: true,
 	},
 	{
 		name: "API-only: DB, No Auth",
 		projectName: "test-api-db-noauth",
-		command: `tsx ${CLI_PATH} test-api-db-noauth --type=api-only --no-auth -y --no-git`,
+		command: `node ${CLI_PATH} test-api-db-noauth --type=api-only --no-auth -y --no-git`,
 		needsAuth: false,
 	},
 	{
 		name: "API-only: No DB, No Auth",
 		projectName: "test-api-nodb-noauth",
-		command: `tsx ${CLI_PATH} test-api-nodb-noauth --type=api-only --no-db -y --no-git`,
+		command: `node ${CLI_PATH} test-api-nodb-noauth --type=api-only --no-db -y --no-git`,
 		needsAuth: false,
 	},
 ];
@@ -89,9 +89,15 @@ async function testScenario(scenario: TestScenario): Promise<boolean> {
 
 		// Add .dev.vars if needed for auth (MUST be done before gen:types)
 		if (hasAuth) {
-			const devVarsContent = `BETTER_AUTH_SECRET=test-secret-key
-DISCORD_CLIENT_ID=test-client-id
-DISCORD_CLIENT_SECRET=test-client-secret`;
+			const devVarsContent = `# Environment variables for local development
+ENVIRONMENT=development
+
+# Better Auth Configuration
+BETTER_AUTH_SECRET=test-secret-key-for-testing-only
+
+# OAuth Providers
+DISCORD_CLIENT_ID=test-discord-client-id
+DISCORD_CLIENT_SECRET=test-discord-client-secret`;
 
 			await fs.writeFile(path.join(projectPath, ".dev.vars"), devVarsContent);
 		}
@@ -115,6 +121,10 @@ DISCORD_CLIENT_SECRET=test-client-secret`;
 			
 			await runCommand("bun run gen:routes", projectPath);
 			await runCommand("bun run gen:api", projectPath);
+			
+			// Build is required for tests to run (creates dist/client)
+			console.log(`  ${kleur.dim("→")} Building project...`);
+			await runCommand("bun run build", projectPath);
 		}
 
 		// Run lint:fix
