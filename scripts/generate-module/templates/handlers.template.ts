@@ -7,19 +7,17 @@ export const getHandlersTemplate = ({
 }: NameVariations) => `import type { Context } from "hono";
 import { HTTPException } from "hono/http-exception";
 import { StatusCodes } from "http-status-codes";
-import { eq } from "drizzle-orm";
-import { ${camel} } from "./${kebab}.table";
 import type { BaseContext } from "@/server/lib/worker-types";
-import type { Insert${pascal}, ${pascal}Id } from "./${kebab}.schema";
+import type { Insert${pascal}, ${pascal}Id, ${pascal} } from "./${kebab}.schema";
+
+// In-memory storage (replace with your preferred storage solution)
+const ${camel}Store = new Map<${pascal}Id, ${pascal}>();
+let nextId = 1;
 
 export const getAll${pascal} = async (c: Context<BaseContext>) => {
-	const db = c.get("db");
+	// Return all items from in-memory store
+	const ${camel}List = Array.from(${camel}Store.values());
 	
-	// Return all items (no user filtering)
-	const ${camel}List = await db.query.${camel}.findMany({
-		orderBy: (${camel}, { desc }) => [desc(${camel}.id)],
-	});
-
 	// Always return 200 with array (empty array if no items)
 	return c.json({ ${camel}s: ${camel}List }, StatusCodes.OK);
 };
@@ -34,12 +32,8 @@ export const get${pascal}ById = async (
 			message: "ID parameter is required",
 		});
 	}
-
-	const db = c.get("db");
 	
-	const ${camel}Item = await db.query.${camel}.findFirst({
-		where: (${camel}, { eq }) => eq(${camel}.id, id),
-	});
+	const ${camel}Item = ${camel}Store.get(id);
 
 	if (!${camel}Item) {
 		throw new HTTPException(StatusCodes.NOT_FOUND, {
@@ -60,13 +54,15 @@ export const create${pascal} = async (
 		});
 	}
 
-	const db = c.get("db");
-
 	// Create the ${camel}
-	const [new${pascal}] = await db
-		.insert(${camel})
-		.values(input.body)
-		.returning();
+	const new${pascal}: ${pascal} = {
+		id: nextId++,
+		...input.body,
+		createdAt: new Date(),
+		updatedAt: new Date(),
+	};
+	
+	${camel}Store.set(new${pascal}.id, new${pascal});
 
 	return c.json({ ${camel}: new${pascal} }, StatusCodes.CREATED);
 };
@@ -88,12 +84,8 @@ export const update${pascal} = async (
 		});
 	}
 
-	const db = c.get("db");
-
 	// Check if exists
-	const existing = await db.query.${camel}.findFirst({
-		where: (${camel}, { eq }) => eq(${camel}.id, id),
-	});
+	const existing = ${camel}Store.get(id);
 
 	if (!existing) {
 		throw new HTTPException(StatusCodes.NOT_FOUND, {
@@ -102,11 +94,15 @@ export const update${pascal} = async (
 	}
 
 	// Update the ${camel}
-	const [updated${pascal}] = await db
-		.update(${camel})
-		.set(input.body)
-		.where(eq(${camel}.id, id))
-		.returning();
+	const updated${pascal}: ${pascal} = {
+		...existing,
+		...input.body,
+		id: existing.id, // Preserve ID
+		createdAt: existing.createdAt, // Preserve creation date
+		updatedAt: new Date(),
+	};
+	
+	${camel}Store.set(id, updated${pascal});
 
 	return c.json({ ${camel}: updated${pascal} }, StatusCodes.OK);
 };
@@ -122,12 +118,8 @@ export const delete${pascal} = async (
 		});
 	}
 
-	const db = c.get("db");
-
 	// Check if exists
-	const existing = await db.query.${camel}.findFirst({
-		where: (${camel}, { eq }) => eq(${camel}.id, id),
-	});
+	const existing = ${camel}Store.get(id);
 
 	if (!existing) {
 		throw new HTTPException(StatusCodes.NOT_FOUND, {
@@ -136,8 +128,7 @@ export const delete${pascal} = async (
 	}
 
 	// Delete the ${camel}
-	await db.delete(${camel}).where(eq(${camel}.id, id));
+	${camel}Store.delete(id);
 
-	// Return 204 No Content for successful deletion
-	return new Response(null, { status: StatusCodes.NO_CONTENT });
+	return c.json({ success: true }, StatusCodes.OK);
 };`;

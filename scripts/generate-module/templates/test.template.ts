@@ -6,10 +6,9 @@ export const getTestTemplate = ({
 	kebab,
 }: NameVariations) => `import { env } from "cloudflare:test";
 import { beforeAll, beforeEach, describe, expect, it } from "vitest";
-import { ModuleRegistry } from "@/server/db/modular";
 import { createTestApp } from "@/server/tests/test-helpers";
 import ${camel}Module from "../index";
-import type { Select${pascal} } from "../${kebab}.schema";
+import type { ${pascal} } from "../${kebab}.schema";
 import {
 	createTest${pascal},
 	reset${pascal}TestData,
@@ -19,15 +18,12 @@ describe("${pascal} Module", () => {
 	let app: ReturnType<typeof createTestApp>;
 
 	beforeAll(async () => {
-		// Register module for database middleware
-		ModuleRegistry.register([${camel}Module]);
-
 		// Create test app
 		app = createTestApp([${camel}Module], env);
 	});
 
 	beforeEach(async () => {
-		// TODO: Add test data cleanup when DB is available
+		// Reset test data before each test
 		reset${pascal}TestData();
 	});
 
@@ -43,7 +39,7 @@ describe("${pascal} Module", () => {
 
 		const response = await app.request(request);
 		expect(response.status).toBe(201);
-		const json = await response.json() as { ${camel}: Select${pascal} };
+		const json = await response.json() as { ${camel}: ${pascal} };
 		expect(json.${camel}).toBeDefined();
 		expect(json.${camel}.name).toBe(${camel}Data.name);
 	});
@@ -58,13 +54,13 @@ describe("${pascal} Module", () => {
 			body: JSON.stringify(createTest${pascal}()),
 		});
 		const createResponse = await app.request(createReq);
-		const { ${camel} } = await createResponse.json() as { ${camel}: Select${pascal} };
+		const { ${camel} } = await createResponse.json() as { ${camel}: ${pascal} };
 
 		// Get the ${camel}
 		const getReq = new Request(\`http://localhost/api/${kebab}/\${${camel}.id}\`);
 		const response = await app.request(getReq);
 		expect(response.status).toBe(200);
-		const getJson = await response.json() as { ${camel}: Select${pascal} };
+		const getJson = await response.json() as { ${camel}: ${pascal} };
 		expect(getJson.${camel}.id).toBe(${camel}.id);
 	});
 
@@ -82,7 +78,7 @@ describe("${pascal} Module", () => {
 		const getReq = new Request("http://localhost/api/${kebab}");
 		const response = await app.request(getReq);
 		expect(response.status).toBe(200);
-		const json = await response.json() as { ${camel}s: Select${pascal}[] };
+		const json = await response.json() as { ${camel}s: ${pascal}[] };
 		expect(json.${camel}s).toBeDefined();
 		expect(Array.isArray(json.${camel}s)).toBe(true);
 	});

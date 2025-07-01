@@ -4,9 +4,7 @@ export const getSchemaTemplate = ({
 	pascal,
 	camel,
 	kebab,
-}: NameVariations) => `import { createInsertSchema, createSelectSchema } from "drizzle-zod";
-import { z } from "zod/v4";
-import { ${camel} } from "./${kebab}.table";
+}: NameVariations) => `import { z } from "zod/v4";
 
 // ID validation for params
 export const ${camel}IdSchema = z.coerce
@@ -15,6 +13,7 @@ export const ${camel}IdSchema = z.coerce
 	.positive()
 	.meta({ example: 1 })
 	.describe("${pascal} ID");
+
 export const ${camel}NameSchema = z
 	.string()
 	.min(1)
@@ -22,32 +21,33 @@ export const ${camel}NameSchema = z
 	.meta({ example: "John Doe" })
 	.describe("${pascal} name");
 
-// Database schemas
-export const select${pascal}Schema = createSelectSchema(${camel}, {
+// Base schema
+export const ${camel}Schema = z.object({
 	id: ${camel}IdSchema,
 	name: ${camel}NameSchema,
-	createdAt: z.iso.datetime({ offset: true }),
-	updatedAt: z.iso.datetime({ offset: true }),
+	createdAt: z.date().or(z.string().datetime()),
+	updatedAt: z.date().or(z.string().datetime()),
 });
-export const insert${pascal}Schema = createInsertSchema(${camel})
-	.omit({
-		id: true,
-		createdAt: true,
-		updatedAt: true,
-	});
 
+// Insert schema (without auto-generated fields)
+export const insert${pascal}Schema = z.object({
+	name: ${camel}NameSchema,
+});
+
+// Update schema (all fields optional)
 export const update${pascal}Schema = insert${pascal}Schema.partial();
 
-export type Select${pascal} = z.infer<typeof select${pascal}Schema>;
+// Type exports
+export type ${pascal} = z.infer<typeof ${camel}Schema>;
 export type Insert${pascal} = z.infer<typeof insert${pascal}Schema>;
 export type Update${pascal} = z.infer<typeof update${pascal}Schema>;
 export type ${pascal}Id = z.infer<typeof ${camel}IdSchema>;
 
 // Response schemas for API endpoints
 export const ${camel}ResponseSchema = z.object({
-	${camel}: select${pascal}Schema,
+	${camel}: ${camel}Schema,
 });
 
 export const ${camel}ListResponseSchema = z.object({
-	${camel}s: z.array(select${pascal}Schema),
+	${camel}s: z.array(${camel}Schema),
 });`;

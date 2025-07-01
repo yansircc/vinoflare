@@ -10,8 +10,6 @@ export default defineWorkersConfig({
 					configPath: "./wrangler.toml",
 				},
 				miniflare: {
-					// D1 databases configuration
-					d1Databases: ["DB"],
 					bindings: {
 						ENVIRONMENT: "test",
 					},

@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Vinoflare v2 API (No Auth) - API-only version built on Cloudflare Workers with Hono and D1 database. No authentication required.
+Vinoflare v2 API (No Auth No DB) - API-only version built on Cloudflare Workers with Hono. No authentication or database required.
 
 ## Essential Commands
 
@@ -18,11 +18,7 @@ bun run deploy       # Deploy to Cloudflare Workers
 bun run gen:module <name>     # Generate complete CRUD module
 bun run gen:api              # Update OpenAPI spec
 
-# Database
-bun run db:generate          # Generate migrations from schema changes
-bun run db:push:local        # Apply migrations locally
-bun run db:push:remote       # Apply migrations to production
-bun run db:studio            # Open Drizzle Studio GUI
+# No database commands in this version
 
 # Quality Checks (IMPORTANT: Run after implementing features)
 bun run lint                 # Check code style
@@ -35,9 +31,8 @@ bun test                     # Run tests
 ### Module System
 Each module in `/src/server/modules/` is self-contained with:
 - `index.ts` - Module definition with name, basePath, and createModule function
-- `[module].handlers.ts` - Business logic
+- `[module].handlers.ts` - Business logic (stateless)
 - `[module].routes.ts` - APIBuilder route definitions
-- `[module].table.ts` - Drizzle table schema
 - `[module].schema.ts` - Zod validation schemas
 
 ### APIBuilder Pattern
@@ -54,9 +49,10 @@ export const postsRoutes = builder.build();
 ```
 
 ### Key Patterns
-- **Database-first**: Tables → Zod schemas → Types → OpenAPI
+- **API-first**: Zod schemas → Types → OpenAPI
 - **No Authentication**: All API endpoints are publicly accessible
-- **Responses**: Always wrap data in objects: `{ post: Post }` or `{ posts: Post[] }`
+- **No Database**: Stateless API endpoints only
+- **Responses**: Always wrap data in objects: `{ data: Data }` or `{ items: Item[] }`
 - **Errors**: Global handler ensures consistent error format
 
 ## Key Conventions
@@ -75,15 +71,16 @@ export default {
   createModule: (app: Hono) => {
     app.route("/", postsRoutes);
     return app;
-  },
-  tables: { posts: postsTable }
+  }
 } satisfies ModuleDefinition;
 ```
 
-### Database Access
+### Stateless Handlers
 ```typescript
-const db = c.get("db");  // Get database from context
-const posts = await db.query.posts.findMany();
+// Handlers are pure functions that don't persist data
+export const handler = async (c: Context<BaseContext>) => {
+  return c.json({ message: "Hello!" }, StatusCodes.OK);
+};
 ```
 
 ## API Endpoints
@@ -104,9 +101,7 @@ const posts = await db.query.posts.findMany();
 
 ### Creating a New Module
 ```bash
-bun run gen:module <name>    # Generate complete CRUD module
-bun run db:generate          # Create migration
-bun run db:push:local        # Apply migration
+bun run gen:module <name>    # Generate stateless module
 bun run gen:api              # Update OpenAPI spec
 ```
 
