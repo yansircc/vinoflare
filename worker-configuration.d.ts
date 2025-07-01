@@ -7,7 +7,6 @@ declare namespace Cloudflare {
 		BETTER_AUTH_SECRET: string;
 		DISCORD_CLIENT_ID: string;
 		DISCORD_CLIENT_SECRET: string;
-		DB: D1Database;
 		ASSETS: Fetcher;
 	}
 }

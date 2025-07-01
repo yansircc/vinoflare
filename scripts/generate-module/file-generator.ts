@@ -3,7 +3,6 @@ import { join } from "node:path";
 import {
 	getHandlersTemplate,
 	getRoutesTemplate,
-	getTableTemplate,
 	getSchemaTemplate,
 	getIndexTemplate,
 	getTestTemplate,
@@ -22,7 +21,6 @@ export function generateModuleFiles(
 
 	// Core module files - Self-contained architecture
 	writeFileSync(indexPath, getIndexTemplate(names));
-	writeFileSync(join(paths.base, `${names.kebab}.table.ts`), getTableTemplate(names));
 	writeFileSync(join(paths.base, `${names.kebab}.schema.ts`), getSchemaTemplate(names));
 	writeFileSync(paths.handlers, getHandlersTemplate(names));
 	writeFileSync(paths.routes, getRoutesTemplate(names));
@@ -34,7 +32,6 @@ export function generateModuleFiles(
 	console.log(`✅ Module "${names.kebab}" scaffolded successfully!`);
 	console.log(`📁 Created files:`);
 	console.log(`   - ${indexPath}`);
-	console.log(`   - ${names.kebab}.table.ts`);
 	console.log(`   - ${names.kebab}.schema.ts`);
 	console.log(`   - ${paths.handlers}`);
 	console.log(`   - ${paths.routes}`);

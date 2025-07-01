@@ -4,9 +4,7 @@ export const getSchemaTemplate = ({
 	pascal,
 	camel,
 	kebab,
-}: NameVariations) => `import { createInsertSchema, createSelectSchema } from "drizzle-zod";
-import { z } from "zod/v4";
-import { ${camel} } from "./${kebab}.table";
+}: NameVariations) => `import { z } from "zod/v4";
 
 // ID validation for params
 export const ${camel}IdSchema = z.coerce
@@ -22,19 +20,17 @@ export const ${camel}NameSchema = z
 	.meta({ example: "John Doe" })
 	.describe("${pascal} name");
 
-// Database schemas
-export const select${pascal}Schema = createSelectSchema(${camel}, {
+// Manual schemas (no database dependency)
+export const select${pascal}Schema = z.object({
 	id: ${camel}IdSchema,
 	name: ${camel}NameSchema,
-	createdAt: z.iso.datetime({ offset: true }),
-	updatedAt: z.iso.datetime({ offset: true }),
+	createdAt: z.date(),
+	updatedAt: z.date(),
 });
-export const insert${pascal}Schema = createInsertSchema(${camel})
-	.omit({
-		id: true,
-		createdAt: true,
-		updatedAt: true,
-	});
+
+export const insert${pascal}Schema = z.object({
+	name: ${camel}NameSchema,
+});
 
 export const update${pascal}Schema = insert${pascal}Schema.partial();
 

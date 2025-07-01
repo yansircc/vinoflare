@@ -6,11 +6,9 @@ export const getIndexTemplate = ({
 	kebab,
 }: NameVariations) => `import type { ModuleDefinition } from "../../core/module-loader";
 import { create${pascal}Module } from "./${kebab}.routes";
-import { ${camel} } from "./${kebab}.table";
 
 // Export public APIs
 export * from "./${kebab}.schema";
-export { ${camel} } from "./${kebab}.table";
 
 // Module definition
 const ${camel}Module: ModuleDefinition = {
@@ -20,9 +18,6 @@ const ${camel}Module: ModuleDefinition = {
 	metadata: {
 		version: "1.0.0",
 		tags: ["${pascal}"],
-	},
-	tables: {
-		${camel},
 	},
 };
 

@@ -2,7 +2,6 @@ import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { trimTrailingSlash } from "hono/trailing-slash";
 import type { BaseContext } from "../lib/worker-types";
-import { database } from "../middleware/database";
 import { jsonLogger } from "../middleware/json-logger";
 import { createDocsRoutes } from "../routes/docs";
 import { errorHandler } from "./error-handler";
@@ -12,7 +11,6 @@ import { registerModules } from "./module-loader";
 export interface AppFactoryOptions {
 	modules: ModuleDefinition[];
 	middleware?: {
-		database?: boolean;
 		trimSlash?: boolean;
 		cors?: boolean;
 		logger?: boolean;
@@ -36,17 +34,6 @@ export function createApp(options: AppFactoryOptions) {
 	if (options.middleware?.trimSlash) {
 		app.use(trimTrailingSlash());
 		// Removed custom trimSlash middleware - trimTrailingSlash handles it properly
-	}
-
-	// Apply route-specific middleware
-	if (options.middleware?.database) {
-		// If basePath is provided, apply middleware to that path
-		// Otherwise apply to all routes
-		const middlewarePath = options.basePath ? `${options.basePath}/*` : "*";
-
-		if (options.middleware?.database) {
-			app.use(middlewarePath, database());
-		}
 	}
 
 	// Register modules

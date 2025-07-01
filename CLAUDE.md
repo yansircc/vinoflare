@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Vinoflare v2 - Full-stack TypeScript app on Cloudflare Workers with React, Hono, and D1 database. This is the NO-AUTH version with all authentication removed.
+Vinoflare v2 - Full-stack TypeScript app on Cloudflare Workers with React and Hono. This is the NO-AUTH NO-DB version with all authentication and database functionality removed.
 
 ## Essential Commands
 
@@ -19,11 +19,7 @@ bun run gen:module <name>     # Generate complete CRUD module
 bun run gen:api              # Update OpenAPI spec and client hooks
 bun run gen:routes           # Update TanStack Router types
 
-# Database
-bun run db:generate          # Generate migrations from schema changes
-bun run db:push:local        # Apply migrations locally
-bun run db:push:remote       # Apply migrations to production
-bun run db:studio            # Open Drizzle Studio GUI
+# No database commands in this version
 
 # Quality Checks (IMPORTANT: Run after implementing features)
 bun run lint                 # Check code style
@@ -38,7 +34,6 @@ Each module in `/src/server/modules/` is self-contained with:
 - `index.ts` - Module definition with name, basePath, and createModule function
 - `[module].handlers.ts` - Business logic
 - `[module].routes.ts` - APIBuilder route definitions
-- `[module].table.ts` - Drizzle table schema
 - `[module].schema.ts` - Zod validation schemas
 
 ### APIBuilder Pattern
@@ -55,9 +50,10 @@ export const postsRoutes = builder.build();
 ```
 
 ### Key Patterns
-- **Database-first**: Tables → Zod schemas → Types → OpenAPI → Client hooks
+- **API-first**: Zod schemas → Types → OpenAPI → Client hooks
 - **No Authentication**: All API routes are publicly accessible
-- **Responses**: Always wrap data in objects: `{ post: Post }` or `{ posts: Post[] }`
+- **No Database**: Stateless API endpoints only
+- **Responses**: Always wrap data in objects: `{ data: Data }` or `{ items: Item[] }`
 - **Errors**: Global handler ensures consistent error format
 
 ## Key Conventions
@@ -81,26 +77,26 @@ export default {
 } satisfies ModuleDefinition;
 ```
 
-### Database Access
+### Stateless Handlers
 ```typescript
-const db = c.get("db");  // Get database from context
-const posts = await db.query.posts.findMany();
+// Handlers are pure functions that don't persist data
+export const handler = async (c: Context<BaseContext>) => {
+  return c.json({ message: "Hello!" }, StatusCodes.OK);
+};
 ```
 
 ## Development Workflow
 
 ### Creating a New Module
 ```bash
-bun run gen:module <name>    # Generate complete CRUD module
-bun run db:generate          # Create migration
-bun run db:push:local        # Apply migration
+bun run gen:module <name>    # Generate stateless module
 bun run gen:api              # Update client types
 ```
 
 ### Important Notes
 - **API Docs**: Available at `/api/docs` (Scalar UI)
 - **No Authentication**: All API endpoints are publicly accessible
-- **Database GUI**: Run `bun run db:studio` to open Drizzle Studio
+- **No Database**: This version has no database functionality
 - **Response Format**: Always wrap data in objects: `return c.json({ post }, 200)`
 - **Environment**: Local config in `.dev.vars`, production via `wrangler secret put`
 

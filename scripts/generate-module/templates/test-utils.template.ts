@@ -4,8 +4,7 @@ export const getTestUtilsTemplate = ({
 	pascal,
 	camel,
 	kebab,
-}: NameVariations) => `import type { D1Database } from "@cloudflare/workers-types";
-import type { Insert${pascal} } from "../${kebab}.schema";
+}: NameVariations) => `import type { Insert${pascal} } from "../${kebab}.schema";
 
 /**
  * ${pascal}-specific test utilities
@@ -23,21 +22,4 @@ export function createTest${pascal}(overrides?: Partial<Insert${pascal}>): Inser
 
 export function reset${pascal}TestData() {
 	${camel}Counter = 0;
-}
-
-export async function setup${pascal}Table(db: D1Database) {
-	await db
-		.prepare(\`
-			CREATE TABLE IF NOT EXISTS ${kebab} (
-				id INTEGER PRIMARY KEY AUTOINCREMENT,
-				name TEXT NOT NULL,
-				created_at INTEGER NOT NULL DEFAULT (unixepoch()),
-				updated_at INTEGER NOT NULL DEFAULT (unixepoch())
-			)
-		\`)
-		.run();
-}
-
-export async function clean${pascal}Data(db: D1Database) {
-	await db.prepare("DELETE FROM ${kebab}").run();
 }`;

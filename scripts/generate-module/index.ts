@@ -39,9 +39,8 @@ Examples:
   bun run gen:module user-profiles
   
 This will generate a self-contained module with:
-  - Database table definition
   - Zod validation schemas
-  - CRUD handlers with error handling
+  - CRUD handlers with in-memory storage
   - Routes with validation and OpenAPI docs
   - Module configuration
   - Test file structure
@@ -77,10 +76,7 @@ if (existsSync(paths.base)) {
 generateModuleFiles(paths, names);
 
 console.log(`\n🎆 Next Steps:`);
-console.log(`   1. Update the table definition in ${names.kebab}.table.ts`);
-console.log(`   2. Run database migrations:`);
-console.log(`      bun run db:generate`);
-console.log(`      bun run db:push:local`);
-console.log(`   3. Generate API client:`);
+console.log(`   1. Update the schemas in ${names.kebab}.schema.ts`);
+console.log(`   2. Generate API client:`);
 console.log(`      bun run gen:api`);
 console.log(`\n🚀 Your module will be available at /api/${names.kebab}`);

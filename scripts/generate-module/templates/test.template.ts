@@ -6,7 +6,6 @@ export const getTestTemplate = ({
 	kebab,
 }: NameVariations) => `import { env } from "cloudflare:test";
 import { beforeAll, beforeEach, describe, expect, it } from "vitest";
-import { ModuleRegistry } from "@/server/db/modular";
 import { createTestApp } from "@/server/tests/test-helpers";
 import ${camel}Module from "../index";
 import type { Select${pascal} } from "../${kebab}.schema";
@@ -19,15 +18,12 @@ describe("${pascal} Module", () => {
 	let app: ReturnType<typeof createTestApp>;
 
 	beforeAll(async () => {
-		// Register module for database middleware
-		ModuleRegistry.register([${camel}Module]);
-
 		// Create test app
 		app = createTestApp([${camel}Module], env);
 	});
 
 	beforeEach(async () => {
-		// TODO: Add test data cleanup when DB is available
+		// Reset test data
 		reset${pascal}TestData();
 	});
 
@@ -53,10 +49,8 @@ describe("${pascal} Module", () => {
 		// Create a ${camel} first
 		const createReq = new Request("http://localhost/api/${kebab}", {
 			method: "POST",
+			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify(createTest${pascal}()),
-			headers: {
-				"Content-Type": "application/json",
-			},
 		});
 		const createResponse = await app.request(createReq);
 		const { ${camel} } = await createResponse.json() as { ${camel}: Select${pascal} };
@@ -71,10 +65,8 @@ describe("${pascal} Module", () => {
 		// Create a ${camel} first
 		const createReq = new Request("http://localhost/api/${kebab}", {
 			method: "POST",
+			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify(createTest${pascal}()),
-			headers: {
-				"Content-Type": "application/json",
-			},
 		});
 		await app.request(createReq);
 
@@ -86,10 +78,8 @@ describe("${pascal} Module", () => {
 	it("should validate required fields", async () => {
 		const request = new Request("http://localhost/api/${kebab}", {
 			method: "POST",
+			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify({}), // Empty body
-			headers: {
-				"Content-Type": "application/json",
-			},
 		});
 
 		const response = await app.request(request);
