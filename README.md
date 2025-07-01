@@ -136,19 +136,12 @@ bun run scaffold:module products
 2. 运行 `bun run db:push:local` 应用迁移
 3. 运行 `bun run gen:api` 更新客户端类型
 
-## 🔐 身份认证
+## 🔓 公开访问
 
-项目集成了 Better Auth，默认配置了 Discord OAuth：
-
-1. 在 [Discord Developer Portal](https://discord.com/developers/applications) 创建应用
-2. 添加重定向 URL：`http://localhost:5173/api/auth/callback/discord`
-3. 将 Client ID 和 Secret 添加到 `.dev.vars`
-
-支持的认证功能：
-- Discord OAuth 登录
-- JWT 令牌
-- 会话管理（7天有效期）
-- 路由保护（默认所有 API 路由需要认证）
+此版本已移除所有身份认证功能：
+- 所有 API 端点均为公开访问
+- 无需登录即可使用所有功能
+- 适合公共 API、内部服务或演示项目
 
 ## 📝 API 文档
 
