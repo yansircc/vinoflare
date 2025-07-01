@@ -4,6 +4,7 @@ dist
 *.log
 *.tgz
 test-output
+test-*
 .env
 .env.local
 .vscode
