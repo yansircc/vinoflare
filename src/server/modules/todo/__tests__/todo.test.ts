@@ -5,10 +5,7 @@ import { createAuthRequest } from "@/server/tests/auth-utils";
 import { createTestApp } from "@/server/tests/test-helpers";
 import todoModule from "../index";
 import type { SelectTodo } from "../todo.schema";
-import {
-	createTestTodo,
-	resetTodoTestData,
-} from "./todo.test-utils";
+import { createTestTodo, resetTodoTestData } from "./todo.test-utils";
 
 describe("Todo Module", () => {
 	let app: ReturnType<typeof createTestApp>;

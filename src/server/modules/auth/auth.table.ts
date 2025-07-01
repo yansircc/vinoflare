@@ -73,8 +73,9 @@ export const verification = sqliteTable("verification", {
 	createdAt: integer("createdAt", { mode: "timestamp" }).default(
 		sql`(CURRENT_TIMESTAMP)`,
 	),
-	updatedAt: integer("updatedAt", { mode: "timestamp" })
-		.default(sql`(CURRENT_TIMESTAMP)`),
+	updatedAt: integer("updatedAt", { mode: "timestamp" }).default(
+		sql`(CURRENT_TIMESTAMP)`,
+	),
 });
 
 // JWKS table for JWT plugin

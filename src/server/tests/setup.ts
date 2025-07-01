@@ -1,5 +1,5 @@
-import { beforeAll } from "vitest";
 import { env } from "cloudflare:test";
+import { beforeAll } from "vitest";
 
 // Apply database migrations before all tests
 beforeAll(async () => {
@@ -72,7 +72,7 @@ beforeAll(async () => {
 				],
 			},
 		];
-		
+
 		// Apply migrations to the test database
 		// Execute each migration query
 		for (const migration of migrations) {
@@ -80,7 +80,7 @@ beforeAll(async () => {
 				await env.DB.prepare(query).run();
 			}
 		}
-		
+
 		console.log("✅ Database migrations applied successfully");
 	} catch (error) {
 		console.error("❌ Failed to apply database migrations:", error);
