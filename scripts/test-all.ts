@@ -22,37 +22,37 @@ const scenarios: TestScenario[] = [
 	{
 		name: "Full-stack: DB + Auth",
 		projectName: "test-full-db-auth",
-		command: `node ${CLI_PATH} test-full-db-auth --type=full-stack -y --no-git`,
+		command: `node ${CLI_PATH} test-full-db-auth --type=full-stack -y --no-git --pm=bun`,
 		needsAuth: true,
 	},
 	{
 		name: "Full-stack: DB, No Auth",
 		projectName: "test-full-db-noauth",
-		command: `node ${CLI_PATH} test-full-db-noauth --type=full-stack --no-auth -y --no-git`,
+		command: `node ${CLI_PATH} test-full-db-noauth --type=full-stack --no-auth -y --no-git --pm=bun`,
 		needsAuth: false,
 	},
 	{
 		name: "Full-stack: No DB, No Auth",
 		projectName: "test-full-nodb-noauth",
-		command: `node ${CLI_PATH} test-full-nodb-noauth --type=full-stack --no-db -y --no-git`,
+		command: `node ${CLI_PATH} test-full-nodb-noauth --type=full-stack --no-db -y --no-git --pm=bun`,
 		needsAuth: false,
 	},
 	{
 		name: "API-only: DB + Auth",
 		projectName: "test-api-db-auth",
-		command: `node ${CLI_PATH} test-api-db-auth --type=api-only -y --no-git`,
+		command: `node ${CLI_PATH} test-api-db-auth --type=api-only -y --no-git --pm=bun`,
 		needsAuth: true,
 	},
 	{
 		name: "API-only: DB, No Auth",
 		projectName: "test-api-db-noauth",
-		command: `node ${CLI_PATH} test-api-db-noauth --type=api-only --no-auth -y --no-git`,
+		command: `node ${CLI_PATH} test-api-db-noauth --type=api-only --no-auth -y --no-git --pm=bun`,
 		needsAuth: false,
 	},
 	{
 		name: "API-only: No DB, No Auth",
 		projectName: "test-api-nodb-noauth",
-		command: `node ${CLI_PATH} test-api-nodb-noauth --type=api-only --no-db -y --no-git`,
+		command: `node ${CLI_PATH} test-api-nodb-noauth --type=api-only --no-db -y --no-git --pm=bun`,
 		needsAuth: false,
 	},
 ];
