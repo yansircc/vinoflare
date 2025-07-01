@@ -1,0 +1,65 @@
+{
+	"$schema": "https://biomejs.dev/schemas/2.0.6/schema.json",
+	"vcs": {
+		"enabled": true,
+		"clientKind": "git",
+		"useIgnoreFile": true
+	},
+	"files": {
+		"ignoreUnknown": false,
+		"includes": [
+			"src/**/*.ts",
+			"src/**/*.tsx",
+			"src/**/*.js",
+			"src/**/*.jsx",
+			"src/**/*.json"
+		]
+	},
+	"formatter": {
+		"enabled": true
+	},
+	"linter": {
+		"enabled": true,
+		"rules": {
+			"suspicious": {
+				"noArrayIndexKey": "off",
+				"noExplicitAny": "off",
+				"noConfusingVoidType": "off"
+			},
+			"style": {
+				"noNonNullAssertion": "off",
+				"useTemplate": "off",
+				"noUselessElse": "off",
+				"noUnusedTemplateLiteral": "off"
+			},
+			"correctness": {
+				"useExhaustiveDependencies": {
+					"level": "off",
+					"options": {
+						"hooks": [
+							{
+								"name": "useEffect",
+								"dependenciesIndex": 0
+							}
+						]
+					}
+				}
+			},
+			"complexity": {
+				"useOptionalChain": "off",
+				"noForEach": "off"
+			},
+			"nursery": {
+				"useUniqueElementIds": "off",
+				"useSortedClasses": {
+					"level": "warn",
+					"fix": "safe",
+					"options": {
+						"functions": ["clsx", "cva", "cn"]
+					}
+				}
+			},
+			"recommended": true
+		}
+	}
+}

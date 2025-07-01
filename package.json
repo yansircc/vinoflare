@@ -15,6 +15,7 @@
 		"prepublishOnly": "bun run build",
 		"test": "vitest",
 		"test:e2e": "tsx scripts/test-all.ts",
+		"test:parallel": "tsx scripts/test-all-parallel.ts",
 		"typecheck": "tsc --noEmit",
 		"lint": "biome check",
 		"lint:fix": "biome check --write",

@@ -1,0 +1,18 @@
+name = "my-vinoflare-app"
+compatibility_date = "2025-06-17"
+compatibility_flags = ["nodejs_compat"]
+main = "./src/index.tsx"
+
+[assets]
+directory = "./dist/client"
+binding = "ASSETS"
+
+[observability.logs]
+enabled = true
+
+[[d1_databases]]
+binding = "DB"
+database_name = "vinoflare-demo"
+database_id = "7e9ac121-da74-40bd-a55a-0568de668797"
+migrations_dir = "src/server/db/migrations"
+

@@ -68,7 +68,12 @@ async function runCommand(
 		});
 		return { stdout, stderr };
 	} catch (error: any) {
-		throw new Error(`Command failed: ${command}\n${error.message}`);
+		// Include stdout and stderr in error for better debugging
+		const errorMsg = `Command failed: ${command}
+Exit code: ${error.code}
+STDOUT: ${error.stdout || '(empty)'}
+STDERR: ${error.stderr || '(empty)'}`;
+		throw new Error(errorMsg);
 	}
 }
 
@@ -149,7 +154,22 @@ DISCORD_CLIENT_SECRET=test-discord-client-secret`;
 		return true;
 	} catch (error: any) {
 		console.error(`${kleur.red("✗")} ${scenario.name} failed:`);
-		console.error(`  ${kleur.red(error.message.split("\n")[0])}`);
+		
+		// Show detailed error information
+		const errorLines = error.message.split("\n");
+		errorLines.forEach((line: string, index: number) => {
+			if (index === 0) {
+				console.error(`  ${kleur.red(line)}`);
+			} else {
+				console.error(`  ${kleur.dim(line)}`);
+			}
+		});
+
+		// Save error log
+		const errorLogPath = path.join(TEST_OUTPUT_DIR, `${scenario.projectName}-error.log`);
+		await fs.ensureDir(TEST_OUTPUT_DIR);
+		await fs.writeFile(errorLogPath, error.message);
+		console.error(`  ${kleur.yellow("→")} Error details saved to: ${errorLogPath}`);
 
 		// Clean up on failure
 		await fs.remove(projectPath).catch(() => {});
@@ -185,8 +205,14 @@ async function main() {
 			`${kleur.red(`Fail: ${failCount}`)}`,
 	);
 
-	// Clean up test output directory
-	await fs.remove(TEST_OUTPUT_DIR);
+	// Show error log instructions if there were failures
+	if (failCount > 0) {
+		console.log(`\n${kleur.yellow("💡")} To view error details:`);
+		console.log(kleur.dim("   cat test-output/<test-name>-error.log"));
+	} else {
+		// Clean up test output directory only on success
+		await fs.remove(TEST_OUTPUT_DIR);
+	}
 
 	process.exit(failCount > 0 ? 1 : 0);
 }
