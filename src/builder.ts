@@ -127,10 +127,10 @@ export async function buildProject(config: ProjectConfig): Promise<void> {
 		// Get the appropriate branch
 		const branch = getBranchForConfig(config);
 
-		spinner.start(`Cloning template (${branch} branch)...`);
+		spinner.start("Setting up project template...");
 
 		if (config.name === ".") {
-			// Clone to a temp directory first, then move contents
+			// Copy to a temp directory first, then move contents
 			const tempDir = path.join(process.cwd(), ".vinoflare-temp");
 			await cloneTemplateBranch(branch, tempDir);
 
@@ -148,7 +148,7 @@ export async function buildProject(config: ProjectConfig): Promise<void> {
 			await cloneTemplateBranch(branch, projectPath);
 		}
 
-		spinner.stop(`Template cloned successfully`);
+		spinner.stop("Template ready");
 
 		// Update package.json with project name
 		spinner.start("Updating package.json...");

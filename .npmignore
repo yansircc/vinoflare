@@ -1,0 +1,51 @@
+# Development files
+src/
+scripts/
+vitest.config.ts
+tsconfig.json
+tsup.config.ts
+biome.jsonc
+bun.lock
+
+# Test files
+test-*
+test-output/
+*.test.ts
+*.test.js
+
+# Documentation
+*.md
+!README.md
+
+# Git
+.git/
+.gitignore
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+
+# Logs
+*.log
+
+# Package files
+*.tgz
+
+# Don't ignore templates directory itself
+!templates/
+
+# Template development files (keep production files)
+templates/**/.git/
+templates/**/node_modules/
+templates/**/dist/
+templates/**/.wrangler/
+templates/**/.tanstack/
+templates/**/bun.lock
+templates/**/package-lock.json
+templates/**/*.log
+templates/**/.DS_Store
+templates/**/.dev.vars
+templates/**/MIGRATION_*.md

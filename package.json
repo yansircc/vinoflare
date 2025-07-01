@@ -7,7 +7,8 @@
 		"create-vinoflare": "./dist/index.js"
 	},
 	"files": [
-		"dist"
+		"dist",
+		"templates"
 	],
 	"scripts": {
 		"dev": "tsx src/index.ts",

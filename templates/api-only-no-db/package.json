@@ -1,0 +1,39 @@
+{
+  "name": "test-vino007",
+  "version": "0.0.1",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "rm -rf dist && vite build",
+    "deploy": "wrangler deploy",
+    "typecheck": "tsc --noEmit",
+    "gen:types": "wrangler types --env-interface CloudflareBindings",
+    "gen:api": "bun scripts/generate-openapi.ts",
+    "gen:module": "bun scripts/generate-module/index.ts",
+    "lint": "biome lint --write .",
+    "lint:fix": "biome check --write .",
+    "format": "biome format --write .",
+    "env:push:cf": "wrangler secret bulk .prod.vars",
+    "env:push:gh": "bun scripts/push-gihub-env.ts",
+    "test": "vitest"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.0.6",
+    "@cloudflare/vite-plugin": "^1.7.5",
+    "@cloudflare/vitest-pool-workers": "^0.8.46",
+    "@cloudflare/workers-types": "^4.20250620.0",
+    "@hono/node-server": "^1.14.4",
+    "@types/node": "^24.0.4",
+    "dotenv": "^16.5.0",
+    "typescript": "^5.8.3",
+    "vite": "6.3.5",
+    "vitest": "^3.2.4",
+    "wrangler": "^4.21.2"
+  },
+  "dependencies": {
+    "@scalar/hono-api-reference": "^0.9.7",
+    "hono": "^4.7.3",
+    "http-status-codes": "^2.3.0",
+    "zod": "^3.25.2"
+  }
+}
