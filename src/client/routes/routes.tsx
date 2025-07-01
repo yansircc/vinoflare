@@ -7,22 +7,16 @@ export const Route = createFileRoute("/routes")({
 
 const endpoints = [
 	{
+		title: "Hello",
+		method: "GET",
+		path: "/api/hello",
+		description: "Returns a greeting message",
+	},
+	{
 		title: "Health Check",
 		method: "GET",
 		path: "/api/health",
 		description: "Returns the health status of the application",
-	},
-	{
-		title: "Get Posts",
-		method: "GET",
-		path: "/api/posts/latest",
-		description: "Returns a list of posts with pagination",
-	},
-	{
-		title: "Create Post",
-		method: "POST",
-		path: "/api/posts",
-		description: "Creates a new post",
 	},
 ];
 
