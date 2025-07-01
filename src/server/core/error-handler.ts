@@ -2,6 +2,7 @@ import type { Context } from "hono";
 import { HTTPException } from "hono/http-exception";
 import { StatusCodes } from "http-status-codes";
 import { ZodError } from "zod/v4";
+import { colorize, colorizeJson } from "../../utils/colors";
 
 export class APIError extends Error {
 	constructor(
@@ -36,12 +37,7 @@ export function errorHandler(err: Error, c: Context): Response {
 	// Handle Hono HTTPException
 	if (err instanceof HTTPException) {
 		const errorCode = (err as any).cause?.code || getErrorCode(err.status);
-		
-		// Log the error
-		console.error(
-			`[ERROR] ${timestamp} ${method} ${path} ${err.status} - ${errorCode}: ${err.message}`
-		);
-		
+
 		const response: ErrorResponse = {
 			error: {
 				code: errorCode,
@@ -56,16 +52,26 @@ export function errorHandler(err: Error, c: Context): Response {
 			response.error.details = (err as any).cause;
 		}
 
+		// Log the error in JSON format with color
+		const prefix = colorize("✖--", "red");
+		console.error(
+			`${prefix} ${colorizeJson({
+				type: "ERROR",
+				timestamp,
+				method,
+				path,
+				status: err.status,
+				code: errorCode,
+				message: err.message,
+				details: (err as any).cause || undefined,
+			})}`,
+		);
+
 		return c.json(response, err.status);
 	}
 
 	// Handle API errors
 	if (err instanceof APIError) {
-		// Log the error
-		console.error(
-			`[ERROR] ${timestamp} ${method} ${path} ${err.statusCode} - ${err.code}: ${err.message}`
-		);
-		
 		const response: ErrorResponse = {
 			error: {
 				code: err.code,
@@ -80,18 +86,27 @@ export function errorHandler(err: Error, c: Context): Response {
 			response.error.details = err.details;
 		}
 
+		// Log the error in JSON format with color
+		const statusColor = err.statusCode >= 500 ? "red" : "yellow";
+		const prefix = colorize("✖--", statusColor as any);
+		console.error(
+			`${prefix} ${colorizeJson({
+				type: "ERROR",
+				timestamp,
+				method,
+				path,
+				status: err.statusCode,
+				code: err.code,
+				message: err.message,
+				details: err.details || undefined,
+			})}`,
+		);
+
 		return c.json(response, err.statusCode as any);
 	}
 
 	// Handle Zod validation errors
 	if (err instanceof ZodError) {
-		// Log the error with first validation issue
-		const firstIssue = err.issues[0];
-		const errorMessage = firstIssue ? `${firstIssue.path.join('.')}: ${firstIssue.message}` : "Invalid request data";
-		console.error(
-			`[ERROR] ${timestamp} ${method} ${path} ${StatusCodes.BAD_REQUEST} - VALIDATION_ERROR: ${errorMessage}`
-		);
-		
 		const response: ErrorResponse = {
 			error: {
 				code: "VALIDATION_ERROR",
@@ -105,19 +120,25 @@ export function errorHandler(err: Error, c: Context): Response {
 			response.error.details = err.issues;
 		}
 
+		// Log the error in JSON format with details
+		const prefix = colorize("✖--", "yellow");
+		console.error(
+			`${prefix} ${colorizeJson({
+				type: "ERROR",
+				timestamp,
+				method,
+				path,
+				status: StatusCodes.BAD_REQUEST,
+				code: "VALIDATION_ERROR",
+				message: "Invalid request data",
+				details: err.issues,
+			})}`,
+		);
+
 		return c.json(response, StatusCodes.BAD_REQUEST);
 	}
 
 	// Handle unknown errors
-	console.error(
-		`[ERROR] ${timestamp} ${method} ${path} ${StatusCodes.INTERNAL_SERVER_ERROR} - INTERNAL_SERVER_ERROR: ${err.message || "An unexpected error occurred"}`
-	);
-	
-	// Log stack trace in development
-	if (c.env?.ENVIRONMENT === "development" && err.stack) {
-		console.error("[STACK TRACE]", err.stack);
-	}
-
 	const response: ErrorResponse = {
 		error: {
 			code: "INTERNAL_SERVER_ERROR",
@@ -134,6 +155,21 @@ export function errorHandler(err: Error, c: Context): Response {
 			stack: err.stack,
 		};
 	}
+
+	// Log the error in JSON format
+	const prefix = colorize("✖--", "red");
+	console.error(
+		`${prefix} ${colorizeJson({
+			type: "ERROR",
+			timestamp,
+			method,
+			path,
+			status: StatusCodes.INTERNAL_SERVER_ERROR,
+			code: "INTERNAL_SERVER_ERROR",
+			message: err.message || "An unexpected error occurred",
+			stack: c.env?.ENVIRONMENT === "development" ? err.stack : undefined,
+		})}`,
+	);
 
 	return c.json(response, StatusCodes.INTERNAL_SERVER_ERROR);
 }
