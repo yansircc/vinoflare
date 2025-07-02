@@ -37,6 +37,13 @@ async function main() {
 		let config: ProjectConfig;
 
 		if (options.yes) {
+			// Check if project name is provided with --yes flag
+			if (!options.name) {
+				p.cancel(kleur.red("Project name is required when using --yes flag"));
+				console.log(kleur.dim("  Usage: create-vinoflare <project-name> --yes"));
+				process.exit(1);
+			}
+
 			// Use defaults with --yes flag
 			const pm =
 				(options.packageManager as PackageManager) || detectPackageManager();

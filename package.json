@@ -1,6 +1,6 @@
 {
 	"name": "create-vinoflare",
-	"version": "0.1.0",
+	"version": "0.0.7",
 	"description": "Create modern full-stack apps with Vinoflare (Hono + Vite + Cloudflare)",
 	"type": "module",
 	"bin": {

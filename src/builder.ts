@@ -30,22 +30,7 @@ async function runSetup(
 			spinner.stop("Dependencies installed");
 		}
 
-		// Database setup
-		if (config.db) {
-			spinner.start("Setting up database...");
-			await execAsync(`${config.packageManager} run db:generate`, {
-				cwd: workDir,
-			});
-			await execAsync(`${config.packageManager} run db:push:local`, {
-				cwd: workDir,
-			});
-			await execAsync(`${config.packageManager} run gen:types`, {
-				cwd: workDir,
-			});
-			spinner.stop("Database setup complete");
-		}
-
-		// Auth setup
+		// Auth setup (must be done before gen:types to ensure .dev.vars exists)
 		if (config.auth) {
 			spinner.start("Setting up authentication...");
 
@@ -75,6 +60,21 @@ DISCORD_CLIENT_SECRET=your-client-secret
 					"⚠️  Remember to update .dev.vars with your Discord OAuth credentials",
 				),
 			);
+		}
+
+		// Database setup (after auth to ensure .dev.vars exists for gen:types)
+		if (config.db) {
+			spinner.start("Setting up database...");
+			await execAsync(`${config.packageManager} run db:generate`, {
+				cwd: workDir,
+			});
+			await execAsync(`${config.packageManager} run db:push:local`, {
+				cwd: workDir,
+			});
+			await execAsync(`${config.packageManager} run gen:types`, {
+				cwd: workDir,
+			});
+			spinner.stop("Database setup complete");
 		}
 
 		// Frontend setup
@@ -203,19 +203,19 @@ export async function buildProject(config: ProjectConfig): Promise<void> {
 
 		if (!shouldSetup) {
 			// Show manual setup instructions if skipped
+			if (config.auth) {
+				console.log();
+				console.log(kleur.yellow("⚠️  Authentication Setup Required:"));
+				console.log(kleur.dim("  1. Copy .dev.vars.example to .dev.vars"));
+				console.log(kleur.dim("  2. Add your Discord OAuth credentials"));
+			}
+
 			if (config.db) {
 				console.log();
 				console.log(kleur.yellow("⚠️  Database Setup Required:"));
 				console.log(kleur.dim(`  ${config.packageManager} run db:generate`));
 				console.log(kleur.dim(`  ${config.packageManager} run db:push:local`));
 				console.log(kleur.dim(`  ${config.packageManager} run gen:types`));
-			}
-
-			if (config.auth) {
-				console.log();
-				console.log(kleur.yellow("⚠️  Authentication Setup Required:"));
-				console.log(kleur.dim("  1. Copy .dev.vars.example to .dev.vars"));
-				console.log(kleur.dim("  2. Add your Discord OAuth credentials"));
 			}
 
 			if (config.type === "full-stack") {

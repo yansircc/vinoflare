@@ -16,7 +16,7 @@ export function createCLI(): Command {
 		.name("create-vinoflare")
 		.description("Create modern full-stack apps with Vinoflare")
 		.version(packageJson.version)
-		.argument("[name]", "Project name", ".")
+		.argument("[name]", "Project name")
 		.option("-t, --type <type>", "Project type (full-stack or api-only)")
 		.option("--no-auth", "Exclude authentication")
 		.option("--no-db", "Exclude database")

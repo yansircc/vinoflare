@@ -8,9 +8,42 @@ export async function promptForMissingOptions(
 	console.log();
 	p.intro(kleur.bgMagenta(kleur.black(" create-vinoflare ")));
 
-	const config: Partial<ProjectConfig> = {
-		name: options.name,
-	};
+	const config: Partial<ProjectConfig> = {};
+
+	// Project name
+	if (!options.name) {
+		const name = await p.text({
+			message: "What's your project name?",
+			placeholder: "my-vinoflare-app",
+			validate: (value) => {
+				if (!value || value.trim() === "") {
+					return "Project name is required";
+				}
+				// Allow "." as a special case for current directory
+				if (value === ".") {
+					return;
+				}
+				// Check for invalid characters
+				if (!/^[a-zA-Z0-9-_]+$/.test(value)) {
+					return "Project name can only contain letters, numbers, hyphens, and underscores";
+				}
+				// Check if it starts with a number
+				if (/^[0-9]/.test(value)) {
+					return "Project name cannot start with a number";
+				}
+				return;
+			},
+		});
+
+		if (p.isCancel(name)) {
+			p.cancel("Operation cancelled");
+			return null;
+		}
+
+		config.name = name;
+	} else {
+		config.name = options.name;
+	}
 
 	// Project type
 	if (options.type) {
@@ -143,9 +176,10 @@ export async function promptForMissingOptions(
 	}
 
 	// Summary
+	const displayName = config.name === "." ? "Current directory" : config.name;
 	const summary = `
 ${kleur.bold("Project Configuration:")}
-  ${kleur.dim("Name:")} ${config.name}
+  ${kleur.dim("Name:")} ${displayName}
   ${kleur.dim("Type:")} ${config.type}
   ${kleur.dim("Database:")} ${config.db ? "Yes (D1)" : "No"}
   ${kleur.dim("Auth:")} ${config.auth ? "Yes (Better Auth)" : "No"}
