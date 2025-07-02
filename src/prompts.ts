@@ -1,6 +1,6 @@
 import * as p from "@clack/prompts";
 import kleur from "kleur";
-import type { CLIOptions, ProjectConfig } from "./types";
+import type { CLIOptions, ProjectConfig, PackageManager } from "./types";
 
 export async function promptForMissingOptions(
 	options: CLIOptions,
@@ -10,8 +10,6 @@ export async function promptForMissingOptions(
 
 	const config: Partial<ProjectConfig> = {
 		name: options.name,
-		git: options.git !== false,
-		install: options.install !== false,
 	};
 
 	// Project type
@@ -80,9 +78,69 @@ export async function promptForMissingOptions(
 		config.auth = false;
 	}
 
-	// Package manager detection
-	const pm = detectPackageManager();
-	config.packageManager = pm;
+	// Git initialization
+	if (options.git !== undefined) {
+		config.git = options.git;
+	} else {
+		const git = await p.confirm({
+			message: "Initialize a git repository?",
+			initialValue: true,
+		});
+
+		if (p.isCancel(git)) {
+			p.cancel("Operation cancelled");
+			return null;
+		}
+
+		config.git = git;
+	}
+
+	// Dependency installation
+	if (options.install !== undefined) {
+		config.install = options.install;
+	} else {
+		const install = await p.confirm({
+			message: "Install dependencies?",
+			initialValue: true,
+		});
+
+		if (p.isCancel(install)) {
+			p.cancel("Operation cancelled");
+			return null;
+		}
+
+		config.install = install;
+	}
+
+	// Package manager - use provided option or detect
+	if (options.packageManager) {
+		config.packageManager = options.packageManager as PackageManager;
+	} else {
+		const pm = detectPackageManager();
+		config.packageManager = pm;
+	}
+
+	// Initial setup (only if db, auth, or full-stack)
+	const setupNeeded = config.db || config.auth || config.type === "full-stack";
+	if (setupNeeded) {
+		if (options.setup !== undefined) {
+			config.setup = options.setup;
+		} else {
+			const setup = await p.confirm({
+				message: "Run initial setup after creation? (recommended)",
+				initialValue: true,
+			});
+
+			if (p.isCancel(setup)) {
+				p.cancel("Operation cancelled");
+				return null;
+			}
+
+			config.setup = setup;
+		}
+	} else {
+		config.setup = false;
+	}
 
 	// Summary
 	const summary = `
@@ -93,7 +151,8 @@ ${kleur.bold("Project Configuration:")}
   ${kleur.dim("Auth:")} ${config.auth ? "Yes (Better Auth)" : "No"}
   ${kleur.dim("Git:")} ${config.git ? "Yes" : "No"}
   ${kleur.dim("Install:")} ${config.install ? "Yes" : "No"}
-  ${kleur.dim("Package Manager:")} ${config.packageManager}
+  ${kleur.dim("Package Manager:")} ${config.packageManager}${setupNeeded ? `
+  ${kleur.dim("Initial Setup:")} ${config.setup ? "Yes" : "No"}` : ""}
 `;
 
 	console.log(summary);

@@ -7,6 +7,7 @@ export interface CLIOptions {
 	install?: boolean;
 	git?: boolean;
 	packageManager?: string;
+	setup?: boolean;
 }
 
 export interface ProjectConfig {
@@ -18,6 +19,7 @@ export interface ProjectConfig {
 	install: boolean;
 	packageManager: PackageManager;
 	yes?: boolean;
+	setup: boolean;
 }
 
 export type PackageManager = "npm" | "yarn" | "pnpm" | "bun";

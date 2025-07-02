@@ -26,14 +26,16 @@ export function createCLI(): Command {
 		.option("--pm, --package-manager <pm>", "Package manager to use")
 		.action((name: string, options: any) => {
 			// Convert commander options to our CLIOptions type
+			// Only set values if they were explicitly provided
 			const cliOptions: CLIOptions = {
 				name,
 				type: options.type,
-				auth: options.auth,
-				db: options.db,
+				// For --no-* options, only set if explicitly used
+				auth: program.opts().auth === false ? false : undefined,
+				db: program.opts().db === false ? false : undefined,
 				yes: options.yes,
-				install: options.install,
-				git: options.git,
+				install: program.opts().install === false ? false : undefined,
+				git: program.opts().git === false ? false : undefined,
 				packageManager: options.packageManager,
 			};
 

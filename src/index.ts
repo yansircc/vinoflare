@@ -38,7 +38,7 @@ async function main() {
 
 		if (options.yes) {
 			// Use defaults with --yes flag
-			const pm = detectPackageManager();
+			const pm = options.packageManager as PackageManager || detectPackageManager();
 
 			config = {
 				name: options.name,
@@ -49,6 +49,7 @@ async function main() {
 				install: options.install !== false,
 				packageManager: pm,
 				yes: true,
+				setup: false, // Don't run setup automatically with --yes
 			};
 		} else {
 			// Interactive mode

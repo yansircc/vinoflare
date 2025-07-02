@@ -10,30 +10,10 @@ import type { ProjectConfig } from "./types";
 
 const execAsync = promisify(exec);
 
-async function promptForSetup(
+async function runSetup(
 	config: ProjectConfig,
 	workDir: string,
 ): Promise<boolean> {
-	// Skip setup prompt in non-interactive mode
-	if (config.yes) {
-		return false;
-	}
-
-	const setupNeeded = config.db || config.auth || config.type === "full-stack";
-	if (!setupNeeded) {
-		return false;
-	}
-
-	console.log();
-	const runSetup = await p.confirm({
-		message: "Would you like to run the initial setup? (recommended)",
-		initialValue: true,
-	});
-
-	if (p.isCancel(runSetup) || !runSetup) {
-		return false;
-	}
-
 	const spinner = p.spinner();
 
 	try {
@@ -188,9 +168,9 @@ export async function buildProject(config: ProjectConfig): Promise<void> {
 		// Success!
 		p.outro(kleur.green("✓ Project created successfully!"));
 
-		// Ask about setup
+		// Run setup if requested
 		const workDir = config.name === "." ? process.cwd() : projectPath;
-		const shouldSetup = await promptForSetup(config, workDir);
+		const shouldSetup = config.setup ? await runSetup(config, workDir) : false;
 
 		// Show next steps
 		console.log();
