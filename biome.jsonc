@@ -26,5 +26,8 @@
 		"formatter": {
 			"quoteStyle": "double"
 		}
+	},
+	"files": {
+		"includes": ["src/**/*", "scripts/**/*", "*.ts", "*.js", "*.json"]
 	}
 }

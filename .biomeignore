@@ -1,0 +1,6 @@
+templates
+test-output
+test-*
+dist
+node_modules
+*.tgz

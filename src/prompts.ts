@@ -1,6 +1,6 @@
 import * as p from "@clack/prompts";
 import kleur from "kleur";
-import type { CLIOptions, ProjectConfig, PackageManager } from "./types";
+import type { CLIOptions, PackageManager, ProjectConfig } from "./types";
 
 export async function promptForMissingOptions(
 	options: CLIOptions,
@@ -151,8 +151,12 @@ ${kleur.bold("Project Configuration:")}
   ${kleur.dim("Auth:")} ${config.auth ? "Yes (Better Auth)" : "No"}
   ${kleur.dim("Git:")} ${config.git ? "Yes" : "No"}
   ${kleur.dim("Install:")} ${config.install ? "Yes" : "No"}
-  ${kleur.dim("Package Manager:")} ${config.packageManager}${setupNeeded ? `
-  ${kleur.dim("Initial Setup:")} ${config.setup ? "Yes" : "No"}` : ""}
+  ${kleur.dim("Package Manager:")} ${config.packageManager}${
+		setupNeeded
+			? `
+  ${kleur.dim("Initial Setup:")} ${config.setup ? "Yes" : "No"}`
+			: ""
+	}
 `;
 
 	console.log(summary);

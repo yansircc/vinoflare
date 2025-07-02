@@ -33,20 +33,26 @@ async function runSetup(
 		// Database setup
 		if (config.db) {
 			spinner.start("Setting up database...");
-			await execAsync(`${config.packageManager} run db:generate`, { cwd: workDir });
-			await execAsync(`${config.packageManager} run db:push:local`, { cwd: workDir });
-			await execAsync(`${config.packageManager} run gen:types`, { cwd: workDir });
+			await execAsync(`${config.packageManager} run db:generate`, {
+				cwd: workDir,
+			});
+			await execAsync(`${config.packageManager} run db:push:local`, {
+				cwd: workDir,
+			});
+			await execAsync(`${config.packageManager} run gen:types`, {
+				cwd: workDir,
+			});
 			spinner.stop("Database setup complete");
 		}
 
 		// Auth setup
 		if (config.auth) {
 			spinner.start("Setting up authentication...");
-			
+
 			// Create .dev.vars from example
 			const examplePath = path.join(workDir, ".dev.vars.example");
 			const devVarsPath = path.join(workDir, ".dev.vars");
-			
+
 			if (await fs.pathExists(examplePath)) {
 				await fs.copy(examplePath, devVarsPath);
 			} else {
@@ -60,28 +66,37 @@ DISCORD_CLIENT_SECRET=your-client-secret
 `;
 				await fs.writeFile(devVarsPath, devVarsContent);
 			}
-			
+
 			spinner.stop("Authentication setup complete");
-			
+
 			console.log();
-			console.log(kleur.yellow("⚠️  Remember to update .dev.vars with your Discord OAuth credentials"));
+			console.log(
+				kleur.yellow(
+					"⚠️  Remember to update .dev.vars with your Discord OAuth credentials",
+				),
+			);
 		}
 
 		// Frontend setup
 		if (config.type === "full-stack") {
 			spinner.start("Setting up frontend...");
-			
+
 			// Ensure generated directory exists
 			const generatedDir = path.join(workDir, "src", "generated");
 			await fs.ensureDir(generatedDir);
-			
-			await execAsync(`${config.packageManager} run gen:routes`, { cwd: workDir });
-			
+
+			await execAsync(`${config.packageManager} run gen:routes`, {
+				cwd: workDir,
+			});
+
 			// Only run gen:api if there's a backend API
-			if (config.db || !config.db) { // Always true for now, but keeping for clarity
-				await execAsync(`${config.packageManager} run gen:api`, { cwd: workDir });
+			if (config.db || !config.db) {
+				// Always true for now, but keeping for clarity
+				await execAsync(`${config.packageManager} run gen:api`, {
+					cwd: workDir,
+				});
 			}
-			
+
 			spinner.stop("Frontend setup complete");
 		}
 
@@ -89,7 +104,9 @@ DISCORD_CLIENT_SECRET=your-client-secret
 	} catch (error) {
 		spinner.stop("Setup failed");
 		console.error(kleur.red(`\nSetup failed: ${error}`));
-		console.log(kleur.yellow("\nYou can run the setup commands manually later."));
+		console.log(
+			kleur.yellow("\nYou can run the setup commands manually later."),
+		);
 		return false;
 	}
 }

@@ -38,7 +38,8 @@ async function main() {
 
 		if (options.yes) {
 			// Use defaults with --yes flag
-			const pm = options.packageManager as PackageManager || detectPackageManager();
+			const pm =
+				(options.packageManager as PackageManager) || detectPackageManager();
 
 			config = {
 				name: options.name,

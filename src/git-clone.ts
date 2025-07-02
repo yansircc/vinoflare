@@ -8,7 +8,7 @@ const __dirname = path.dirname(__filename);
 
 // Map branch names to template directories
 const branchToTemplateMap: Record<BranchName, string> = {
-	"main": "full-stack",
+	main: "full-stack",
 	"full-stack-no-auth": "full-stack-no-auth",
 	"full-stack-no-auth-no-db": "full-stack-no-db",
 	"api-only": "api-only",
@@ -47,12 +47,12 @@ export async function cloneTemplateBranch(
 
 	// Get the package root directory
 	const packageRoot = findPackageRoot(__dirname);
-	
+
 	// Get the source template path
 	const sourcePath = path.join(packageRoot, "templates", templateDir);
 
 	// Ensure the source template exists
-	if (!await fs.pathExists(sourcePath)) {
+	if (!(await fs.pathExists(sourcePath))) {
 		throw new Error(`Template not found: ${templateDir}`);
 	}
 
