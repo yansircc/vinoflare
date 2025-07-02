@@ -61,6 +61,21 @@ export async function cloneTemplateBranch(
 		overwrite: true,
 		errorOnExist: false,
 	});
+
+	// Rename gitignore to .gitignore after copying (npm ignores .gitignore files)
+	const gitignorePath = path.join(targetPath, "gitignore");
+	const dotGitignorePath = path.join(targetPath, ".gitignore");
+	if (await fs.pathExists(gitignorePath)) {
+		await fs.rename(gitignorePath, dotGitignorePath);
+	}
+
+	// Rename biome.jsonc.template to biome.jsonc after copying
+	// (to avoid conflicts with parent biome.jsonc during linting)
+	const biomeTemplatePath = path.join(targetPath, "biome.jsonc.template");
+	const biomeConfigPath = path.join(targetPath, "biome.jsonc");
+	if (await fs.pathExists(biomeTemplatePath)) {
+		await fs.rename(biomeTemplatePath, biomeConfigPath);
+	}
 }
 
 export async function initializeGit(projectPath: string): Promise<void> {
