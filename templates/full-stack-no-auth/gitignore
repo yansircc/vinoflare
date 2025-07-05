@@ -59,6 +59,3 @@ src/generated/
 # Migrations (local state)
 .wrangler/state/
 drizzle/meta/_journal.json
-
-# TanStack Router
-.tanstack/

@@ -1,0 +1,47 @@
+import { cn, colors, divider, text } from "@/client/lib/design";
+import type { GetTodo200TodosItem } from "@/generated/schemas";
+import { TodoItem } from "./todo-item";
+
+interface TodoListProps {
+	todos: GetTodo200TodosItem[];
+	onToggle: (todo: GetTodo200TodosItem) => void;
+	onDelete: (id: number) => void;
+	updatingIds: Set<number>;
+	deletingIds: Set<number>;
+}
+
+export function TodoList({
+	todos,
+	onToggle,
+	onDelete,
+	updatingIds,
+	deletingIds,
+}: TodoListProps) {
+	if (todos.length === 0) {
+		return (
+			<section className={cn(divider.section)}>
+				<p className={cn(text.base, colors.text.muted)}>
+					No todos yet. Add one above to get started.
+				</p>
+			</section>
+		);
+	}
+
+	return (
+		<section className={cn(divider.section)}>
+			<ul className="space-y-0">
+				{todos.map((todo, index) => (
+					<TodoItem
+						key={todo.id}
+						todo={todo}
+						index={index}
+						onToggle={onToggle}
+						onDelete={onDelete}
+						isUpdating={updatingIds.has(todo.id)}
+						isDeleting={deletingIds.has(todo.id)}
+					/>
+				))}
+			</ul>
+		</section>
+	);
+}
