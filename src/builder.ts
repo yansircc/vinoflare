@@ -89,9 +89,14 @@ DISCORD_CLIENT_SECRET=your-client-secret
 				cwd: workDir,
 			});
 
-			// Only run gen:api if there's a backend API
-			if (config.db || !config.db) {
-				// Always true for now, but keeping for clarity
+			// Run appropriate API client generation based on RPC vs Orval
+			if (config.rpc) {
+				// RPC templates use gen:client
+				await execAsync(`${config.packageManager} run gen:client`, {
+					cwd: workDir,
+				});
+			} else {
+				// Orval templates use gen:api
 				await execAsync(`${config.packageManager} run gen:api`, {
 					cwd: workDir,
 				});
@@ -222,7 +227,11 @@ export async function buildProject(config: ProjectConfig): Promise<void> {
 				console.log();
 				console.log(kleur.yellow("⚠️  Frontend Setup Required:"));
 				console.log(kleur.dim(`  ${config.packageManager} run gen:routes`));
-				console.log(kleur.dim(`  ${config.packageManager} run gen:api`));
+				console.log(
+					kleur.dim(
+						`  ${config.packageManager} run ${config.rpc ? "gen:client" : "gen:api"}`,
+					),
+				);
 			}
 		}
 

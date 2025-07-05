@@ -111,6 +111,27 @@ export async function promptForMissingOptions(
 		config.auth = false;
 	}
 
+	// RPC vs Orval (only for full-stack projects)
+	if (config.type === "full-stack") {
+		if (options.rpc !== undefined) {
+			config.rpc = options.rpc;
+		} else {
+			const rpc = await p.confirm({
+				message: "Use Hono RPC client instead of Orval (OpenAPI)?",
+				initialValue: false,
+			});
+
+			if (p.isCancel(rpc)) {
+				p.cancel("Operation cancelled");
+				return null;
+			}
+
+			config.rpc = rpc;
+		}
+	} else {
+		config.rpc = false;
+	}
+
 	// Git initialization
 	if (options.git !== undefined) {
 		config.git = options.git;
@@ -182,7 +203,12 @@ ${kleur.bold("Project Configuration:")}
   ${kleur.dim("Name:")} ${displayName}
   ${kleur.dim("Type:")} ${config.type}
   ${kleur.dim("Database:")} ${config.db ? "Yes (D1)" : "No"}
-  ${kleur.dim("Auth:")} ${config.auth ? "Yes (Better Auth)" : "No"}
+  ${kleur.dim("Auth:")} ${config.auth ? "Yes (Better Auth)" : "No"}${
+		config.type === "full-stack"
+			? `
+  ${kleur.dim("API Client:")} ${config.rpc ? "Hono RPC" : "Orval (OpenAPI)"}`
+			: ""
+	}
   ${kleur.dim("Git:")} ${config.git ? "Yes" : "No"}
   ${kleur.dim("Install:")} ${config.install ? "Yes" : "No"}
   ${kleur.dim("Package Manager:")} ${config.packageManager}${

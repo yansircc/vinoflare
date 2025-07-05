@@ -40,7 +40,9 @@ async function main() {
 			// Check if project name is provided with --yes flag
 			if (!options.name) {
 				p.cancel(kleur.red("Project name is required when using --yes flag"));
-				console.log(kleur.dim("  Usage: create-vinoflare <project-name> --yes"));
+				console.log(
+					kleur.dim("  Usage: create-vinoflare <project-name> --yes"),
+				);
 				process.exit(1);
 			}
 
@@ -58,6 +60,9 @@ async function main() {
 				packageManager: pm,
 				yes: true,
 				setup: false, // Don't run setup automatically with --yes
+				rpc:
+					options.rpc === true &&
+					(options.type || "full-stack") === "full-stack",
 			};
 		} else {
 			// Interactive mode

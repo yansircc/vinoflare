@@ -8,6 +8,7 @@ export interface CLIOptions {
 	git?: boolean;
 	packageManager?: string;
 	setup?: boolean;
+	rpc?: boolean;
 }
 
 export interface ProjectConfig {
@@ -20,6 +21,7 @@ export interface ProjectConfig {
 	packageManager: PackageManager;
 	yes?: boolean;
 	setup: boolean;
+	rpc: boolean;
 }
 
 export type PackageManager = "npm" | "yarn" | "pnpm" | "bun";
@@ -30,11 +32,15 @@ export type BranchName =
 	| "full-stack-no-auth-no-db"
 	| "api-only"
 	| "api-only-no-auth"
-	| "api-only-no-auth-no-db";
+	| "api-only-no-auth-no-db"
+	| "full-stack-rpc"
+	| "full-stack-rpc-no-auth"
+	| "full-stack-rpc-no-db";
 
 export interface BranchMapping {
 	type: "full-stack" | "api-only";
 	auth: boolean;
 	db: boolean;
 	branch: BranchName;
+	rpc?: boolean;
 }

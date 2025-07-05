@@ -14,6 +14,9 @@ const branchToTemplateMap: Record<BranchName, string> = {
 	"api-only": "api-only",
 	"api-only-no-auth": "api-only-no-auth",
 	"api-only-no-auth-no-db": "api-only-no-db",
+	"full-stack-rpc": "full-stack-rpc",
+	"full-stack-rpc-no-auth": "full-stack-rpc-no-auth",
+	"full-stack-rpc-no-db": "full-stack-rpc-no-db",
 };
 
 // Find the package root (where package.json is located)

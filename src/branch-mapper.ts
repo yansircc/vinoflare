@@ -1,14 +1,45 @@
 import type { BranchMapping, BranchName, ProjectConfig } from "./types";
 
 const branchMappings: BranchMapping[] = [
-	{ type: "full-stack", auth: true, db: true, branch: "main" },
-	{ type: "full-stack", auth: false, db: true, branch: "full-stack-no-auth" },
+	// Orval (OpenAPI) based templates
+	{ type: "full-stack", auth: true, db: true, branch: "main", rpc: false },
+	{
+		type: "full-stack",
+		auth: false,
+		db: true,
+		branch: "full-stack-no-auth",
+		rpc: false,
+	},
 	{
 		type: "full-stack",
 		auth: false,
 		db: false,
 		branch: "full-stack-no-auth-no-db",
+		rpc: false,
 	},
+	// Hono RPC based templates
+	{
+		type: "full-stack",
+		auth: true,
+		db: true,
+		branch: "full-stack-rpc",
+		rpc: true,
+	},
+	{
+		type: "full-stack",
+		auth: false,
+		db: true,
+		branch: "full-stack-rpc-no-auth",
+		rpc: true,
+	},
+	{
+		type: "full-stack",
+		auth: false,
+		db: false,
+		branch: "full-stack-rpc-no-db",
+		rpc: true,
+	},
+	// API only templates (no RPC option)
 	{ type: "api-only", auth: true, db: true, branch: "api-only" },
 	{ type: "api-only", auth: false, db: true, branch: "api-only-no-auth" },
 	{
@@ -25,7 +56,11 @@ export function getBranchForConfig(config: ProjectConfig): BranchName {
 
 	const mapping = branchMappings.find(
 		(m) =>
-			m.type === config.type && m.auth === effectiveAuth && m.db === config.db,
+			m.type === config.type &&
+			m.auth === effectiveAuth &&
+			m.db === config.db &&
+			// Only check RPC for full-stack projects
+			(config.type === "full-stack" ? m.rpc === config.rpc : true),
 	);
 
 	if (!mapping) {

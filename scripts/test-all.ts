@@ -19,6 +19,7 @@ interface TestScenario {
 }
 
 const scenarios: TestScenario[] = [
+	// Orval (OpenAPI) based full-stack templates
 	{
 		name: "Full-stack: DB + Auth",
 		projectName: "test-full-db-auth",
@@ -37,6 +38,26 @@ const scenarios: TestScenario[] = [
 		command: `node ${CLI_PATH} test-full-nodb-noauth --type=full-stack --no-db -y --no-git --pm=bun`,
 		needsAuth: false,
 	},
+	// Hono RPC based full-stack templates
+	{
+		name: "Full-stack RPC: DB + Auth",
+		projectName: "test-full-rpc-db-auth",
+		command: `node ${CLI_PATH} test-full-rpc-db-auth --type=full-stack --rpc -y --no-git --pm=bun`,
+		needsAuth: true,
+	},
+	{
+		name: "Full-stack RPC: DB, No Auth",
+		projectName: "test-full-rpc-db-noauth",
+		command: `node ${CLI_PATH} test-full-rpc-db-noauth --type=full-stack --rpc --no-auth -y --no-git --pm=bun`,
+		needsAuth: false,
+	},
+	{
+		name: "Full-stack RPC: No DB, No Auth",
+		projectName: "test-full-rpc-nodb-noauth",
+		command: `node ${CLI_PATH} test-full-rpc-nodb-noauth --type=full-stack --rpc --no-db -y --no-git --pm=bun`,
+		needsAuth: false,
+	},
+	// API-only templates
 	{
 		name: "API-only: DB + Auth",
 		projectName: "test-api-db-auth",
@@ -125,7 +146,14 @@ DISCORD_CLIENT_SECRET=test-discord-client-secret`;
 			await fs.ensureDir(generatedDir);
 			
 			await runCommand("bun run gen:routes", projectPath);
-			await runCommand("bun run gen:api", projectPath);
+			
+			// Check if this is an RPC template
+			const isRpc = scenario.command.includes("--rpc");
+			if (isRpc) {
+				await runCommand("bun run gen:client", projectPath);
+			} else {
+				await runCommand("bun run gen:api", projectPath);
+			}
 			
 			// Build is required for tests to run (creates dist/client)
 			console.log(`  ${kleur.dim("→")} Building project...`);

@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a CLI tool for scaffolding modern full-stack TypeScript applications optimized for Cloudflare Workers. It provides 6 different template options with varying features (auth, database, full-stack vs API-only).
+This is a CLI tool for scaffolding modern full-stack TypeScript applications optimized for Cloudflare Workers. It provides 9 different template options with varying features (auth, database, full-stack vs API-only, Orval vs Hono RPC for API client generation).
 
 ## Essential Commands
 
@@ -35,7 +35,10 @@ bun pack:test
 ### Testing a Single Template
 ```bash
 # Run CLI with specific template name
-bun dev create test-project --template full-stack
+bun dev create test-project --type full-stack
+
+# With RPC client instead of Orval
+bun dev create test-project --type full-stack --rpc
 
 # Or interactively
 bun dev create test-project
@@ -56,6 +59,7 @@ Each template (in `templates/` directory) is a complete project with:
 - Optional: React frontend with TanStack Router
 - Optional: Cloudflare D1 database with Drizzle ORM
 - Optional: Better Auth with Discord OAuth
+- Optional: Hono RPC client (instead of Orval/OpenAPI) for type-safe API calls
 - Build tooling: Vite for frontend, Wrangler for Workers
 
 ### Key Design Decisions
@@ -77,9 +81,13 @@ See `src/prompts.ts:detectPackageManager()` for implementation.
 
 ### Template Branch Mapping
 Templates are mapped to Git branches in `src/branch-mapper.ts`:
-- `full-stack` → `full-stack-scaffold`
-- `api-only` → `api-only-scaffold`
-- etc.
+- Full-stack with Orval: `main`, `full-stack-no-auth`, `full-stack-no-auth-no-db`
+- Full-stack with RPC: `full-stack-rpc`, `full-stack-rpc-no-auth`, `full-stack-rpc-no-db`
+- API-only: `api-only`, `api-only-no-auth`, `api-only-no-auth-no-db`
+
+### API Client Generation
+- Orval templates use `npm run gen:api` to generate OpenAPI-based client hooks
+- RPC templates use `npm run gen:client` to generate Hono RPC client
 
 ### Error Handling
 - All errors are caught in `src/index.ts:main()` and displayed using @clack/prompts

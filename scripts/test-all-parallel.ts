@@ -27,6 +27,7 @@ interface TestResult {
 }
 
 const scenarios: TestScenario[] = [
+	// Orval (OpenAPI) based full-stack templates
 	{
 		name: "Full-stack: DB + Auth",
 		projectName: "test-full-db-auth",
@@ -45,6 +46,26 @@ const scenarios: TestScenario[] = [
 		command: `node ${CLI_PATH} test-full-nodb-noauth --type=full-stack --no-db -y --no-git --pm=bun`,
 		needsAuth: false,
 	},
+	// Hono RPC based full-stack templates
+	{
+		name: "Full-stack RPC: DB + Auth",
+		projectName: "test-full-rpc-db-auth",
+		command: `node ${CLI_PATH} test-full-rpc-db-auth --type=full-stack --rpc -y --no-git --pm=bun`,
+		needsAuth: true,
+	},
+	{
+		name: "Full-stack RPC: DB, No Auth",
+		projectName: "test-full-rpc-db-noauth",
+		command: `node ${CLI_PATH} test-full-rpc-db-noauth --type=full-stack --rpc --no-auth -y --no-git --pm=bun`,
+		needsAuth: false,
+	},
+	{
+		name: "Full-stack RPC: No DB, No Auth",
+		projectName: "test-full-rpc-nodb-noauth",
+		command: `node ${CLI_PATH} test-full-rpc-nodb-noauth --type=full-stack --rpc --no-db -y --no-git --pm=bun`,
+		needsAuth: false,
+	},
+	// API-only templates
 	{
 		name: "API-only: DB + Auth",
 		projectName: "test-api-db-auth",
@@ -150,10 +171,19 @@ DISCORD_CLIENT_SECRET=test-discord-client-secret`;
 			logContent += `STDOUT:\n${genRoutesResult.stdout}\n`;
 			logContent += `STDERR:\n${genRoutesResult.stderr}\n\n`;
 
-			logContent += "=== Running gen:api ===\n";
-			const genApiResult = await runCommand("bun run gen:api", projectPath);
-			logContent += `STDOUT:\n${genApiResult.stdout}\n`;
-			logContent += `STDERR:\n${genApiResult.stderr}\n\n`;
+			// Check if this is an RPC template
+			const isRpc = scenario.command.includes("--rpc");
+			if (isRpc) {
+				logContent += "=== Running gen:client (RPC) ===\n";
+				const genClientResult = await runCommand("bun run gen:client", projectPath);
+				logContent += `STDOUT:\n${genClientResult.stdout}\n`;
+				logContent += `STDERR:\n${genClientResult.stderr}\n\n`;
+			} else {
+				logContent += "=== Running gen:api (Orval) ===\n";
+				const genApiResult = await runCommand("bun run gen:api", projectPath);
+				logContent += `STDOUT:\n${genApiResult.stdout}\n`;
+				logContent += `STDERR:\n${genApiResult.stderr}\n\n`;
+			}
 
 			logContent += "=== Running build ===\n";
 			const buildResult = await runCommand("bun run build", projectPath);
