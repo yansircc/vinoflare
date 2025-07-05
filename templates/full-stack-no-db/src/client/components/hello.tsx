@@ -1,11 +1,18 @@
 import { text } from "@/client/lib/design";
-import { useGetHello } from "@/generated/endpoints/greeting/greeting";
 
-export function Hello() {
-	const { data, isLoading, error } = useGetHello();
+interface HelloProps {
+	message: string;
+	time: string;
+}
 
-	if (isLoading) return <div className={text.muted}>Loading...</div>;
-	if (error) return <div className={text.error}>Failed to load</div>;
+export function Hello({ message, time }: HelloProps) {
+	const date = new Date(time);
+	const formattedDate = date.toLocaleString();
 
-	return <div className={text.display}>{data?.data?.message || "Hello"}</div>;
+	return (
+		<div>
+			<div className={text.display}>{message}</div>
+			<p className={text.muted}>Message from API at: {formattedDate}</p>
+		</div>
+	);
 }
