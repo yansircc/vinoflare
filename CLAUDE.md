@@ -81,9 +81,9 @@ See `src/prompts.ts:detectPackageManager()` for implementation.
 
 ### Template Branch Mapping
 Templates are mapped to Git branches in `src/branch-mapper.ts`:
-- Full-stack with Orval: `main`, `full-stack-no-auth`, `full-stack-no-auth-no-db`
-- Full-stack with RPC: `full-stack-rpc`, `full-stack-rpc-no-auth`, `full-stack-rpc-no-db`
-- API-only: `api-only`, `api-only-no-auth`, `api-only-no-auth-no-db`
+- Full-stack with Orval: `orval`, `orval-no-auth`, `orval-no-db`
+- Full-stack with RPC: `rpc`, `rpc-no-auth`, `rpc-no-db`
+- API-only: `api`, `api-no-auth`, `api-no-db`
 
 ### API Client Generation
 - Orval templates use `npm run gen:api` to generate OpenAPI-based client hooks

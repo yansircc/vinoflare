@@ -1,0 +1,66 @@
+{
+	"name": "api",
+	"description": "Full-stack app with Hono API + React frontend",
+	"extends": "shared",
+	"features": [
+		{
+			"name": "database",
+			"enabled": true,
+			"optional": true,
+			"files": {
+				"remove": [
+					"src/server/db/**",
+					"src/server/middleware/database.ts",
+					"src/server/schemas/database/**",
+					"src/server/modules/posts/**",
+					"drizzle.config.ts",
+					"scripts/link-db.ts",
+					"src/client/hooks/use-posts.ts",
+					"src/client/components/posts-list.tsx"
+				],
+				"add": [
+					{
+						"from": "hello-demo.tsx",
+						"to": "src/client/components/hello-demo.tsx"
+					},
+					{
+						"from": "use-hello.ts",
+						"to": "src/client/hooks/use-hello.ts"
+					}
+				]
+			}
+		},
+		{
+			"name": "auth",
+			"enabled": true,
+			"optional": true,
+			"requires": ["database"],
+			"files": {
+				"remove": [
+					"src/server/lib/auth.ts",
+					"src/server/middleware/auth-guard.ts",
+					"src/server/modules/auth/**",
+					"src/server/db/tables/auth.ts",
+					"src/server/schemas/database/auth.ts",
+					"src/client/lib/auth.ts",
+					"src/client/components/auth/**",
+					"src/client/routes/login.tsx",
+					"src/client/routes/profile.tsx"
+				]
+			}
+		}
+	],
+	"scripts": {
+		"init": ["gen:types", "gen:routes", "gen:api"],
+		"initWithDb": [
+			"gen:types",
+			"gen:routes",
+			"db:generate",
+			"db:push:local",
+			"gen:api"
+		],
+		"dev": "dev",
+		"build": "build",
+		"lint": "lint:fix"
+	}
+}

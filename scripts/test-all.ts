@@ -19,42 +19,42 @@ interface TestScenario {
 }
 
 const scenarios: TestScenario[] = [
-	// Orval (OpenAPI) based full-stack templates
+	// Orval (OpenAPI) based templates
 	{
-		name: "Full-stack: DB + Auth",
-		projectName: "test-full-db-auth",
-		command: `node ${CLI_PATH} test-full-db-auth --type=full-stack -y --no-git --pm=bun`,
+		name: "Orval: DB + Auth",
+		projectName: "test-orval-db-auth",
+		command: `node ${CLI_PATH} test-orval-db-auth --type=full-stack -y --no-git --pm=bun`,
 		needsAuth: true,
 	},
 	{
-		name: "Full-stack: DB, No Auth",
-		projectName: "test-full-db-noauth",
-		command: `node ${CLI_PATH} test-full-db-noauth --type=full-stack --no-auth -y --no-git --pm=bun`,
+		name: "Orval: DB, No Auth",
+		projectName: "test-orval-db-noauth",
+		command: `node ${CLI_PATH} test-orval-db-noauth --type=full-stack --no-auth -y --no-git --pm=bun`,
 		needsAuth: false,
 	},
 	{
-		name: "Full-stack: No DB, No Auth",
-		projectName: "test-full-nodb-noauth",
-		command: `node ${CLI_PATH} test-full-nodb-noauth --type=full-stack --no-db -y --no-git --pm=bun`,
+		name: "Orval: No DB, No Auth",
+		projectName: "test-orval-nodb-noauth",
+		command: `node ${CLI_PATH} test-orval-nodb-noauth --type=full-stack --no-db -y --no-git --pm=bun`,
 		needsAuth: false,
 	},
-	// Hono RPC based full-stack templates
+	// Hono RPC based templates
 	{
-		name: "Full-stack RPC: DB + Auth",
-		projectName: "test-full-rpc-db-auth",
-		command: `node ${CLI_PATH} test-full-rpc-db-auth --type=full-stack --rpc -y --no-git --pm=bun`,
+		name: "RPC: DB + Auth",
+		projectName: "test-rpc-db-auth",
+		command: `node ${CLI_PATH} test-rpc-db-auth --type=full-stack --rpc -y --no-git --pm=bun`,
 		needsAuth: true,
 	},
 	{
-		name: "Full-stack RPC: DB, No Auth",
-		projectName: "test-full-rpc-db-noauth",
-		command: `node ${CLI_PATH} test-full-rpc-db-noauth --type=full-stack --rpc --no-auth -y --no-git --pm=bun`,
+		name: "RPC: DB, No Auth",
+		projectName: "test-rpc-db-noauth",
+		command: `node ${CLI_PATH} test-rpc-db-noauth --type=full-stack --rpc --no-auth -y --no-git --pm=bun`,
 		needsAuth: false,
 	},
 	{
-		name: "Full-stack RPC: No DB, No Auth",
-		projectName: "test-full-rpc-nodb-noauth",
-		command: `node ${CLI_PATH} test-full-rpc-nodb-noauth --type=full-stack --rpc --no-db -y --no-git --pm=bun`,
+		name: "RPC: No DB, No Auth",
+		projectName: "test-rpc-nodb-noauth",
+		command: `node ${CLI_PATH} test-rpc-nodb-noauth --type=full-stack --rpc --no-db -y --no-git --pm=bun`,
 		needsAuth: false,
 	},
 	// API-only templates

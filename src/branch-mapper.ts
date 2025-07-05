@@ -2,19 +2,19 @@ import type { BranchMapping, BranchName, ProjectConfig } from "./types";
 
 const branchMappings: BranchMapping[] = [
 	// Orval (OpenAPI) based templates
-	{ type: "full-stack", auth: true, db: true, branch: "main", rpc: false },
+	{ type: "full-stack", auth: true, db: true, branch: "orval", rpc: false },
 	{
 		type: "full-stack",
 		auth: false,
 		db: true,
-		branch: "full-stack-no-auth",
+		branch: "orval-no-auth",
 		rpc: false,
 	},
 	{
 		type: "full-stack",
 		auth: false,
 		db: false,
-		branch: "full-stack-no-auth-no-db",
+		branch: "orval-no-db",
 		rpc: false,
 	},
 	// Hono RPC based templates
@@ -22,31 +22,31 @@ const branchMappings: BranchMapping[] = [
 		type: "full-stack",
 		auth: true,
 		db: true,
-		branch: "full-stack-rpc",
+		branch: "rpc",
 		rpc: true,
 	},
 	{
 		type: "full-stack",
 		auth: false,
 		db: true,
-		branch: "full-stack-rpc-no-auth",
+		branch: "rpc-no-auth",
 		rpc: true,
 	},
 	{
 		type: "full-stack",
 		auth: false,
 		db: false,
-		branch: "full-stack-rpc-no-db",
+		branch: "rpc-no-db",
 		rpc: true,
 	},
 	// API only templates (no RPC option)
-	{ type: "api-only", auth: true, db: true, branch: "api-only" },
-	{ type: "api-only", auth: false, db: true, branch: "api-only-no-auth" },
+	{ type: "api-only", auth: true, db: true, branch: "api" },
+	{ type: "api-only", auth: false, db: true, branch: "api-no-auth" },
 	{
 		type: "api-only",
 		auth: false,
 		db: false,
-		branch: "api-only-no-auth-no-db",
+		branch: "api-no-db",
 	},
 ];
 

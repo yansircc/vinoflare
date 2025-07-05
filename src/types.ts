@@ -27,15 +27,15 @@ export interface ProjectConfig {
 export type PackageManager = "npm" | "yarn" | "pnpm" | "bun";
 
 export type BranchName =
-	| "main"
-	| "full-stack-no-auth"
-	| "full-stack-no-auth-no-db"
-	| "api-only"
-	| "api-only-no-auth"
-	| "api-only-no-auth-no-db"
-	| "full-stack-rpc"
-	| "full-stack-rpc-no-auth"
-	| "full-stack-rpc-no-db";
+	| "orval"
+	| "orval-no-auth"
+	| "orval-no-db"
+	| "api"
+	| "api-no-auth"
+	| "api-no-db"
+	| "rpc"
+	| "rpc-no-auth"
+	| "rpc-no-db";
 
 export interface BranchMapping {
 	type: "full-stack" | "api-only";

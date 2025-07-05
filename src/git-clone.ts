@@ -8,15 +8,15 @@ const __dirname = path.dirname(__filename);
 
 // Map branch names to template directories
 const branchToTemplateMap: Record<BranchName, string> = {
-	main: "full-stack",
-	"full-stack-no-auth": "full-stack-no-auth",
-	"full-stack-no-auth-no-db": "full-stack-no-db",
-	"api-only": "api-only",
-	"api-only-no-auth": "api-only-no-auth",
-	"api-only-no-auth-no-db": "api-only-no-db",
-	"full-stack-rpc": "full-stack-rpc",
-	"full-stack-rpc-no-auth": "full-stack-rpc-no-auth",
-	"full-stack-rpc-no-db": "full-stack-rpc-no-db",
+	orval: "orval",
+	"orval-no-auth": "orval-no-auth",
+	"orval-no-db": "orval-no-db",
+	api: "api",
+	"api-no-auth": "api-no-auth",
+	"api-no-db": "api-no-db",
+	rpc: "rpc",
+	"rpc-no-auth": "rpc-no-auth",
+	"rpc-no-db": "rpc-no-db",
 };
 
 // Find the package root (where package.json is located)
