@@ -167,11 +167,11 @@ npm run dev
 # 生成新模块
 npm run gen:module posts
 
-# 运行测试
-npm run test
-
 # 构建生产版本
 npm run build
+
+# 运行测试
+npm run test
 
 # 部署到 Cloudflare
 npm run deploy
@@ -183,7 +183,7 @@ CLI 包含全面的测试套件：
 
 ```bash
 # 顺序运行测试
-npm run test:e2e
+npm run test
 
 # 并行运行测试（更快）
 npm run test:parallel

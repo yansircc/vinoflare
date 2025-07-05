@@ -167,11 +167,11 @@ npm run dev
 # Generate a new module
 npm run gen:module posts
 
-# Run tests
-npm run test
-
 # Build for production
 npm run build
+
+# Run tests
+npm run test
 
 # Deploy to Cloudflare
 npm run deploy
@@ -183,7 +183,7 @@ The CLI includes comprehensive test suites:
 
 ```bash
 # Run tests sequentially
-npm run test:e2e
+npm run test
 
 # Run tests in parallel (faster)
 npm run test:parallel

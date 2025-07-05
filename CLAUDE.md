@@ -24,8 +24,7 @@ bun lint         # Check for issues
 bun lint:fix     # Auto-fix issues
 
 # Testing
-bun test         # Run unit tests
-bun test:e2e     # Run E2E tests sequentially
+bun test     # Run E2E tests sequentially
 bun test:parallel # Run E2E tests in parallel
 
 # Test npm package locally
