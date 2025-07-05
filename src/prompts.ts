@@ -111,22 +111,33 @@ export async function promptForMissingOptions(
 		config.auth = false;
 	}
 
-	// RPC vs Orval (only for full-stack projects)
+	// API Client selection (only for full-stack projects)
 	if (config.type === "full-stack") {
 		if (options.rpc !== undefined) {
 			config.rpc = options.rpc;
 		} else {
-			const rpc = await p.confirm({
-				message: "Use Hono RPC client instead of Orval (OpenAPI)?",
-				initialValue: false,
+			const apiClient = await p.select({
+				message: "Choose your API client generation method:",
+				options: [
+					{
+						value: "orval",
+						label: "Orval (OpenAPI)",
+						hint: "Auto-generated hooks from OpenAPI schema",
+					},
+					{
+						value: "rpc",
+						label: "Hono RPC",
+						hint: "Type-safe RPC client with end-to-end type inference",
+					},
+				],
 			});
 
-			if (p.isCancel(rpc)) {
+			if (p.isCancel(apiClient)) {
 				p.cancel("Operation cancelled");
 				return null;
 			}
 
-			config.rpc = rpc;
+			config.rpc = apiClient === "rpc";
 		}
 	} else {
 		config.rpc = false;

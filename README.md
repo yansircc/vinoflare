@@ -10,7 +10,7 @@
 
 ## 🌟 Features
 
-- **🏗️ Multiple Templates**: Choose from 6 different configurations
+- **🏗️ Multiple Templates**: Choose from 9 different configurations
 - **⚡ Lightning Fast**: Powered by Bun for ultra-fast installation
 - **🔧 Zero Config**: Works out of the box with sensible defaults
 - **📦 TypeScript First**: Full type safety from database to frontend
@@ -35,13 +35,25 @@ yarn create vinoflare my-app
 
 ## 📋 Templates
 
-Choose from 6 pre-configured templates:
+Choose from 9 pre-configured templates:
 
+### Full-Stack Templates (Orval/OpenAPI)
+| Template | Frontend | Database | Auth | API Client | Description |
+|----------|----------|----------|------|------------|-------------|
+| `full-stack` | ✅ React + TanStack Router | ✅ Cloudflare D1 | ✅ Better Auth | Orval | Complete full-stack app with OpenAPI client |
+| `full-stack --no-auth` | ✅ React + TanStack Router | ✅ Cloudflare D1 | ❌ | Orval | Full-stack app without auth |
+| `full-stack --no-db` | ✅ React + TanStack Router | ❌ | ❌ | Orval | Frontend with API, no database |
+
+### Full-Stack Templates (Hono RPC)
+| Template | Frontend | Database | Auth | API Client | Description |
+|----------|----------|----------|------|------------|-------------|
+| `full-stack --rpc` | ✅ React + TanStack Router | ✅ Cloudflare D1 | ✅ Better Auth | Hono RPC | Complete full-stack app with type-safe RPC |
+| `full-stack --rpc --no-auth` | ✅ React + TanStack Router | ✅ Cloudflare D1 | ❌ | Hono RPC | Full-stack app with RPC, no auth |
+| `full-stack --rpc --no-db` | ✅ React + TanStack Router | ❌ | ❌ | Hono RPC | Frontend with RPC API, no database |
+
+### API-Only Templates
 | Template | Frontend | Database | Auth | Description |
 |----------|----------|----------|------|-------------|
-| `full-stack` | ✅ React + TanStack Router | ✅ Cloudflare D1 | ✅ Better Auth | Complete full-stack app with authentication |
-| `full-stack --no-auth` | ✅ React + TanStack Router | ✅ Cloudflare D1 | ❌ | Full-stack app without auth |
-| `full-stack --no-db` | ✅ React + TanStack Router | ❌ | ❌ | Frontend with API, no database |
 | `api-only` | ❌ | ✅ Cloudflare D1 | ✅ Better Auth | REST API with auth and database |
 | `api-only --no-auth` | ❌ | ✅ Cloudflare D1 | ❌ | REST API with database, no auth |
 | `api-only --no-db` | ❌ | ❌ | ❌ | Stateless REST API |
@@ -57,10 +69,11 @@ npm create vinoflare@latest
 You'll be prompted to:
 1. Enter your project name
 2. Choose between full-stack or API-only
-3. Select auth preference
-4. Select database preference
-5. Choose package manager
+3. Select database preference
+4. Select auth preference (if database enabled)
+5. Choose API client type (Orval or Hono RPC, for full-stack only)
 6. Decide on git initialization
+7. Choose package manager
 
 ## 🚦 Non-Interactive Mode
 
@@ -78,11 +91,15 @@ npm create vinoflare@latest my-frontend --type=full-stack --no-db --yes
 
 # With specific package manager
 npm create vinoflare@latest my-app --pm=bun --yes
+
+# Full-stack with Hono RPC
+npm create vinoflare@latest my-rpc-app --type=full-stack --rpc --yes
 ```
 
 ### Available Flags
 
 - `--type=<type>` - Project type: `full-stack` (default) or `api-only`
+- `--rpc` - Use Hono RPC client instead of Orval (full-stack only)
 - `--no-auth` - Exclude authentication
 - `--no-db` - Exclude database
 - `--no-git` - Skip git initialization
@@ -95,7 +112,9 @@ npm create vinoflare@latest my-app --pm=bun --yes
 ### Full-Stack Templates
 - **Frontend**: React 19 + Vite + TanStack Router
 - **Styling**: Tailwind CSS v4
-- **API Client**: Auto-generated with Orval
+- **API Client**: Choose between:
+  - **Orval**: OpenAPI-based client with auto-generated hooks
+  - **Hono RPC**: Type-safe RPC client with end-to-end type inference
 - **Type Safety**: End-to-end from DB to UI
 
 ### API Templates
@@ -131,7 +150,12 @@ npm run gen:types      # Generate TypeScript types
 ### For Frontend Projects
 ```bash
 npm run gen:routes  # Generate route types
-npm run gen:api     # Generate API client
+
+# For Orval templates:
+npm run gen:api     # Generate OpenAPI client
+
+# For RPC templates:
+npm run gen:client  # Generate RPC client
 ```
 
 ## 🔧 Development Workflow

@@ -10,7 +10,7 @@
 
 ## 🌟 特性
 
-- **🏗️ 多种模板**: 提供 6 种不同配置可选
+- **🏗️ 多种模板**: 提供 9 种不同配置可选
 - **⚡ 极速安装**: 由 Bun 驱动，安装速度超快
 - **🔧 零配置**: 开箱即用，默认配置合理
 - **📦 TypeScript 优先**: 从数据库到前端的完整类型安全
@@ -35,13 +35,25 @@ yarn create vinoflare my-app
 
 ## 📋 模板
 
-选择 6 种预配置模板之一：
+选择 9 种预配置模板之一：
 
+### 全栈模板（Orval/OpenAPI）
+| 模板 | 前端 | 数据库 | 认证 | API 客户端 | 描述 |
+|------|------|--------|------|-----------|------|
+| `full-stack` | ✅ React + TanStack Router | ✅ Cloudflare D1 | ✅ Better Auth | Orval | 使用 OpenAPI 客户端的完整全栈应用 |
+| `full-stack --no-auth` | ✅ React + TanStack Router | ✅ Cloudflare D1 | ❌ | Orval | 不带认证的全栈应用 |
+| `full-stack --no-db` | ✅ React + TanStack Router | ❌ | ❌ | Orval | 带 API 的前端应用，无数据库 |
+
+### 全栈模板（Hono RPC）
+| 模板 | 前端 | 数据库 | 认证 | API 客户端 | 描述 |
+|------|------|--------|------|-----------|------|
+| `full-stack --rpc` | ✅ React + TanStack Router | ✅ Cloudflare D1 | ✅ Better Auth | Hono RPC | 使用类型安全 RPC 的完整全栈应用 |
+| `full-stack --rpc --no-auth` | ✅ React + TanStack Router | ✅ Cloudflare D1 | ❌ | Hono RPC | 使用 RPC 的全栈应用，无认证 |
+| `full-stack --rpc --no-db` | ✅ React + TanStack Router | ❌ | ❌ | Hono RPC | 使用 RPC API 的前端应用，无数据库 |
+
+### 仅 API 模板
 | 模板 | 前端 | 数据库 | 认证 | 描述 |
 |------|------|--------|------|------|
-| `full-stack` | ✅ React + TanStack Router | ✅ Cloudflare D1 | ✅ Better Auth | 带认证的完整全栈应用 |
-| `full-stack --no-auth` | ✅ React + TanStack Router | ✅ Cloudflare D1 | ❌ | 不带认证的全栈应用 |
-| `full-stack --no-db` | ✅ React + TanStack Router | ❌ | ❌ | 带 API 的前端应用，无数据库 |
 | `api-only` | ❌ | ✅ Cloudflare D1 | ✅ Better Auth | 带认证和数据库的 REST API |
 | `api-only --no-auth` | ❌ | ✅ Cloudflare D1 | ❌ | 带数据库的 REST API，无认证 |
 | `api-only --no-db` | ❌ | ❌ | ❌ | 无状态 REST API |
@@ -57,10 +69,11 @@ npm create vinoflare@latest
 系统将提示您：
 1. 输入项目名称
 2. 选择全栈或仅 API
-3. 选择是否需要认证
-4. 选择是否需要数据库
-5. 选择包管理器
+3. 选择是否需要数据库
+4. 选择是否需要认证（如果启用了数据库）
+5. 选择 API 客户端类型（Orval 或 Hono RPC，仅适用于全栈）
 6. 决定是否初始化 git
+7. 选择包管理器
 
 ## 🚦 非交互模式
 
@@ -78,11 +91,15 @@ npm create vinoflare@latest my-frontend --type=full-stack --no-db --yes
 
 # 指定包管理器
 npm create vinoflare@latest my-app --pm=bun --yes
+
+# 使用 Hono RPC 的全栈应用
+npm create vinoflare@latest my-rpc-app --type=full-stack --rpc --yes
 ```
 
 ### 可用参数
 
 - `--type=<type>` - 项目类型：`full-stack`（默认）或 `api-only`
+- `--rpc` - 使用 Hono RPC 客户端代替 Orval（仅适用于全栈）
 - `--no-auth` - 不包含认证
 - `--no-db` - 不包含数据库
 - `--no-git` - 跳过 git 初始化
@@ -95,7 +112,9 @@ npm create vinoflare@latest my-app --pm=bun --yes
 ### 全栈模板
 - **前端**: React 19 + Vite + TanStack Router
 - **样式**: Tailwind CSS v4
-- **API 客户端**: 使用 Orval 自动生成
+- **API 客户端**: 可选择：
+  - **Orval**: 基于 OpenAPI 的客户端，自动生成 hooks
+  - **Hono RPC**: 类型安全的 RPC 客户端，端到端类型推断
 - **类型安全**: 从数据库到 UI 的端到端类型
 
 ### API 模板
@@ -131,7 +150,12 @@ npm run gen:types      # 生成 TypeScript 类型
 ### 对于前端项目
 ```bash
 npm run gen:routes  # 生成路由类型
-npm run gen:api     # 生成 API 客户端
+
+# 对于 Orval 模板：
+npm run gen:api     # 生成 OpenAPI 客户端
+
+# 对于 RPC 模板：
+npm run gen:client  # 生成 RPC 客户端
 ```
 
 ## 🔧 开发工作流

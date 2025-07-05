@@ -24,7 +24,7 @@ export function createCLI(): Command {
 		.option("--no-install", "Skip dependency installation")
 		.option("--no-git", "Skip git initialization")
 		.option("--pm, --package-manager <pm>", "Package manager to use")
-		.option("--rpc", "Use Hono RPC client instead of Orval (full-stack only)")
+		.option("--rpc", "Use Hono RPC for API client generation (full-stack only)")
 		.action((name: string, options: any) => {
 			// Convert commander options to our CLIOptions type
 			// Only set values if they were explicitly provided
