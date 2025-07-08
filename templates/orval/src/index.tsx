@@ -1,30 +1,30 @@
 /** @jsxImportSource hono/jsx */
 
 import { Hono } from "hono";
-import { STATIC_ROUTES } from "@/server/config/routes";
-import { createApp } from "@/server/core/app-factory";
-import { loadModules } from "@/server/core/module-loader";
-import { renderer } from "./client/renderer";
 
-// Create the main app with proper middleware configuration
-async function createMainApp() {
-	const app = new Hono<{ Bindings: CloudflareBindings }>();
+// Lazy load dependencies to avoid "matcher already built" error
+let app: Hono<{ Bindings: CloudflareBindings }> | null = null;
 
-	// Static asset handling
-	for (const route of STATIC_ROUTES) {
-		app.get(route, async (c) => {
-			const url = new URL(c.req.url);
-			return await c.env.ASSETS.fetch(new Request(url));
-		});
-	}
+async function initializeApp() {
+	if (app) return app;
 
-	// Create and mount API app with dynamic module loading
+	const [{ createApp }, { loadModules }, { renderer }, { ModuleRegistry }] =
+		await Promise.all([
+			import("@/server/core/app-factory"),
+			import("@/server/core/module-loader"),
+			import("./client/renderer"),
+			import("@/server/db/modular"),
+		]);
+
+	app = new Hono<{ Bindings: CloudflareBindings }>();
+
+	// Load modules
 	const modules = await loadModules();
 
 	// Register modules for database middleware
-	const { ModuleRegistry } = await import("@/server/db/modular");
 	ModuleRegistry.register(modules);
 
+	// Create and mount API app with dynamic module loading
 	const apiApp = createApp({
 		modules,
 		basePath: "",
@@ -48,25 +48,24 @@ async function createMainApp() {
 		if (c.req.path.startsWith("/api/")) {
 			return next();
 		}
-		return renderer(c, next);
-	});
-
-	// Handle all frontend routes (React Router will take over)
-	// Exclude API routes explicitly
-	app.get("*", (c) => {
-		// This should only handle non-API routes
-		if (c.req.path.startsWith("/api/")) {
-			return c.notFound();
-		}
-		return c.render(<div id="root" />);
+		const html = await renderer(c);
+		return c.html(html);
 	});
 
 	return app;
 }
 
-// Export the app promise
-const app = createMainApp();
-export default app;
+// Export a proper fetch handler
+export default {
+	async fetch(
+		request: Request,
+		env: CloudflareBindings,
+		ctx: ExecutionContext,
+	) {
+		const app = await initializeApp();
+		return app.fetch(request, env, ctx);
+	},
+};
 
 // Export app type for RPC client
-export type AppType = Awaited<typeof app>;
+export type AppType = Hono<{ Bindings: CloudflareBindings }>;

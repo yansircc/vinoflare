@@ -15,7 +15,7 @@
     "db:push:local": "wrangler d1 migrations apply DB --local",
     "db:push:remote": "wrangler d1 migrations apply DB --remote",
     "db:reset:local": "rm -rf .wrangler/state/v3/d1/miniflare-D1DatabaseObject/*.sqlite* && bun run db:push:local",
-    "db:reset:remote": "echo '⚠️ WARNING: This will DELETE ALL DATA!' && echo 'Press Ctrl+C to cancel...' && sleep 3 && wrangler d1 execute DB --remote --batch --command 'DROP TABLE IF EXISTS account; DROP TABLE IF EXISTS session; DROP TABLE IF EXISTS user; DROP TABLE IF EXISTS verification; DROP TABLE IF EXISTS jwks; DROP TABLE IF EXISTS posts; DELETE FROM d1_migrations;' && bun run db:push:remote",
+    "db:reset:remote": "echo '⚠️ WARNING: This will DELETE ALL DATA!' && echo 'Press Ctrl+C to cancel...' && sleep 3 && wrangler d1 execute DB --remote --command 'DROP TABLE IF EXISTS account; DROP TABLE IF EXISTS session; DROP TABLE IF EXISTS user; DROP TABLE IF EXISTS verification; DROP TABLE IF EXISTS jwks; DROP TABLE IF EXISTS posts; DELETE FROM d1_migrations;' && bun run db:push:remote",
     "db:studio": "bun ./scripts/link-db.ts && LOCAL_DB_PATH=./db.sqlite drizzle-kit studio",
     "lint": "biome lint --write .",
     "lint:fix": "biome check --write .",

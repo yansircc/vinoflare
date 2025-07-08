@@ -1,5 +1,5 @@
 {
-	"name": "api",
+	"name": "full-stack",
 	"description": "Full-stack app with Hono API + React frontend",
 	"extends": "shared",
 	"features": [

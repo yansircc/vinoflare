@@ -1,9 +1,9 @@
 /** @jsxImportSource hono/jsx */
 
-import { jsxRenderer } from "hono/jsx-renderer";
+import type { Context } from "hono";
 import { getAssetPaths } from "@/utils/manifest";
 
-export const renderer = jsxRenderer(async ({ children }, c) => {
+export const renderer = async (c: Context) => {
 	// 获取资源路径
 	const { scriptPath, cssPath } = await getAssetPaths(c);
 
@@ -17,9 +17,9 @@ export const renderer = jsxRenderer(async ({ children }, c) => {
 				<link rel="icon" href="/favicon.ico" />
 			</head>
 			<body>
-				{children}
+				<div id="root"></div>
 				<script type="module" src={scriptPath} />
 			</body>
 		</html>
 	);
-});
+};

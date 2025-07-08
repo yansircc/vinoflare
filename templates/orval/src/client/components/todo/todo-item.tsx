@@ -49,9 +49,7 @@ export function TodoItem({
 					isUpdating && states.pending,
 				)}
 				disabled={isUpdating}
-				aria-label={
-					todo.completed ? "Mark as incomplete" : "Mark as complete"
-				}
+				aria-label={todo.completed ? "Mark as incomplete" : "Mark as complete"}
 			>
 				<svg
 					viewBox="0 0 16 16"

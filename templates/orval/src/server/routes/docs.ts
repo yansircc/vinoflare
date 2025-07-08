@@ -9,39 +9,43 @@ import type { ModuleDefinition } from "../core/module-loader";
 export function createDocsRoutes(modules: ModuleDefinition[]) {
 	const app = new Hono();
 
-	// OpenAPI specification configuration
-	const openAPIConfig = {
-		openapi: "3.0.0",
-		info: {
-			title: "Vinoflare API",
-			version: "1.0.0",
-			description: "REST API for Vinoflare application",
-			contact: {
-				name: "API Support",
-				email: "support@vinoflare.com",
-			},
-		},
-		servers: [
-			{
-				url: "/api",
-				description: "API Server",
-			},
-		],
-		components: {
-			securitySchemes: {
-				bearerAuth: {
-					type: "http",
-					scheme: "bearer",
-					bearerFormat: "JWT",
-				},
-			},
-		},
-		tags: [],
-		paths: {},
-	};
-
 	// OpenAPI JSON endpoint
 	app.get("/openapi.json", (c) => {
+		// Get dynamic base URL from request
+		const url = new URL(c.req.url);
+		const baseUrl = `${url.protocol}//${url.host}`;
+
+		// OpenAPI specification configuration
+		const openAPIConfig = {
+			openapi: "3.0.0",
+			info: {
+				title: "Vinoflare API",
+				version: "1.0.0",
+				description: "REST API for Vinoflare application",
+				contact: {
+					name: "API Support",
+					email: "support@vinoflare.com",
+				},
+			},
+			servers: [
+				{
+					url: `${baseUrl}/api`,
+					description: "API Server",
+				},
+			],
+			components: {
+				securitySchemes: {
+					bearerAuth: {
+						type: "http",
+						scheme: "bearer",
+						bearerFormat: "JWT",
+					},
+				},
+			},
+			tags: [],
+			paths: {},
+		};
+
 		// Collect OpenAPI paths from all modules
 		const paths: Record<string, any> = {};
 		const tags = new Set<string>();

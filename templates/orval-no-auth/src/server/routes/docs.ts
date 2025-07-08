@@ -9,7 +9,7 @@ import type { ModuleDefinition } from "../core/module-loader";
 export function createDocsRoutes(modules: ModuleDefinition[]) {
 	const app = new Hono();
 
-	// OpenAPI specification configuration
+	// OpenAPI specification configuration (servers will be set dynamically)
 	const openAPIConfig = {
 		openapi: "3.0.0",
 		info: {
@@ -21,12 +21,6 @@ export function createDocsRoutes(modules: ModuleDefinition[]) {
 				email: "support@vinoflare.com",
 			},
 		},
-		servers: [
-			{
-				url: "/api",
-				description: "API Server",
-			},
-		],
 		components: {
 			securitySchemes: {
 				bearerAuth: {
@@ -42,6 +36,10 @@ export function createDocsRoutes(modules: ModuleDefinition[]) {
 
 	// OpenAPI JSON endpoint
 	app.get("/openapi.json", (c) => {
+		// Get base URL from request
+		const url = new URL(c.req.url);
+		const baseUrl = `${url.protocol}//${url.host}`;
+
 		// Collect OpenAPI paths from all modules
 		const paths: Record<string, any> = {};
 		const tags = new Set<string>();
@@ -55,7 +53,12 @@ export function createDocsRoutes(modules: ModuleDefinition[]) {
 				title: openAPIConfig.info.title,
 				version: openAPIConfig.info.version,
 				description: openAPIConfig.info.description,
-				servers: openAPIConfig.servers,
+				servers: [
+					{
+						url: `${baseUrl}/api`,
+						description: "API Server",
+					},
+				],
 				contact: openAPIConfig.info.contact,
 			});
 
@@ -77,9 +80,15 @@ export function createDocsRoutes(modules: ModuleDefinition[]) {
 			}
 		}
 
-		// Build final OpenAPI spec
+		// Build final OpenAPI spec with dynamic servers
 		const spec = {
 			...openAPIConfig,
+			servers: [
+				{
+					url: `${baseUrl}/api`,
+					description: "API Server",
+				},
+			],
 			paths,
 			tags: Array.from(tags).map((name) => ({ name })),
 		};

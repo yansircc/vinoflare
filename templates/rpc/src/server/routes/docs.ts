@@ -21,12 +21,6 @@ export function createDocsRoutes(modules: ModuleDefinition[]) {
 				email: "support@vinoflare.com",
 			},
 		},
-		servers: [
-			{
-				url: "/api",
-				description: "API Server",
-			},
-		],
 		components: {
 			securitySchemes: {
 				bearerAuth: {
@@ -42,6 +36,27 @@ export function createDocsRoutes(modules: ModuleDefinition[]) {
 
 	// OpenAPI JSON endpoint
 	app.get("/openapi.json", (c) => {
+		// Get the full URL from the request context
+		const url = new URL(c.req.url);
+		const baseUrl = `${url.protocol}//${url.host}`;
+
+		// Build dynamic servers array
+		const servers = [
+			{
+				url: `${baseUrl}/api`,
+				description: "Current API Server",
+			},
+		];
+
+		// Add environment-specific servers if needed
+		if (url.hostname === "localhost" && url.port !== "5173") {
+			// Add default local development server
+			servers.push({
+				url: "http://localhost:5173/api",
+				description: "Default Local Development Server",
+			});
+		}
+
 		// Collect OpenAPI paths from all modules
 		const paths: Record<string, any> = {};
 		const tags = new Set<string>();
@@ -55,7 +70,7 @@ export function createDocsRoutes(modules: ModuleDefinition[]) {
 				title: openAPIConfig.info.title,
 				version: openAPIConfig.info.version,
 				description: openAPIConfig.info.description,
-				servers: openAPIConfig.servers,
+				servers, // Use dynamic servers
 				contact: openAPIConfig.info.contact,
 			});
 
@@ -80,6 +95,7 @@ export function createDocsRoutes(modules: ModuleDefinition[]) {
 		// Build final OpenAPI spec
 		const spec = {
 			...openAPIConfig,
+			servers, // Use dynamic servers instead of static config
 			paths,
 			tags: Array.from(tags).map((name) => ({ name })),
 		};

@@ -5,7 +5,9 @@ export function TodoLoading() {
 		<div className={spacing.page}>
 			<div className={cn(layout.narrow, "space-y-12")}>
 				<section>
-					<h1 className={cn(text.h1, colors.text.primary, "mb-8 animate-pulse")}>
+					<h1
+						className={cn(text.h1, colors.text.primary, "mb-8 animate-pulse")}
+					>
 						Todo
 					</h1>
 					<div className="space-y-4">

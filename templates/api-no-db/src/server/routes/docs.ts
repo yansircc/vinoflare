@@ -21,12 +21,7 @@ export function createDocsRoutes(modules: ModuleDefinition[]) {
 				email: "support@vinoflare.com",
 			},
 		},
-		servers: [
-			{
-				url: "/api",
-				description: "API Server",
-			},
-		],
+		servers: [], // Will be populated dynamically
 		components: {
 			securitySchemes: {
 				bearerAuth: {
@@ -42,6 +37,10 @@ export function createDocsRoutes(modules: ModuleDefinition[]) {
 
 	// OpenAPI JSON endpoint
 	app.get("/openapi.json", (c) => {
+		// Generate dynamic base URL from request
+		const url = new URL(c.req.url);
+		const baseUrl = `${url.protocol}//${url.host}/api`;
+
 		// Collect OpenAPI paths from all modules
 		const paths: Record<string, any> = {};
 		const tags = new Set<string>();
@@ -55,7 +54,7 @@ export function createDocsRoutes(modules: ModuleDefinition[]) {
 				title: openAPIConfig.info.title,
 				version: openAPIConfig.info.version,
 				description: openAPIConfig.info.description,
-				servers: openAPIConfig.servers,
+				servers: [{ url: baseUrl, description: "API Server" }],
 				contact: openAPIConfig.info.contact,
 			});
 
@@ -80,6 +79,7 @@ export function createDocsRoutes(modules: ModuleDefinition[]) {
 		// Build final OpenAPI spec
 		const spec = {
 			...openAPIConfig,
+			servers: [{ url: baseUrl, description: "API Server" }],
 			paths,
 			tags: Array.from(tags).map((name) => ({ name })),
 		};

@@ -4,8 +4,8 @@ import { TodoForm } from "@/client/components/todo/todo-form";
 import { TodoList } from "@/client/components/todo/todo-list";
 import { TodoLoading } from "@/client/components/todo/todo-loading";
 import { useTodoOperations } from "@/client/hooks/use-todo-operations";
-import { cn, colors, layout, spacing, text } from "@/client/lib/design";
 import { customFetch } from "@/client/lib/custom-fetch";
+import { cn, colors, layout, spacing, text } from "@/client/lib/design";
 import type { GetTodo200 } from "@/generated/schemas";
 
 export const Route = createFileRoute("/")({
@@ -34,9 +34,7 @@ function HomePage() {
 			<div className={cn(layout.narrow, "space-y-12")}>
 				{/* Header and Create Form */}
 				<section>
-					<h1 className={cn(text.h1, colors.text.primary, "mb-8")}>
-						Todo
-					</h1>
+					<h1 className={cn(text.h1, colors.text.primary, "mb-8")}>Todo</h1>
 					<TodoForm onSubmit={createTodo} isCreating={operations.creating} />
 				</section>
 

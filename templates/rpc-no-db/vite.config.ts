@@ -55,7 +55,7 @@ export default defineConfig(({ mode }) => {
 				generatedRouteTree: "./src/generated/routeTree.gen.ts",
 			}),
 			cloudflare({
-				configPath: "./wrangler.toml",
+				configPath: "./wrangler.jsonc",
 				persistState: true,
 			}),
 		],

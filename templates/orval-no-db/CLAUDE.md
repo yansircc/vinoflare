@@ -188,7 +188,7 @@ import { useGetBlog, usePostBlog } from "@/generated/endpoints/blog/blog";
 - **biome.json** - Linting and formatting rules
 - **vitest.config.ts** - Test runner configuration
 - **orval.config.ts** - OpenAPI client generation settings
-- **wrangler.toml** - Cloudflare Workers deployment configuration
+- **wrangler.jsonc** - Cloudflare Workers deployment configuration
 
 ## Best Practices
 

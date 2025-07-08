@@ -5,7 +5,7 @@ import { defineConfig } from "vite";
 export default defineConfig({
 	plugins: [
 		cloudflare({
-			configPath: "./wrangler.toml",
+			configPath: "./wrangler.jsonc",
 			persistState: true,
 		}),
 	],

@@ -137,13 +137,17 @@ bun run gen:module products
 wrangler d1 create my-app-db
 ```
 
-将输出的数据库 ID 更新到 `wrangler.toml`：
+将输出的数据库 ID 更新到 `wrangler.jsonc`：
 
-```toml
-[[d1_databases]]
-binding = "DB"
-database_name = "my-app-db"
-database_id = "你的数据库ID"
+```jsonc
+"d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "your-database-name",
+      "database_id": "your-database-id",
+      "migrations_dir": "src/server/db/migrations"
+    }
+  ]
 ```
 
 ### 2. 部署应用

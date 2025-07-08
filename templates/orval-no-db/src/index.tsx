@@ -1,22 +1,17 @@
 /** @jsxImportSource hono/jsx */
 
 import { Hono } from "hono";
-import { STATIC_ROUTES } from "@/server/config/routes";
 import { createApp } from "@/server/core/app-factory";
 import { loadModules } from "@/server/core/module-loader";
 import { renderer } from "./client/renderer";
 
-// Create the main app with proper middleware configuration
-async function createMainApp() {
-	const app = new Hono<{ Bindings: CloudflareBindings }>();
+// Lazy-load the app to avoid "matcher already built" error
+let mainApp: Hono<{ Bindings: CloudflareBindings }> | null = null;
 
-	// Static asset handling
-	for (const route of STATIC_ROUTES) {
-		app.get(route, async (c) => {
-			const url = new URL(c.req.url);
-			return await c.env.ASSETS.fetch(new Request(url));
-		});
-	}
+async function getOrCreateApp() {
+	if (mainApp) return mainApp;
+
+	const app = new Hono<{ Bindings: CloudflareBindings }>();
 
 	// Create and mount API app with dynamic module loading
 	const modules = await loadModules();
@@ -55,12 +50,21 @@ async function createMainApp() {
 		return c.render(<div id="root" />);
 	});
 
+	mainApp = app;
 	return app;
 }
 
-// Export the app promise
-const app = createMainApp();
-export default app;
+// Export a proper fetch handler object
+export default {
+	async fetch(
+		request: Request,
+		env: CloudflareBindings,
+		ctx: ExecutionContext,
+	) {
+		const app = await getOrCreateApp();
+		return app.fetch(request, env, ctx);
+	},
+};
 
 // Export app type for RPC client
-export type AppType = Awaited<typeof app>;
+export type AppType = Hono<{ Bindings: CloudflareBindings }>;
