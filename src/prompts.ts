@@ -120,14 +120,14 @@ export async function promptForMissingOptions(
 				message: "Choose your API client generation method:",
 				options: [
 					{
-						value: "orval",
-						label: "Orval (OpenAPI)",
-						hint: "Auto-generated hooks from OpenAPI schema",
-					},
-					{
 						value: "rpc",
 						label: "Hono RPC",
 						hint: "Type-safe RPC client with end-to-end type inference",
+					},
+					{
+						value: "orval",
+						label: "Orval (OpenAPI)",
+						hint: "Auto-generated hooks from OpenAPI schema",
 					},
 				],
 			});
